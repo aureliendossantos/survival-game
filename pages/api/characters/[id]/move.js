@@ -6,7 +6,7 @@ export default async (req, res) => {
   if (req.method == 'PATCH') {
     const query = await prisma.character.update({
       where: {
-        id: parseInt(req.query.id)
+        id: req.query.id
       },
       data: {
         x: { increment: req.body.x },

@@ -10,7 +10,7 @@ export default async (req, res) => {
     where: {
       characters: {
         some: {
-          id: { equals: parseInt(req.query.id) }
+          id: { equals: req.query.id }
         }
       }
     },
@@ -21,7 +21,7 @@ export default async (req, res) => {
       builtStructures: {
         include: {
           structure: true,
-          builtBy: true
+          contributors: true
         }
       }
     }

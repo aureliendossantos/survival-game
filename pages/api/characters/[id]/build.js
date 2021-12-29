@@ -8,7 +8,7 @@ function randomInt(min, max) {
 
 export default async (req, res) => {
   if (req.method == 'PATCH') {
-    const characterId = parseInt(req.query.id)
+    const characterId = req.query.id
     // L'inventaire contient-il les ressources requises ?
     const structure = await prisma.structure.findUnique({
       where: { id: req.body.id },
@@ -54,8 +54,17 @@ export default async (req, res) => {
         data: {
           structureId: structure.id,
           durability: randomInt(structure.minDurability, structure.maxDurability),
-          characterId: characterId,
           cellId: cell.id
+        }
+      })
+      await prisma.character.update({
+        where: { id: characterId },
+        data: {
+          builtStructures: {
+            connect: {
+              id: builtStructure.id
+            }
+          }
         }
       })
       res.json({

@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 export default async (req, res) => {
   if (req.method == 'GET') {
     const query = await prisma.inventory.findMany({
-      where: { characterId: parseInt(req.query.id) },
+      where: { characterId: req.query.id },
       select: {
         item: {
           select: { id: true, name: true }
@@ -19,7 +19,7 @@ export default async (req, res) => {
     const query = await prisma.inventory.update({
       where: {
         characterId_itemId: {
-          characterId: parseInt(req.query.id),
+          characterId: req.query.id,
           itemId: req.body.id
         }
       },

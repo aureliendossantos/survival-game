@@ -46,7 +46,11 @@ ul.user-list a:nth-of-type(even) li {
 }
 
 .success {
-  color:rgb(152, 219, 169)
+  color:rgb(152, 219, 169);
+}
+
+.failure {
+  color:rgb(219, 152, 172);
 }
 
 table {

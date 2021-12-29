@@ -8,7 +8,7 @@ export default async (req, res) => {
   }
   const query = await prisma.character.findUnique({
     where: {
-      id: parseInt(req.query.id)
+      id: req.query.id
     },
     select: {
       id: true,
@@ -20,7 +20,7 @@ export default async (req, res) => {
           item: {
             select: {
               id: true,
-              name: true
+              title: true
             }
           },
           quantity: true
@@ -32,7 +32,7 @@ export default async (req, res) => {
             select: {
               x: true,
               y: true,
-              type: true,
+              terrainId: true,
               builtStructures: true
             }
           }

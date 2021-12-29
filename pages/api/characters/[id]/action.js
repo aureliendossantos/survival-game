@@ -8,7 +8,7 @@ function randomInt(min, max) {
 
 export default async (req, res) => {
   if (req.method == 'PATCH') {
-    const characterId = parseInt(req.query.id)
+    const characterId = req.query.id
     const action = await prisma.action.findUnique({
       where: { id: req.body.id },
       include: { loot: true }

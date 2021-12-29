@@ -19,7 +19,7 @@ model User {
 }
 
 model Character {
-  id              Int              @id @default(autoincrement()) // autoincrement vs uuid vs cuid?
+  id              String           @id @default(cuid())
   name            String
   user            User             @relation(fields: [userId], references: [id])
   userId          String
@@ -34,7 +34,7 @@ model Character {
 
 model Item {
   id          Int             @id @default(autoincrement())
-  name        String
+  title       String
   description String?
   inInventory Inventory[]
   inAction    ActionLoot[]
@@ -43,7 +43,7 @@ model Item {
 
 model Inventory {
   character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
+  characterId String
   item        Item      @relation(fields: [itemId], references: [id])
   itemId      Int
   quantity    Int       @default(0)
@@ -63,8 +63,8 @@ model Cell {
   mapId           Int
   x               Int
   y               Int
-  terrain         Terrain          @relation(fields: [type], references: [type])
-  type            String           @default("plains")
+  terrain         Terrain          @relation(fields: [terrainId], references: [id])
+  terrainId       String           @default("plains")
   characters      Character[]
   builtStructures BuiltStructure[]
 
@@ -72,41 +72,40 @@ model Cell {
 }
 
 model Terrain {
-  type        String   @id
-  name        String   @default("Plaines")
+  id          String   @id
+  title       String   @default("Plaines")
   description String?
   actions     Action[]
   cells       Cell[]
 }
 
 model BuiltStructure {
-  id                String    @id @default(cuid())
-  structure         Structure @relation(fields: [structureId], references: [id])
-  structureId       String
+  id                String      @id @default(cuid())
+  structure         Structure   @relation(fields: [structureId], references: [id])
+  structureId       Int
   durability        Int
-  lastDurabilitySet DateTime  @default(now())
-  builtBy           Character @relation(fields: [characterId], references: [id])
-  characterId       Int
-  cell              Cell      @relation(fields: [cellId], references: [id])
+  lastDurabilitySet DateTime    @default(now())
+  contributors      Character[]
+  cell              Cell        @relation(fields: [cellId], references: [id])
   cellId            String
 }
 
 model Structure {
-  id                String           @id
+  id                Int              @id @default(autoincrement())
   title             String
   description       String?
   minDurability     Int              @default(100)
   maxDurability     Int              @default(100)
   requiredItems     StructureCost[]
   availableUpgrades Structure[]      @relation("Upgrades")
-  structure         Structure?       @relation("Upgrades", fields: [upgradeOf], references: [id])
-  upgradeOf         String?
+  parentStructure   Structure?       @relation("Upgrades", fields: [upgradeOf], references: [id])
+  upgradeOf         Int?
   builtStructures   BuiltStructure[]
 }
 
 model StructureCost {
   structure   Structure @relation(fields: [structureId], references: [id])
-  structureId String
+  structureId Int
   item        Item      @relation(fields: [itemId], references: [id])
   itemId      Int
   quantity    Int       @default(0)
@@ -115,7 +114,7 @@ model StructureCost {
 }
 
 model Action {
-  id             String       @id
+  id             Int          @id @default(autoincrement())
   title          String
   description    String?
   loot           ActionLoot[]
@@ -127,7 +126,7 @@ model Action {
 
 model ActionLoot {
   action      Action @relation(fields: [actionId], references: [id])
-  actionId    String
+  actionId    Int
   item        Item   @relation(fields: [itemId], references: [id])
   itemId      Int
   minQuantity Int?   @default(0)

@@ -65,16 +65,18 @@ export default function Home() {
 }
 
 function Build({ character }) {
+  const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
   const { data: structures } = useSWR('/api/structures', fetcher)
   return structures ? <>
     <h3>Construire</h3>
+    {message ? <p className={message.success ? 'success' : 'failure'}>{message.message}</p> : null}
     {structures.map(structure => (
       <li key={structure.id}>
         <a data-tip data-for={structure.title}>
           <button
             onClick={async () => {
-              await build(character.id, structure.id)
+              setMessage(await build(character.id, structure.id))
               mutate('/api/characters/' + character.id)
               mutate('/api/characters/' + character.id + '/cell')
           }}>
@@ -87,7 +89,7 @@ function Build({ character }) {
           <p>Solidité : {structure.minDurability}–{structure.maxDurability}</p>
           {structure.requiredItems.map(requirement => (
             <li key={requirement.item.id}>
-              <strong>{requirement.quantity}</strong> {requirement.item.name}
+              <strong>{requirement.quantity}</strong> {requirement.item.title}
             </li>
           ))}
         </ReactTooltip>
@@ -102,9 +104,9 @@ function Inventory({ character }) {
     <h3>Inventaire</h3>
     {character.inventory.map(entry => (
       <li key={entry.item.id}>
-        <a data-tip data-for={entry.item.name}>{entry.item.name}</a>: {entry.quantity}
-        <ReactTooltip id={entry.item.name} place='right'>
-          <p className='title'>{entry.item.name}</p>
+        <a data-tip data-for={entry.item.title}>{entry.item.title}</a>: {entry.quantity}
+        <ReactTooltip id={entry.item.title} place='right'>
+          <p className='title'>{entry.item.title}</p>
           {entry.item.description ? <p className='description'>{entry.item.description}</p> : null}
         </ReactTooltip>
         <button
@@ -152,19 +154,19 @@ function LocationInfo({ character }) {
   if (!cell) return <p>Chargement...</p>
   return <div className='location'>
     <div className='terrain'>
-      <div className={'tile ' + cell.terrain.type}></div>
+      <div className={'tile ' + cell.terrain.id}></div>
       <div className='text'>
-        <p className='title'>{cell.terrain.name} <span className='position'>x:{cell.x} y:{cell.y}</span></p>
+        <p className='title'>{cell.terrain.title} <span className='position'>x:{cell.x} y:{cell.y}</span></p>
         {cell.terrain.description ? <p className='description'>{cell.terrain.description}</p> : null}
       </div>
     </div>
     {cell.builtStructures ? cell.builtStructures.map(structure => (
-      <div className='structure' key={builtStructure.id}>
+      <div className='structure' key={structure.id}>
         <div className={'tile'}></div>
         <div className='text'>
           <p className='title'>{structure.structure.title}</p>
           {structure.structure.description ? <p className='description'>{structure.structure.description}</p> : null}
-          <p className='author'>🧑‍🦰 {structure.builtBy.name}</p>
+          <p className='author'>{structure.contributors.map(character => '🧑‍🦰 ' + character.name)}</p>
           <p>Solidité : {structure.durability}/{structure.structure.maxDurability}<br/>({Date(structure.lastDurabilitySet)})</p>
         </div>
       </div>
@@ -173,30 +175,33 @@ function LocationInfo({ character }) {
 }
 
 function Map({ character }) {
-  const map = character.map.cells
+  const cells = character.map.cells
   const { data: terrains } = useSWR('/api/terrains', fetcher)
   return <>
     <h3>Carte</h3>
     <table><tbody>
       {[0,1,2].map(y => ( // utiliser prisma ou js pour compter le nb de valeurs différentes de y
         <tr key={y}>
-          {map.filter(cell => cell.y == y).map(cell => <>
-            <a data-tip={cell.type} data-for='location' style={{display: 'contents'}}>
-              <td key={cell.id} className={cell.type}>
-                {character.x == cell.x && character.y == cell.y ? "★" : null}
-                {cell.builtStructures.length > 0 ? <div className='structure-marker'>△</div> : null}
-              </td>
-            </a>
-          </>)}
+          {[0,1,2].map(x => {
+            const cell = cells.find(cell => cell.x == x && cell.y == y)
+            return <>
+              <a data-tip={cell.terrainId} data-for='location' style={{display: 'contents'}}>
+                <td key={cell.id} className={cell.terrainId}>
+                  {character.x == cell.x && character.y == cell.y ? "★" : null}
+                  {cell.builtStructures.length > 0 ? <div className='structure-marker'>△</div> : null}
+                </td>
+              </a>
+            </>
+          })}
         </tr>
       ))}
     </tbody></table>
     {terrains ?
       <ReactTooltip id='location' place='right' getContent={(dataTip) => {
-        const terrain = terrains.find(terrain => terrain.type == dataTip)
+        const terrain = terrains.find(terrain => terrain.id == dataTip)
         if (terrain) {
           return <>
-            <p className='title'>{terrain.name}</p>
+            <p className='title'>{terrain.title}</p>
             <p className='description'>{terrain.description}</p>
           </>
         }
@@ -217,7 +222,7 @@ function MapControls({ character }) {
   return <>
     {directions.map(dir => {
       const targetCell = map.find(cell => cell.x == character.x + dir[0] && cell.y == character.y + dir[1])
-      return !targetCell || targetCell.type == "sea" ? 
+      return !targetCell || targetCell.terrainId == "sea" ? 
         <button>x</button>
       : <button onClick={async () => {
           await moveCharacter(character.id, dir[0], dir[1])
