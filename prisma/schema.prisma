@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(cuid())
+  name       String
+  email      String?     @unique
+  createdAt  DateTime    @default(now())
+  characters Character[]
+}
+
+model Character {
+  id              Int              @id @default(autoincrement()) // autoincrement vs uuid vs cuid?
+  name            String
+  user            User             @relation(fields: [userId], references: [id])
+  userId          String
+  map             Map              @relation(fields: [mapId], references: [id])
+  mapId           Int              @default(1)
+  x               Int              @default(1)
+  y               Int              @default(1)
+  cell            Cell             @relation(fields: [mapId, x, y], references: [mapId, x, y])
+  inventory       Inventory[]
+  builtStructures BuiltStructure[]
+}
+
+model Item {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String?
+  inInventory Inventory[]
+  inAction    ActionLoot[]
+  inStructure StructureCost[]
+}
+
+model Inventory {
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  item        Item      @relation(fields: [itemId], references: [id])
+  itemId      Int
+  quantity    Int       @default(0)
+
+  @@unique([characterId, itemId])
+}
+
+model Map {
+  id         Int         @id @default(autoincrement())
+  cells      Cell[]
+  characters Character[]
+}
+
+model Cell {
+  id              String           @id @default(cuid())
+  map             Map              @relation(fields: [mapId], references: [id])
+  mapId           Int
+  x               Int
+  y               Int
+  terrain         Terrain          @relation(fields: [type], references: [type])
+  type            String           @default("plains")
+  characters      Character[]
+  builtStructures BuiltStructure[]
+
+  @@unique([mapId, x, y])
+}
+
+model Terrain {
+  type        String   @id
+  name        String   @default("Plaines")
+  description String?
+  actions     Action[]
+  cells       Cell[]
+}
+
+model BuiltStructure {
+  id                String    @id @default(cuid())
+  structure         Structure @relation(fields: [structureId], references: [id])
+  structureId       String
+  durability        Int
+  lastDurabilitySet DateTime  @default(now())
+  builtBy           Character @relation(fields: [characterId], references: [id])
+  characterId       Int
+  cell              Cell      @relation(fields: [cellId], references: [id])
+  cellId            String
+}
+
+model Structure {
+  id                String           @id
+  title             String
+  description       String?
+  minDurability     Int              @default(100)
+  maxDurability     Int              @default(100)
+  requiredItems     StructureCost[]
+  availableUpgrades Structure[]      @relation("Upgrades")
+  structure         Structure?       @relation("Upgrades", fields: [upgradeOf], references: [id])
+  upgradeOf         String?
+  builtStructures   BuiltStructure[]
+}
+
+model StructureCost {
+  structure   Structure @relation(fields: [structureId], references: [id])
+  structureId String
+  item        Item      @relation(fields: [itemId], references: [id])
+  itemId      Int
+  quantity    Int       @default(0)
+
+  @@unique([structureId, itemId])
+}
+
+model Action {
+  id             String       @id
+  title          String
+  description    String?
+  loot           ActionLoot[]
+  probability    Int          @default(100)
+  successMessage String       @default("Vous avez trouvé $1 unités.")
+  failureMessage String?      @default("Vous n'avez rien trouvé.")
+  terrains       Terrain[]
+}
+
+model ActionLoot {
+  action      Action @relation(fields: [actionId], references: [id])
+  actionId    String
+  item        Item   @relation(fields: [itemId], references: [id])
+  itemId      Int
+  minQuantity Int?   @default(0)
+  maxQuantity Int?   @default(0)
+
+  @@unique([actionId, itemId])
+}
