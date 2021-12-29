@@ -25,7 +25,7 @@ export default function LoginPage() {
     <button onClick={async () => {
       await query('/api/setup', 'POST', {})
       mutate('/api/users')
-    }}>Réinitialiser la base de données</button> (Cliquer sur le bouton jusqu'à ce qu'il fonctionne : ordre de suppression imprévisible)
+    }}>Réinitialiser la base de données</button>{"(Cliquer sur le bouton jusqu'à ce qu'il fonctionne : ordre de suppression imprévisible)"}
   </>
 }
 
