@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { useState } from 'react'
 import useSWR, { useSWRConfig } from 'swr'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
@@ -17,15 +18,21 @@ async function query(url, method, body) {
 }
 
 export default function LoginPage() {
+  const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
   return <>
     <h1>Choisissez un compte</h1>
     <UserList />
     <h3>Fonctions de test</h3>
+    {message ? <p className={message.success ? 'success' : 'failure'}>{message.message}</p> : null}
     <button onClick={async () => {
-      await query('/api/setup', 'POST', {})
+      setMessage(await query('/api/setup', 'DELETE'))
       mutate('/api/users')
-    }}>Réinitialiser la base de données</button>{"(Cliquer sur le bouton jusqu'à ce qu'il fonctionne : ordre de suppression imprévisible)"}
+    }}>Vider la base de données</button>
+    <button onClick={async () => {
+      setMessage(await query('/api/setup', 'POST'))
+      mutate('/api/users')
+    }}>Remplir la base avec les valeurs par défaut</button>
   </>
 }
 

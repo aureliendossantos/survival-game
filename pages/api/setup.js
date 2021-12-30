@@ -2,16 +2,30 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
+function getDate() {
+  const now = new Date()
+  return now.toLocaleDateString("fr-FR", {
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  })
+}
+
 export default async (req, res) => {
-  if (req.method == 'POST') {
-    // Delete everything
-    const propertyNames = Object.getOwnPropertyNames(prisma)
-    const modelNames = propertyNames.filter(
-      propertyName => !propertyName.startsWith('_')
-    )
-    await Promise.all(
-      modelNames.map(model => prisma[model].deleteMany())
-    )
+  if (req.method == 'DELETE') {
+    // Delete everything in the right order
+    await prisma.actionLoot.deleteMany()
+    await prisma.structureCost.deleteMany()
+    await prisma.inventory.deleteMany()
+    await prisma.builtStructure.deleteMany()
+    await prisma.structure.deleteMany()
+    await prisma.action.deleteMany()
+    await prisma.item.deleteMany()
+    await prisma.character.deleteMany()
+    await prisma.cell.deleteMany()
+    await prisma.terrain.deleteMany()
+    await prisma.map.deleteMany()
+    await prisma.user.deleteMany()
+    res.json({ success: true, message: 'Tables vidées. (' + getDate() + ')' })
+  } else if (req.method == 'POST') {
     // Create data
     const map = await prisma.map.create({
       data: {}
@@ -99,7 +113,7 @@ export default async (req, res) => {
         await prisma.action.create({ data: action })
       })
     )
-    res.json({ message: 'Setup done.' })
+    res.json({ success: true, message: 'Tables remplies. (' + getDate() + ')' })
   } else {
     return res.status(405).json({ message: 'Bad method' })
   }
