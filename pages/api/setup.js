@@ -12,21 +12,26 @@ function getDate() {
 export default async (req, res) => {
   if (req.method == 'DELETE') {
     // Delete everything in the right order
+    console.log(getDate() + ' start deleting...')
     await prisma.actionLoot.deleteMany()
+    console.log(getDate() + ' deleted 1 table...')
     await prisma.structureCost.deleteMany()
     await prisma.inventory.deleteMany()
     await prisma.builtStructure.deleteMany()
     await prisma.structure.deleteMany()
+    console.log(getDate() + ' deleted 5 tables...')
     await prisma.action.deleteMany()
     await prisma.item.deleteMany()
     await prisma.character.deleteMany()
     await prisma.cell.deleteMany()
     await prisma.terrain.deleteMany()
+    console.log(getDate() + ' deleted 10 table...')
     await prisma.map.deleteMany()
     await prisma.user.deleteMany()
     res.json({ success: true, message: 'Tables vidées. (' + getDate() + ')' })
   } else if (req.method == 'POST') {
     // Create data
+    console.log(getDate() + ' start inserting...')
     const map = await prisma.map.create({
       data: {}
     })
@@ -42,6 +47,7 @@ export default async (req, res) => {
         await prisma.terrain.create({ data: terrain })
       })
     )
+    console.log(getDate() + ' inserted terrains...')
     const cells = [
       { x: 0, y: 0, terrainId: 'sea', mapId: map.id },
       { x: 1, y: 0, terrainId: 'beach', mapId: map.id },
