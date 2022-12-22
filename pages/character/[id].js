@@ -1,6 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import ReactTooltip from 'react-tooltip'
+import Card from '/components/Card'
+
+import prisma from '/lib/prisma'
 
 import { useRouter } from 'next/router'
 import { useState } from 'react'
@@ -16,6 +19,30 @@ async function query(url, method, body) {
   }).then(function(response) {
     return response.json()
   })
+}
+
+export async function getStaticProps() {
+  const terrains = await prisma.terrain.findMany({
+    include: { actions: true }
+  })
+  const structures = await prisma.structure.findMany({
+    include: {
+      requiredItems: {
+        include: { item: true }
+      }
+    }
+  })
+  return { props: { terrains, structures } }
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [
+      { params: { id: '1' } },
+      { params: { id: '2' } }
+    ],
+    fallback: true,
+  }
 }
 
 async function giveItem(characterId, itemId, quantity) {
@@ -48,26 +75,34 @@ async function moveCharacter(id, x, y) {
   return await query('/api/characters/' + id + '/move', 'PATCH', body)
 }
 
-export default function Home() {
+export default function Home({ terrains, structures }) {
   const router = useRouter()
   const { data: character, error } = useSWR('/api/characters/' + router.query.id, fetcher)
-  if (error) return <p>Erreur de chargement</p>
-  if (!character) return <p>Chargement...</p>
+  if (router.isFallback) return <div className='loading'>
+    <progress id="loading" max="10" value="3"></progress>
+    <label for="loading"><p>Chargement de la page...</p></label>
+  </div>
+  if (error) return <p>Erreur de chargement.</p>
+  if (!character) return <div className='loading'>
+  <progress id="loading" max="10" value="7"></progress>
+  <label for="loading"><p>Chargement du personnage...</p></label>
+</div>
   return <>
     <p className='title'>{character.name}</p>
+    <label for="energy">Énergie</label>
+    <progress id="energy" max="10" value="8"></progress>
     <LocationInfo character={character} />
-    <Map character={character} />
+    <Map character={character} terrains={terrains} />
     <MapControls character={character} />
     <Actions character={character} />
-    <Build character={character} />
+    <Build character={character} structures={structures} />
     <Inventory character={character} />
   </>
 }
 
-function Build({ character }) {
+function Build({ character, structures }) {
   const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
-  const { data: structures } = useSWR('/api/structures', fetcher)
   return structures ? <>
     <h3>Construire</h3>
     {message ? <p className={message.success ? 'success' : 'failure'}>{message.message}</p> : null}
@@ -75,6 +110,8 @@ function Build({ character }) {
       <li key={structure.id}>
         <a data-tip data-for={structure.title}>
           <button
+            className='button-80'
+            role='button'
             onClick={async () => {
               setMessage(await build(character.id, structure.id))
               mutate('/api/characters/' + character.id)
@@ -83,17 +120,19 @@ function Build({ character }) {
             {structure.title}
           </button>
         </a>
-        <ReactTooltip id={structure.title} place='right'>
-          <p className='title'>{structure.title}</p>
-          {structure.description ? <p className='description'>{structure.description}</p> : null}
-          <p>Solidité : {structure.minDurability}–{structure.maxDurability}</p>
-          {structure.requiredItems.map(requirement => (
-            <li key={requirement.item.id}>
-              <strong>{requirement.quantity}</strong> {requirement.item.title}
-            </li>
-          ))}
-        </ReactTooltip>
       </li>
+    ))}
+    {structures.map(structure => (
+      <ReactTooltip id={structure.title} place='right'>
+        <p className='title'>{structure.title}</p>
+        {structure.description ? <p className='description'>{structure.description}</p> : null}
+        <p>Solidité : {structure.minDurability}–{structure.maxDurability}</p>
+        {structure.requiredItems.map(requirement => (
+          <li key={requirement.item.id}>
+            <strong>{requirement.quantity}</strong> {requirement.item.title}
+          </li>
+        ))}
+      </ReactTooltip>
     ))}
   </> : null
 }
@@ -153,30 +192,31 @@ function LocationInfo({ character }) {
   if (error) return <p>Erreur de chargement</p>
   if (!cell) return <p>Chargement...</p>
   return <div className='location'>
-    <div className='terrain'>
-      <div className={'tile ' + cell.terrain.id}></div>
-      <div className='text'>
-        <p className='title'>{cell.terrain.title} <span className='position'>x:{cell.x} y:{cell.y}</span></p>
-        {cell.terrain.description ? <p className='description'>{cell.terrain.description}</p> : null}
-      </div>
-    </div>
+    <Card
+      icon={'tile ' + cell.terrain.id}
+      title={cell.terrain.title}
+      position={"x:" + cell.x + " y:" + cell.y}
+      description={cell.terrain.description}
+    />
     {cell.builtStructures ? cell.builtStructures.map(structure => (
       <div className='structure' key={structure.id}>
-        <div className={'tile'}></div>
-        <div className='text'>
-          <p className='title'>{structure.structure.title}</p>
-          {structure.structure.description ? <p className='description'>{structure.structure.description}</p> : null}
-          <p className='author'>{structure.contributors.map(character => '🧑‍🦰 ' + character.name)}</p>
-          <p>Solidité : {structure.durability}/{structure.structure.maxDurability}<br/>({Date(structure.lastDurabilitySet)})</p>
-        </div>
+        <Card
+          icon={'tile structure-icon'}
+          title={structure.structure.title}
+          description={structure.structure.description}
+          author={structure.contributors.map(character => '🧑‍🦰 ' + character.name)}
+          contents={[
+            "Solidité : " + structure.durability + "/"+ structure.structure.maxDurability,
+            Date(structure.lastDurabilitySet)
+          ]}
+        />
       </div>
     )) : null}
   </div>
 }
 
-function Map({ character }) {
+function Map({ character, terrains }) {
   const cells = character.map.cells
-  const { data: terrains } = useSWR('/api/terrains', fetcher)
   return <>
     <h3>Carte</h3>
     <table><tbody>
@@ -222,9 +262,11 @@ function MapControls({ character }) {
   return <>
     {directions.map(dir => {
       const targetCell = map.find(cell => cell.x == character.x + dir[0] && cell.y == character.y + dir[1])
-      return !targetCell || targetCell.terrainId == "sea" ? 
-        <button>x</button>
-      : <button onClick={async () => {
+      const disabled = !targetCell || targetCell.terrainId == "sea"
+      return <button
+        className='button-80'
+        disabled={disabled}
+        onClick={disabled ? null : async () => {
           await moveCharacter(character.id, dir[0], dir[1])
           mutate('/api/characters/' + character.id)
           mutate('/api/characters/' + character.id + '/cell')
