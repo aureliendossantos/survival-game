@@ -107,6 +107,18 @@ export default async (req, res) => {
           ],
         },
       },
+      {
+        title: "Ramasser des coquillages",
+        description: "Récupérer des galets et des coquillages à la main.",
+        successMessage: "Vous avez trouvé $1 branchages et $2 feuillages.",
+        terrains: { connect: { id: "beach" } },
+        loot: {
+          create: [
+            { itemId: 3, minQuantity: 2, maxQuantity: 5 },
+            { itemId: 4, minQuantity: 2, maxQuantity: 3 },
+          ],
+        },
+      },
     ]
     await Promise.all(
       actions.map(async (action) => {

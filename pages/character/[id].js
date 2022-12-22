@@ -185,14 +185,6 @@ function Inventory({ character }) {
               <p className="description">{entry.item.description}</p>
             ) : null}
           </ReactTooltip>
-          <button
-            onClick={async () => {
-              await giveItem(character.id, entry.item.id, 1)
-              mutate("/api/characters/" + character.id)
-            }}
-          >
-            Give
-          </button>
         </li>
       ))}
     </>
