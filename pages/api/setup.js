@@ -1,73 +1,67 @@
-import prisma from '/lib/prisma'
+import prisma from "/lib/prisma"
 
 function getDate() {
   const now = new Date()
   return now.toLocaleDateString("fr-FR", {
-    hour: '2-digit', minute: '2-digit', second: '2-digit'
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   })
 }
 
 export default async (req, res) => {
-  if (req.method == 'DELETE') {
+  if (req.method == "DELETE") {
     // Delete everything in the right order
-    console.log(getDate() + ' start deleting...')
+    console.log(getDate() + " start deleting...")
     await prisma.actionLoot.deleteMany()
-    console.log(getDate() + ' deleted 1 table...')
     await prisma.structureCost.deleteMany()
     await prisma.inventory.deleteMany()
     await prisma.builtStructure.deleteMany()
     await prisma.structure.deleteMany()
-    console.log(getDate() + ' deleted 5 tables...')
     await prisma.action.deleteMany()
     await prisma.item.deleteMany()
     await prisma.character.deleteMany()
     await prisma.cell.deleteMany()
     await prisma.terrain.deleteMany()
-    console.log(getDate() + ' deleted 10 table...')
     await prisma.map.deleteMany()
     await prisma.user.deleteMany()
-    res.json({ success: true, message: 'Tables vidées. (' + getDate() + ')' })
-  } else if (req.method == 'POST') {
-    // Create data
-    console.log(getDate() + ' start inserting...')
-    const map = await prisma.map.create({
-      data: {}
+    console.log(getDate() + " deleted 12 tables.")
+    res.json({
+      success: true,
+      message: "Tables vidées. (" + getDate() + ")",
     })
+  } else if (req.method == "POST") {
+    // Create data
+    console.log(getDate() + " start inserting...")
     const terrains = [
-      { id: 'plains', title: 'Plaines' },
-      { id: 'beach', title: 'Plage', description: "Une bande de sable. Réchauffe les pieds." },
-      { id: 'forest', title: 'Forêt', description: "Une forêt vierge à la végétation luxuriante." },
-      { id: 'mountains', title: 'Montagnes', description: "Des pics escarpés." },
-      { id: 'sea', title: 'Mer', description: "Si seulement c'était possible de la traverser..." }
+      { id: "plains", title: "Plaines" },
+      {
+        id: "beach",
+        title: "Plage",
+        description: "Une bande de sable. Réchauffe les pieds.",
+      },
+      {
+        id: "forest",
+        title: "Forêt",
+        description: "Une forêt vierge à la végétation luxuriante.",
+      },
+      {
+        id: "mountains",
+        title: "Montagnes",
+        description: "Des pics escarpés.",
+      },
+      {
+        id: "sea",
+        title: "Mer",
+        description: "Si seulement c'était possible de la traverser...",
+      },
     ]
     await Promise.all(
-      terrains.map(async terrain => {
+      terrains.map(async (terrain) => {
         await prisma.terrain.create({ data: terrain })
       })
     )
-    console.log(getDate() + ' inserted terrains...')
-    const cells = [
-      { x: 0, y: 0, terrainId: 'sea', mapId: map.id },
-      { x: 1, y: 0, terrainId: 'beach', mapId: map.id },
-      { x: 2, y: 0, terrainId: 'plains', mapId: map.id },
-      { x: 0, y: 1, terrainId: 'beach', mapId: map.id },
-      { x: 1, y: 1, terrainId: 'plains', mapId: map.id },
-      { x: 2, y: 1, terrainId: 'forest', mapId: map.id },
-      { x: 0, y: 2, terrainId: 'plains', mapId: map.id },
-      { x: 1, y: 2, terrainId: 'forest', mapId: map.id },
-      { x: 2, y: 2, terrainId: 'mountains', mapId: map.id }
-    ]
-    await Promise.all(
-      cells.map(async cell => {
-        await prisma.cell.create({ data: cell })
-      })
-    )
-    const user = await prisma.user.create({
-      data: { name: "Aurélien" }
-    })
-    const character = await prisma.character.create({
-      data: { name: "John", x: 1, y: 1, userId: user.id, mapId: map.id }
-    })
+    console.log(getDate() + " created terrains.")
     const items = [
       { id: 1, title: "Branchages" },
       { id: 2, title: "Feuillages" },
@@ -75,10 +69,11 @@ export default async (req, res) => {
       { id: 4, title: "Coquillages" },
     ]
     await Promise.all(
-      items.map(async item => {
+      items.map(async (item) => {
         await prisma.item.create({ data: item })
       })
     )
+    console.log(getDate() + " created items.")
     const structures = [
       {
         title: "Campement",
@@ -88,37 +83,42 @@ export default async (req, res) => {
         requiredItems: {
           create: [
             { itemId: 1, quantity: 20 },
-            { itemId: 2, quantity: 10 }
-          ]
-        }
-      }
+            { itemId: 2, quantity: 10 },
+          ],
+        },
+      },
     ]
     await Promise.all(
-      structures.map(async structure => {
+      structures.map(async (structure) => {
         await prisma.structure.create({ data: structure })
       })
     )
+    console.log(getDate() + " created structures.")
     const actions = [
       {
         title: "Ramasser du bois",
         description: "Récupérer des branchages et de la verdure à la main.",
         successMessage: "Vous avez trouvé $1 branchages et $2 feuillages.",
-        terrains: { connect: { id: 'forest' } },
+        terrains: { connect: { id: "forest" } },
         loot: {
           create: [
             { itemId: 1, minQuantity: 6, maxQuantity: 10 },
-            { itemId: 2, minQuantity: 3, maxQuantity: 5 }
-          ]
-        }
-      }
+            { itemId: 2, minQuantity: 3, maxQuantity: 5 },
+          ],
+        },
+      },
     ]
     await Promise.all(
-      actions.map(async action => {
+      actions.map(async (action) => {
         await prisma.action.create({ data: action })
       })
     )
-    res.json({ success: true, message: 'Tables remplies. (' + getDate() + ')' })
+    console.log(getDate() + " created actions. Finished.")
+    res.json({
+      success: true,
+      message: "Tables remplies. (" + getDate() + ")",
+    })
   } else {
-    return res.status(405).json({ message: 'Bad method' })
+    return res.status(405).json({ message: "Bad method" })
   }
 }

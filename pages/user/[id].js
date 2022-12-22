@@ -1,31 +1,101 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
+import Head from "next/head"
+import Image from "next/image"
+import Link from "next/link"
 
-import { useRouter } from 'next/router'
-import useSWR from 'swr'
+import { useRouter } from "next/router"
+import { useState } from "react"
+import useSWR, { useSWRConfig } from "swr"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
+async function query(url, method, body) {
+  return await fetch(url, {
+    method: method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).then(function (response) {
+    return response.json()
+  })
+}
+
+async function createCharacter(name, userId, mapId) {
+  const body = {
+    name: name,
+    userId: userId,
+    mapId: mapId,
+  }
+  return await query("/api/characters", "POST", body)
+}
+
 export default function UserHome() {
-  return <>
-    <h1>Personnages</h1>
-    <CharacterList />
-  </>
+  const router = useRouter()
+  const [message, setMessage] = useState()
+  const { mutate } = useSWRConfig()
+  return (
+    <>
+      <h1>Personnages</h1>
+      <CharacterList />
+      <h3>Créer un personnage</h3>
+      {message ? (
+        <p className={message.success ? "success" : "failure"}>
+          {message.message}
+        </p>
+      ) : null}
+      <form
+        onSubmit={async (event) => {
+          // Stop the form from submitting and refreshing the page.
+          event.preventDefault()
+          setMessage(
+            await createCharacter(
+              event.target.name.value,
+              router.query.id,
+              parseInt(event.target.map.value)
+            )
+          )
+          mutate("/api/users/" + router.query.id)
+        }}
+      >
+        <label htmlFor="name">Nom</label>
+        <input type="text" id="name" name="name" required />
+        <label htmlFor="map">Monde</label>
+        <select name="map" id="map">
+          <MapOptions />
+        </select>
+        <button type="submit">Créer</button>
+      </form>
+    </>
+  )
 }
 
 function CharacterList() {
   const router = useRouter()
-  const { data: user, error } = useSWR('/api/users/' + router.query.id, fetcher)
+  const { data: user, error } = useSWR("/api/users/" + router.query.id, fetcher)
   if (error) return <p>Erreur de chargement.</p>
   if (!user) return <p>Chargement...</p>
-  return <ul className='user-list'>
-    {user.characters.map(character => (
-      <Link href={'/character/' + character.id} key={character.id}>
-        <a><li>
-          🧑‍🦰 {character.name}
-        </li></a>
-      </Link>
-    ))}
-  </ul>
+  return (
+    <ul className="user-list">
+      {user.characters.map((character) => (
+        <Link href={"/character/" + character.id} key={character.id}>
+          <a>
+            <li>🧑‍🦰 {character.name}</li>
+          </a>
+        </Link>
+      ))}
+    </ul>
+  )
+}
+
+function MapOptions() {
+  const { data: maps, error } = useSWR("/api/map", fetcher)
+  if (error) return <option value="error">Erreur de chargement</option>
+  if (!maps) return <option value="loading">Chargement...</option>
+  return (
+    <>
+      {maps.map((map) => (
+        <option value={map.id} key={map.id}>
+          Monde {map.id}
+        </option>
+      ))}
+    </>
+  )
 }

@@ -1,15 +1,15 @@
-import Head from "next/head";
-import Image from "next/image";
-import ReactTooltip from "react-tooltip";
-import Card from "/components/Card";
+import Head from "next/head"
+import Image from "next/image"
+import ReactTooltip from "react-tooltip"
+import Card from "/components/Card"
 
-import prisma from "/lib/prisma";
+import prisma from "/lib/prisma"
 
-import { useRouter } from "next/router";
-import { useState } from "react";
-import useSWR, { useSWRConfig } from "swr";
+import { useRouter } from "next/router"
+import { useState } from "react"
+import useSWR, { useSWRConfig } from "swr"
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const fetcher = (url) => fetch(url).then((res) => res.json())
 
 async function query(url, method, body) {
   return await fetch(url, {
@@ -17,79 +17,75 @@ async function query(url, method, body) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   }).then(function (response) {
-    return response.json();
-  });
+    return response.json()
+  })
 }
 
 export async function getStaticProps() {
   const terrains = await prisma.terrain.findMany({
     include: { actions: true },
-  });
+  })
   const structures = await prisma.structure.findMany({
     include: {
       requiredItems: {
         include: { item: true },
       },
     },
-  });
-  return { props: { terrains, structures } };
+  })
+  return { props: { terrains, structures } }
 }
 
 export async function getStaticPaths() {
   return {
     paths: [{ params: { id: "1" } }, { params: { id: "2" } }],
     fallback: true,
-  };
+  }
 }
 
 async function giveItem(characterId, itemId, quantity) {
   const body = {
     id: itemId,
     quantity: quantity,
-  };
+  }
   return await query(
     "/api/characters/" + characterId + "/inventory",
     "PATCH",
     body
-  );
+  )
 }
 
 async function doAction(characterId, actionId) {
   const body = {
     id: actionId,
-  };
+  }
   return await query(
     "/api/characters/" + characterId + "/action",
     "PATCH",
     body
-  );
+  )
 }
 
 async function build(characterId, structureId) {
   const body = {
     id: structureId,
-  };
-  return await query(
-    "/api/characters/" + characterId + "/build",
-    "PATCH",
-    body
-  );
+  }
+  return await query("/api/characters/" + characterId + "/build", "PATCH", body)
 }
 
 async function moveCharacter(id, x, y) {
   const body = {
     x: x,
     y: y,
-  };
-  return await query("/api/characters/" + id + "/move", "PATCH", body);
+  }
+  return await query("/api/characters/" + id + "/move", "PATCH", body)
 }
 
 export default function Home({ terrains, structures }) {
-  const router = useRouter();
+  const router = useRouter()
   const { data: character, error } = useSWR(
     "/api/characters/" + router.query.id,
     fetcher
-  );
+  )
   if (router.isFallback)
     return (
       <div className="loading">
@@ -98,8 +94,8 @@ export default function Home({ terrains, structures }) {
           <p>Chargement de la page...</p>
         </label>
       </div>
-    );
-  if (error) return <p>Erreur de chargement.</p>;
+    )
+  if (error) return <p>Erreur de chargement.</p>
   if (!character)
     return (
       <div className="loading">
@@ -108,12 +104,12 @@ export default function Home({ terrains, structures }) {
           <p>Chargement du personnage...</p>
         </label>
       </div>
-    );
+    )
   return (
     <>
       <p className="title">{character.name}</p>
       <label htmlFor="energy">Énergie</label>
-      <progress id="energy" max="10" value="8"></progress>
+      <progress id="energy" max="10" value="10"></progress>
       <LocationInfo character={character} />
       <Map character={character} terrains={terrains} />
       <MapControls character={character} />
@@ -121,12 +117,12 @@ export default function Home({ terrains, structures }) {
       <Build character={character} structures={structures} />
       <Inventory character={character} />
     </>
-  );
+  )
 }
 
 function Build({ character, structures }) {
-  const [message, setMessage] = useState();
-  const { mutate } = useSWRConfig();
+  const [message, setMessage] = useState()
+  const { mutate } = useSWRConfig()
   return structures ? (
     <>
       <h3>Construire</h3>
@@ -142,9 +138,9 @@ function Build({ character, structures }) {
               className="button-80"
               role="button"
               onClick={async () => {
-                setMessage(await build(character.id, structure.id));
-                mutate("/api/characters/" + character.id);
-                mutate("/api/characters/" + character.id + "/cell");
+                setMessage(await build(character.id, structure.id))
+                mutate("/api/characters/" + character.id)
+                mutate("/api/characters/" + character.id + "/cell")
               }}
             >
               {structure.title}
@@ -169,11 +165,11 @@ function Build({ character, structures }) {
         </ReactTooltip>
       ))}
     </>
-  ) : null;
+  ) : null
 }
 
 function Inventory({ character }) {
-  const { mutate } = useSWRConfig();
+  const { mutate } = useSWRConfig()
   return (
     <>
       <h3>Inventaire</h3>
@@ -191,8 +187,8 @@ function Inventory({ character }) {
           </ReactTooltip>
           <button
             onClick={async () => {
-              await giveItem(character.id, entry.item.id, 1);
-              mutate("/api/characters/" + character.id);
+              await giveItem(character.id, entry.item.id, 1)
+              mutate("/api/characters/" + character.id)
             }}
           >
             Give
@@ -200,16 +196,16 @@ function Inventory({ character }) {
         </li>
       ))}
     </>
-  );
+  )
 }
 
 function Actions({ character }) {
-  const [message, setMessage] = useState();
-  const { mutate } = useSWRConfig();
+  const [message, setMessage] = useState()
+  const { mutate } = useSWRConfig()
   const { data: cell } = useSWR(
     "/api/characters/" + character.id + "/cell",
     fetcher
-  );
+  )
   return cell ? (
     <>
       <h3>Actions</h3>
@@ -223,8 +219,8 @@ function Actions({ character }) {
           <a data-tip data-for={action.title}>
             <button
               onClick={async () => {
-                setMessage(await doAction(character.id, action.id));
-                mutate("/api/characters/" + character.id);
+                setMessage(await doAction(character.id, action.id))
+                mutate("/api/characters/" + character.id)
               }}
             >
               {action.title}
@@ -239,16 +235,16 @@ function Actions({ character }) {
         </li>
       ))}
     </>
-  ) : null;
+  ) : null
 }
 
 function LocationInfo({ character }) {
   const { data: cell, error } = useSWR(
     "/api/characters/" + character.id + "/cell",
     fetcher
-  );
-  if (error) return <p>Erreur de chargement</p>;
-  if (!cell) return <p>Chargement...</p>;
+  )
+  if (error) return <p>Erreur de chargement</p>
+  if (!cell) return <p>Chargement...</p>
   return (
     <div className="location">
       <Card
@@ -272,18 +268,28 @@ function LocationInfo({ character }) {
                     structure.durability +
                     "/" +
                     structure.structure.maxDurability,
-                  Date(structure.lastDurabilitySet),
+                  "Construit : " +
+                    new Date(structure.lastDurabilitySet).toLocaleDateString(
+                      "fr-fr",
+                      {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                      }
+                    ),
                 ]}
               />
             </div>
           ))
         : null}
     </div>
-  );
+  )
 }
 
 function Map({ character, terrains }) {
-  const cells = character.map.cells;
+  const cells = character.map.cells
   return (
     <>
       <h3>Carte</h3>
@@ -295,7 +301,7 @@ function Map({ character, terrains }) {
             ) => (
               <tr key={y}>
                 {[0, 1, 2].map((x) => {
-                  const cell = cells.find((cell) => cell.x == x && cell.y == y);
+                  const cell = cells.find((cell) => cell.x == x && cell.y == y)
                   return (
                     <>
                       <a
@@ -313,7 +319,7 @@ function Map({ character, terrains }) {
                         </td>
                       </a>
                     </>
-                  );
+                  )
                 })}
               </tr>
             )
@@ -325,39 +331,39 @@ function Map({ character, terrains }) {
           id="location"
           place="right"
           getContent={(dataTip) => {
-            const terrain = terrains.find((terrain) => terrain.id == dataTip);
+            const terrain = terrains.find((terrain) => terrain.id == dataTip)
             if (terrain) {
               return (
                 <>
                   <p className="title">{terrain.title}</p>
                   <p className="description">{terrain.description}</p>
                 </>
-              );
+              )
             }
           }}
         />
       ) : null}
     </>
-  );
+  )
 }
 
 function MapControls({ character }) {
-  const { mutate } = useSWRConfig();
-  const map = character.map.cells;
+  const { mutate } = useSWRConfig()
+  const map = character.map.cells
   const directions = [
     [-1, 0, "<"],
     [0, -1, "^"],
     [0, 1, "v"],
     [1, 0, ">"],
-  ];
+  ]
   return (
     <>
       {directions.map((dir) => {
         const targetCell = map.find(
           (cell) =>
             cell.x == character.x + dir[0] && cell.y == character.y + dir[1]
-        );
-        const disabled = !targetCell || targetCell.terrainId == "sea";
+        )
+        const disabled = !targetCell || targetCell.terrainId == "sea"
         return (
           <button
             className="button-80"
@@ -367,16 +373,16 @@ function MapControls({ character }) {
               disabled
                 ? null
                 : async () => {
-                    await moveCharacter(character.id, dir[0], dir[1]);
-                    mutate("/api/characters/" + character.id);
-                    mutate("/api/characters/" + character.id + "/cell");
+                    await moveCharacter(character.id, dir[0], dir[1])
+                    mutate("/api/characters/" + character.id)
+                    mutate("/api/characters/" + character.id + "/cell")
                   }
             }
           >
             {dir[2]}
           </button>
-        );
+        )
       })}
     </>
-  );
+  )
 }
