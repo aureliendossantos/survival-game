@@ -1,13 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
@@ -22,32 +19,32 @@ model User {
 model Character {
   id              String           @id @default(cuid())
   name            String
-  user            User             @relation(fields: [userId], references: [id])
   userId          String
-  map             Map              @relation(fields: [mapId], references: [id])
   mapId           Int              @default(1)
   x               Int              @default(1)
   y               Int              @default(1)
+  map             Map              @relation(fields: [mapId], references: [id])
   cell            Cell             @relation(fields: [mapId, x, y], references: [mapId, x, y])
+  user            User             @relation(fields: [userId], references: [id])
   inventory       Inventory[]
   builtStructures BuiltStructure[]
 }
 
 model Item {
   id          Int             @id @default(autoincrement())
-  title       String
   description String?
-  inInventory Inventory[]
+  title       String
   inAction    ActionLoot[]
+  inInventory Inventory[]
   inStructure StructureCost[]
 }
 
 model Inventory {
-  character   Character @relation(fields: [characterId], references: [id])
   characterId String
-  item        Item      @relation(fields: [itemId], references: [id])
   itemId      Int
   quantity    Int       @default(0)
+  character   Character @relation(fields: [characterId], references: [id])
+  item        Item      @relation(fields: [itemId], references: [id])
 
   @@unique([characterId, itemId])
 }
@@ -60,78 +57,78 @@ model Map {
 
 model Cell {
   id              String           @id @default(cuid())
-  map             Map              @relation(fields: [mapId], references: [id])
   mapId           Int
   x               Int
   y               Int
-  terrain         Terrain          @relation(fields: [terrainId], references: [id])
   terrainId       String           @default("plains")
-  characters      Character[]
   builtStructures BuiltStructure[]
+  map             Map              @relation(fields: [mapId], references: [id])
+  terrain         Terrain          @relation(fields: [terrainId], references: [id])
+  characters      Character[]
 
   @@unique([mapId, x, y])
 }
 
 model Terrain {
+  description String?
   id          String   @id
   title       String   @default("Plaines")
-  description String?
-  actions     Action[]
   cells       Cell[]
+  actions     Action[]
 }
 
 model BuiltStructure {
   id                String      @id @default(cuid())
-  structure         Structure   @relation(fields: [structureId], references: [id])
-  structureId       Int
   durability        Int
   lastDurabilitySet DateTime    @default(now())
-  contributors      Character[]
-  cell              Cell        @relation(fields: [cellId], references: [id])
   cellId            String
+  structureId       Int
+  cell              Cell        @relation(fields: [cellId], references: [id])
+  structure         Structure   @relation(fields: [structureId], references: [id])
+  contributors      Character[]
 }
 
 model Structure {
-  id                Int              @id @default(autoincrement())
   title             String
   description       String?
   minDurability     Int              @default(100)
   maxDurability     Int              @default(100)
-  requiredItems     StructureCost[]
-  availableUpgrades Structure[]      @relation("Upgrades")
-  parentStructure   Structure?       @relation("Upgrades", fields: [upgradeOf], references: [id])
+  id                Int              @id @default(autoincrement())
   upgradeOf         Int?
   builtStructures   BuiltStructure[]
+  parentStructure   Structure?       @relation("Upgrades", fields: [upgradeOf], references: [id])
+  availableUpgrades Structure[]      @relation("Upgrades")
+  requiredItems     StructureCost[]
 }
 
 model StructureCost {
-  structure   Structure @relation(fields: [structureId], references: [id])
-  structureId Int
-  item        Item      @relation(fields: [itemId], references: [id])
   itemId      Int
   quantity    Int       @default(0)
+  structureId Int
+  item        Item      @relation(fields: [itemId], references: [id])
+  structure   Structure @relation(fields: [structureId], references: [id])
 
   @@unique([structureId, itemId])
 }
 
 model Action {
-  id             Int          @id @default(autoincrement())
   title          String
   description    String?
-  loot           ActionLoot[]
   probability    Int          @default(100)
   successMessage String       @default("Vous avez trouvé $1 unités.")
   failureMessage String?      @default("Vous n'avez rien trouvé.")
+  id             Int          @id @default(autoincrement())
+  loot           ActionLoot[]
   terrains       Terrain[]
 }
 
 model ActionLoot {
-  action      Action @relation(fields: [actionId], references: [id])
-  actionId    Int
-  item        Item   @relation(fields: [itemId], references: [id])
   itemId      Int
   minQuantity Int?   @default(0)
   maxQuantity Int?   @default(0)
+  actionId    Int
+  action      Action @relation(fields: [actionId], references: [id])
+  item        Item   @relation(fields: [itemId], references: [id])
 
   @@unique([actionId, itemId])
 }
