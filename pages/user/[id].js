@@ -85,14 +85,12 @@ function CharacterList() {
     <ul className="user-list">
       {user.characters.map((character) => (
         <Link href={"/character/" + character.id} key={character.id}>
-          <a>
-            <li>
-              🧑‍🦰 {character.name + " "}
-              <span style={{ fontSize: "x-small", color: "lightblue" }}>
-                Monde {character.mapId}
-              </span>
-            </li>
-          </a>
+          <li>
+            🧑‍🦰 {character.name + " "}
+            <span style={{ fontSize: "x-small", color: "lightblue" }}>
+              Monde {character.mapId}
+            </span>
+          </li>
         </Link>
       ))}
     </ul>

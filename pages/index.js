@@ -136,9 +136,7 @@ function UserList() {
     <ul className="user-list">
       {users.map((user) => (
         <Link href={"/user/" + user.id} key={user.id}>
-          <a>
-            <li>{user.name}</li>
-          </a>
+          <li>{user.name}</li>
         </Link>
       ))}
     </ul>
