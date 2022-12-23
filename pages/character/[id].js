@@ -2,7 +2,6 @@ import Head from "next/head"
 import Image from "next/image"
 import ReactTooltip from "react-tooltip"
 import toast, { Toaster } from "react-hot-toast"
-import { AwesomeButtonProgress } from "react-awesome-button"
 import ProgressButton from "/components/ProgressButton"
 import Card from "/components/Card"
 
@@ -125,12 +124,28 @@ export default function Home({ terrains, structures }) {
       <p className="title">{character.name}</p>
       <label htmlFor="energy">Énergie</label>
       <progress id="energy" max="10" value="10"></progress>
-      <LocationInfo character={character} />
-      <Map character={character} terrains={terrains} />
-      <MapControls character={character} />
-      <Actions character={character} />
-      <Build character={character} structures={structures} />
-      <Inventory character={character} />
+      <div className="buttons-list">
+        <div className="section">
+          <Map character={character} terrains={terrains} />
+          <MapControls character={character} />
+        </div>
+        <div className="section">
+          <LocationInfo character={character} />
+        </div>
+      </div>
+      <div className="section">
+        <h3>Actions</h3>{" "}
+        <div className="buttons-list">
+          <Actions character={character} />
+          <Build character={character} structures={structures} />
+        </div>
+      </div>
+      <div className="section">
+        <h3>Inventaire</h3>
+        <div className="buttons-list">
+          <Inventory character={character} />
+        </div>
+      </div>
     </>
   )
 }
@@ -139,12 +154,11 @@ function Build({ character, structures }) {
   const { mutate } = useSWRConfig()
   return structures ? (
     <>
-      <h3>Construire</h3>
       {structures.map((structure) => (
         <li key={structure.id}>
           <a data-tip data-for={structure.title}>
             <ProgressButton
-              label={structure.title}
+              label={"Construire un " + structure.title}
               task={async () => {
                 const response = await build(character.id, structure.id)
                 response.success
@@ -182,13 +196,11 @@ function Inventory({ character }) {
   const { mutate } = useSWRConfig()
   return (
     <>
-      <h3>Inventaire</h3>
       {character.inventory.map((entry) => (
-        <li key={entry.item.id}>
+        <li key={entry.item.id} className="item">
           <a data-tip data-for={entry.item.title}>
-            {entry.item.title}
+            <strong>{entry.quantity}</strong> {entry.item.title}
           </a>
-          : {entry.quantity}
           <ReactTooltip id={entry.item.title} place="right">
             <p className="title">{entry.item.title}</p>
             {entry.item.description ? (
@@ -209,7 +221,6 @@ function Actions({ character }) {
   )
   return cell ? (
     <>
-      <h3>Actions</h3>
       {cell.terrain.actions.map((action) => (
         <li key={action.id}>
           <a data-tip data-for={action.title}>
@@ -245,6 +256,7 @@ function LocationInfo({ character }) {
   if (!cell) return <p>Chargement...</p>
   return (
     <div className="location">
+      <h4>À votre emplacement :</h4>
       <Card
         iconColor={"tile " + cell.terrain.id}
         title={cell.terrain.title}
@@ -372,9 +384,11 @@ function MapControls({ character }) {
             disabled={disabled}
             icon={true}
             task={async () => {
-              await moveCharacter(character.id, dir[0], dir[1])
-              mutate("/api/characters/" + character.id)
-              mutate("/api/characters/" + character.id + "/cell")
+              if (!disabled) {
+                await moveCharacter(character.id, dir[0], dir[1])
+                mutate("/api/characters/" + character.id)
+                mutate("/api/characters/" + character.id + "/cell")
+              }
             }}
           />
         )

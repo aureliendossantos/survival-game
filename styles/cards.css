@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Unbounded&display=swap");
+
 .card {
   box-sizing: border-box;
   border-radius: 2px;
@@ -6,7 +8,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: inset 0 0 2px rgb(0, 0, 0);
+  margin-bottom: 2px;
 }
 
 .card > * {
@@ -14,11 +16,9 @@
 }
 
 .card .header {
-  background-color: brown;
+  background-color: #593233;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid coral;
-  box-shadow: 0 0px 3px coral;
 }
 
 .card .header .description,
@@ -29,7 +29,7 @@
 
 .card .contents {
   padding: 0 0.6em;
-  background-color: rgb(60, 47, 37);
+  background-color: #2b1f1c;
 }
 
 .card .icon {

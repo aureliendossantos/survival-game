@@ -34,25 +34,29 @@ export default function LoginPage() {
       </div>
       <h1>Choisissez un compte</h1>
       <UserList />
-      <h3>Créer un compte</h3>
-      <form
-        onSubmit={async (event) => {
-          // Stop the form from submitting and refreshing the page.
-          event.preventDefault()
-          toast.promise(createUser(event.target.name.value), {
-            loading: "Création du compte",
-            success: (data) => {
-              mutate("/api/users")
-              return `${data.message}`
-            },
-            error: "Une erreur est survenue",
-          })
-        }}
-      >
-        <label htmlFor="name">Nom</label>
-        <input type="text" id="name" name="name" required />
-        <button type="submit">Créer</button>
-      </form>
+      <div className="section">
+        <h3>Créer un compte</h3>
+        <form
+          onSubmit={async (event) => {
+            // Stop the form from submitting and refreshing the page.
+            event.preventDefault()
+            toast.promise(createUser(event.target.name.value), {
+              loading: "Création du compte",
+              success: (data) => {
+                mutate("/api/users")
+                return `${data.message}`
+              },
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          <div className="buttons-list">
+            <label htmlFor="name">Nom</label>
+            <input type="text" id="name" name="name" required />
+            <button type="submit">Créer</button>
+          </div>
+        </form>
+      </div>
       <div
         style={{
           marginTop: "8em",

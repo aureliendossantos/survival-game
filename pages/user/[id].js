@@ -30,7 +30,6 @@ async function createCharacter(name, userId, mapId) {
 
 export default function UserHome() {
   const router = useRouter()
-  const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
   return (
     <>
@@ -39,41 +38,40 @@ export default function UserHome() {
       </div>
       <h1>Personnages</h1>
       <CharacterList />
-      <h3>Créer un personnage</h3>
-      {message ? (
-        <p className={message.success ? "success" : "failure"}>
-          {message.message}
-        </p>
-      ) : null}
-      <form
-        onSubmit={async (event) => {
-          // Stop the form from submitting and refreshing the page.
-          event.preventDefault()
-          toast.promise(
-            createCharacter(
-              event.target.name.value,
-              router.query.id,
-              parseInt(event.target.map.value)
-            ),
-            {
-              loading: "Création du personnage",
-              success: (data) => {
-                mutate("/api/users/" + router.query.id)
-                return `${data.message}`
-              },
-              error: "Une erreur est survenue",
-            }
-          )
-        }}
-      >
-        <label htmlFor="name">Nom</label>
-        <input type="text" id="name" name="name" required />
-        <label htmlFor="map">Monde</label>
-        <select name="map" id="map">
-          <MapOptions />
-        </select>
-        <button type="submit">Créer</button>
-      </form>
+      <div className="section">
+        <h3>Créer un personnage</h3>
+        <form
+          onSubmit={async (event) => {
+            // Stop the form from submitting and refreshing the page.
+            event.preventDefault()
+            toast.promise(
+              createCharacter(
+                event.target.name.value,
+                router.query.id,
+                parseInt(event.target.map.value)
+              ),
+              {
+                loading: "Création du personnage",
+                success: (data) => {
+                  mutate("/api/users/" + router.query.id)
+                  return `${data.message}`
+                },
+                error: "Une erreur est survenue",
+              }
+            )
+          }}
+        >
+          <div className="buttons-list">
+            <label htmlFor="name">Nom</label>
+            <input type="text" id="name" name="name" required />
+            <label htmlFor="map">Monde</label>
+            <select name="map" id="map">
+              <MapOptions />
+            </select>
+            <button type="submit">Créer</button>
+          </div>
+        </form>
+      </div>
     </>
   )
 }
@@ -88,7 +86,12 @@ function CharacterList() {
       {user.characters.map((character) => (
         <Link href={"/character/" + character.id} key={character.id}>
           <a>
-            <li>🧑‍🦰 {character.name}</li>
+            <li>
+              🧑‍🦰 {character.name + " "}
+              <span style={{ fontSize: "x-small", color: "lightblue" }}>
+                Monde {character.mapId}
+              </span>
+            </li>
           </a>
         </Link>
       ))}
