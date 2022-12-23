@@ -67,6 +67,7 @@ export default function LoginPage() {
         }}
       >
         <h4>Fonctions de debug</h4>
+        <p>Utiliser en cas de problème.</p>
         <button
           onClick={async () => {
             toast.promise(query("/api/setup", "DELETE"), {

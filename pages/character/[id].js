@@ -122,8 +122,10 @@ export default function Home({ terrains, structures }) {
         <Toaster />
       </div>
       <p className="title">{character.name}</p>
+      {/*
       <label htmlFor="energy">Énergie</label>
       <progress id="energy" max="10" value="10"></progress>
+      */}
       <div className="buttons-list">
         <div className="section">
           <Map character={character} terrains={terrains} />
