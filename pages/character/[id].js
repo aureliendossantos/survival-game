@@ -352,10 +352,10 @@ function MapControls({ character }) {
   const { mutate } = useSWRConfig()
   const map = character.map.cells
   const directions = [
-    [-1, 0, <ImArrowLeft2 />],
-    [0, -1, <ImArrowUp2 />],
-    [0, 1, <ImArrowDown2 />],
-    [1, 0, <ImArrowRight2 />],
+    [-1, 0, <ImArrowLeft2 key={0} />],
+    [0, -1, <ImArrowUp2 key={1} />],
+    [0, 1, <ImArrowDown2 key={2} />],
+    [1, 0, <ImArrowRight2 key={3} />],
   ]
   return (
     <>
