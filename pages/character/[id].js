@@ -301,42 +301,40 @@ function LocationInfo({ character }) {
 
 function Map({ character, terrains }) {
   const cells = character.map.cells
+  const width = Math.max(...cells.map((cell) => cell.y)) + 1
+  const height = Math.max(...cells.map((cell) => cell.x)) + 1
   return (
     <>
       <h3>Carte</h3>
       <table>
         <tbody>
-          {[0, 1, 2].map(
-            (
-              y // utiliser prisma ou js pour compter le nb de valeurs différentes de y
-            ) => (
-              <tr key={y}>
-                {[0, 1, 2].map((x) => {
-                  const cell = cells.find((cell) => cell.x == x && cell.y == y)
-                  return (
-                    <>
-                      <a
-                        data-tip={cell.terrainId}
-                        data-for="location"
-                        style={{ display: "contents" }}
-                      >
-                        <td key={cell.id} className={cell.terrainId}>
-                          {character.x == cell.x && character.y == cell.y ? (
-                            <GiPerson />
-                          ) : null}
-                          {cell.builtStructures.length > 0 ? (
-                            <div className="structure-marker">
-                              <FaCampground />
-                            </div>
-                          ) : null}
-                        </td>
-                      </a>
-                    </>
-                  )
-                })}
-              </tr>
-            )
-          )}
+          {[...Array(width).keys()].map((y) => (
+            <tr key={y}>
+              {[...Array(height).keys()].map((x) => {
+                const cell = cells.find((cell) => cell.x == x && cell.y == y)
+                return (
+                  <>
+                    <a
+                      data-tip={cell.terrainId}
+                      data-for="location"
+                      style={{ display: "contents" }}
+                    >
+                      <td key={cell.id} className={cell.terrainId}>
+                        {character.x == cell.x && character.y == cell.y ? (
+                          <GiPerson />
+                        ) : null}
+                        {cell.builtStructures.length > 0 ? (
+                          <div className="structure-marker">
+                            <FaCampground />
+                          </div>
+                        ) : null}
+                      </td>
+                    </a>
+                  </>
+                )
+              })}
+            </tr>
+          ))}
         </tbody>
       </table>
       {terrains ? (
@@ -370,8 +368,8 @@ function MapControls({ character }) {
     [1, 0, <ImArrowRight2 key={3} />],
   ]
   return (
-    <>
-      {directions.map((dir) => {
+    <div style={{ textAlign: "center" }}>
+      {directions.map((dir, index) => {
         const targetCell = map.find(
           (cell) =>
             cell.x == character.x + dir[0] && cell.y == character.y + dir[1]
@@ -379,7 +377,7 @@ function MapControls({ character }) {
         const disabled = !targetCell || targetCell.terrainId == "sea"
         return (
           <ProgressButton
-            key={dir[2]}
+            key={index}
             label={dir[2]}
             disabled={disabled}
             icon={true}
@@ -393,6 +391,6 @@ function MapControls({ character }) {
           />
         )
       })}
-    </>
+    </div>
   )
 }

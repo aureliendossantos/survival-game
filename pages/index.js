@@ -106,7 +106,21 @@ export default function LoginPage() {
             })
           }}
         >
-          3. Créer une carte
+          Créer une carte
+        </button>
+        <button
+          onClick={async () => {
+            const body = {
+              type: 1,
+            }
+            toast.promise(query("/api/map", "POST", body), {
+              loading: "Création d'un monde",
+              success: (data) => `${data.message}`,
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          Créer une grande carte
         </button>
       </div>
     </>

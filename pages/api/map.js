@@ -2,20 +2,45 @@ import prisma from "/lib/prisma"
 
 export default async (req, res) => {
   if (req.method == "POST") {
+    console.log("Creating map...")
     const map = await prisma.map.create({
       data: {},
     })
-    const cells = [
-      { x: 0, y: 0, terrainId: "sea", mapId: map.id },
-      { x: 1, y: 0, terrainId: "beach", mapId: map.id },
-      { x: 2, y: 0, terrainId: "plains", mapId: map.id },
-      { x: 0, y: 1, terrainId: "beach", mapId: map.id },
-      { x: 1, y: 1, terrainId: "plains", mapId: map.id },
-      { x: 2, y: 1, terrainId: "forest", mapId: map.id },
-      { x: 0, y: 2, terrainId: "plains", mapId: map.id },
-      { x: 1, y: 2, terrainId: "forest", mapId: map.id },
-      { x: 2, y: 2, terrainId: "mountains", mapId: map.id },
+    console.log("Created map " + map.id + ". Creating cells...")
+    const worlds = [
+      [
+        ["s", "b", "p"],
+        ["b", "p", "f"],
+        ["p", "f", "m"],
+      ],
+      [
+        ["s", "b", "p", "p", "b", "s"],
+        ["b", "p", "f", "f", "m", "b"],
+        ["b", "f", "m", "m", "f", "p"],
+        ["s", "b", "f", "m", "f", "b"],
+        ["s", "s", "p", "f", "p", "s"],
+        ["s", "s", "s", "s", "s", "s"],
+      ],
     ]
+    const dictionary = {
+      s: "sea",
+      b: "beach",
+      p: "plains",
+      f: "forest",
+      m: "mountains",
+    }
+    const cells = []
+    const worldType = req.body.type || 0
+    worlds[worldType].map((row, y) =>
+      row.map((terrain, x) =>
+        cells.push({
+          x: x,
+          y: y,
+          terrainId: dictionary[terrain],
+          mapId: map.id,
+        })
+      )
+    )
     await Promise.all(
       cells.map(async (cell) => {
         await prisma.cell.create({ data: cell })
