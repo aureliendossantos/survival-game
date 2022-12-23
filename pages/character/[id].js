@@ -2,6 +2,8 @@ import Head from "next/head"
 import Image from "next/image"
 import ReactTooltip from "react-tooltip"
 import toast, { Toaster } from "react-hot-toast"
+import { AwesomeButtonProgress } from "react-awesome-button"
+import ProgressButton from "/components/ProgressButton"
 import Card from "/components/Card"
 
 import prisma from "/lib/prisma"
@@ -132,10 +134,9 @@ function Build({ character, structures }) {
       {structures.map((structure) => (
         <li key={structure.id}>
           <a data-tip data-for={structure.title}>
-            <button
-              className="button-80"
-              role="button"
-              onClick={async () => {
+            <ProgressButton
+              label={structure.title}
+              task={async () => {
                 const response = await build(character.id, structure.id)
                 response.success
                   ? toast.success(response.message)
@@ -143,9 +144,7 @@ function Build({ character, structures }) {
                 mutate("/api/characters/" + character.id)
                 mutate("/api/characters/" + character.id + "/cell")
               }}
-            >
-              {structure.title}
-            </button>
+            />
           </a>
         </li>
       ))}
@@ -204,17 +203,16 @@ function Actions({ character }) {
       {cell.terrain.actions.map((action) => (
         <li key={action.id}>
           <a data-tip data-for={action.title}>
-            <button
-              onClick={async () => {
-                response = await doAction(character.id, action.id)
+            <ProgressButton
+              label={action.title}
+              task={async () => {
+                const response = await doAction(character.id, action.id)
                 response.success
                   ? toast.success(response.message)
                   : toast.error(response.message)
                 mutate("/api/characters/" + character.id)
               }}
-            >
-              {action.title}
-            </button>
+            />
           </a>
           <ReactTooltip id={action.title} place="right">
             <p className="title">{action.title}</p>
@@ -355,22 +353,17 @@ function MapControls({ character }) {
         )
         const disabled = !targetCell || targetCell.terrainId == "sea"
         return (
-          <button
-            className="button-80"
+          <ProgressButton
             key={dir[2]}
+            label={dir[2]}
             disabled={disabled}
-            onClick={
-              disabled
-                ? null
-                : async () => {
-                    await moveCharacter(character.id, dir[0], dir[1])
-                    mutate("/api/characters/" + character.id)
-                    mutate("/api/characters/" + character.id + "/cell")
-                  }
-            }
-          >
-            {dir[2]}
-          </button>
+            icon={true}
+            task={async () => {
+              await moveCharacter(character.id, dir[0], dir[1])
+              mutate("/api/characters/" + character.id)
+              mutate("/api/characters/" + character.id + "/cell")
+            }}
+          />
         )
       })}
     </>
