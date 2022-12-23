@@ -110,7 +110,7 @@ export default async (req, res) => {
       {
         title: "Ramasser des coquillages",
         description: "Récupérer des galets et des coquillages à la main.",
-        successMessage: "Vous avez trouvé $1 branchages et $2 feuillages.",
+        successMessage: "Vous avez trouvé $1 galets et $2 coquillages.",
         terrains: { connect: { id: "beach" } },
         loot: {
           create: [

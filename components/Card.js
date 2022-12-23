@@ -1,5 +1,8 @@
+import { FaCampground } from "react-icons/fa"
+
 export default function Card({
   icon,
+  iconColor,
   title,
   position,
   description,
@@ -10,7 +13,9 @@ export default function Card({
   return (
     <div className="card">
       <div className="header">
-        <div className={"icon " + icon}></div>
+        <div className={"icon " + iconColor}>
+          {icon == "camp" ? <FaCampground /> : null}
+        </div>
         <div className="text">
           <div className="title">
             {title}{" "}
@@ -37,5 +42,5 @@ export default function Card({
         </div>
       ) : null}
     </div>
-  );
+  )
 }

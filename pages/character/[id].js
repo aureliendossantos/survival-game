@@ -6,6 +6,15 @@ import { AwesomeButtonProgress } from "react-awesome-button"
 import ProgressButton from "/components/ProgressButton"
 import Card from "/components/Card"
 
+import { GiPerson } from "react-icons/gi"
+import { FaCampground } from "react-icons/fa"
+import {
+  ImArrowDown2,
+  ImArrowLeft2,
+  ImArrowRight2,
+  ImArrowUp2,
+} from "react-icons/im"
+
 import prisma from "/lib/prisma"
 
 import { useRouter } from "next/router"
@@ -157,6 +166,7 @@ function Build({ character, structures }) {
           <p>
             Solidité : {structure.minDurability}–{structure.maxDurability}
           </p>
+          <strong>Ressources requises</strong>
           {structure.requiredItems.map((requirement) => (
             <li key={requirement.item.id}>
               <strong>{requirement.quantity}</strong> {requirement.item.title}
@@ -236,7 +246,7 @@ function LocationInfo({ character }) {
   return (
     <div className="location">
       <Card
-        icon={"tile " + cell.terrain.id}
+        iconColor={"tile " + cell.terrain.id}
         title={cell.terrain.title}
         position={"x:" + cell.x + " y:" + cell.y}
         description={cell.terrain.description}
@@ -245,7 +255,8 @@ function LocationInfo({ character }) {
         ? cell.builtStructures.map((structure) => (
             <div className="structure" key={structure.id}>
               <Card
-                icon={"tile structure-icon"}
+                icon={"camp"}
+                iconColor={"tile structure-icon"}
                 title={structure.structure.title}
                 description={structure.structure.description}
                 author={structure.contributors.map(
@@ -298,11 +309,13 @@ function Map({ character, terrains }) {
                         style={{ display: "contents" }}
                       >
                         <td key={cell.id} className={cell.terrainId}>
-                          {character.x == cell.x && character.y == cell.y
-                            ? "★"
-                            : null}
+                          {character.x == cell.x && character.y == cell.y ? (
+                            <GiPerson />
+                          ) : null}
                           {cell.builtStructures.length > 0 ? (
-                            <div className="structure-marker">△</div>
+                            <div className="structure-marker">
+                              <FaCampground />
+                            </div>
                           ) : null}
                         </td>
                       </a>
@@ -339,10 +352,10 @@ function MapControls({ character }) {
   const { mutate } = useSWRConfig()
   const map = character.map.cells
   const directions = [
-    [-1, 0, "<"],
-    [0, -1, "^"],
-    [0, 1, "v"],
-    [1, 0, ">"],
+    [-1, 0, <ImArrowLeft2 />],
+    [0, -1, <ImArrowUp2 />],
+    [0, 1, <ImArrowDown2 />],
+    [1, 0, <ImArrowRight2 />],
   ]
   return (
     <>
