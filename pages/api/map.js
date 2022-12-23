@@ -17,9 +17,9 @@ export default async (req, res) => {
         ["s", "b", "p", "p", "b", "s"],
         ["b", "p", "f", "f", "m", "b"],
         ["b", "f", "m", "m", "f", "p"],
-        ["s", "b", "f", "m", "f", "b"],
-        ["s", "s", "p", "f", "p", "s"],
-        ["s", "s", "s", "s", "s", "s"],
+        ["b", "f", "f", "m", "f", "b"],
+        ["s", "b", "p", "f", "p", "s"],
+        ["s", "s", "p", "p", "s", "s"],
       ],
     ]
     const dictionary = {
