@@ -11,10 +11,6 @@
   margin-bottom: 2px;
 }
 
-.card > * {
-  z-index: -1;
-}
-
 .card .header {
   background-color: #593233;
   display: flex;
@@ -29,7 +25,7 @@
 
 .card .contents {
   padding: 0 0.6em;
-  background-color: #2b1f1c;
+  background-color: #1c1817;
 }
 
 .card .icon {
@@ -47,7 +43,6 @@
   background-color: rgb(180, 113, 65);
   padding: 0 0.6em;
   position: relative;
-  z-index: -1;
 }
 
 .card .more-info {
