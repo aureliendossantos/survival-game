@@ -23,7 +23,7 @@ export default async (req, res) => {
     )
     return res.json({
       success: true,
-      message: "Carte et cellules créées.",
+      message: `Monde ${map.id} créé`,
     })
   }
   if (req.method != "GET") {

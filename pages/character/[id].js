@@ -1,6 +1,7 @@
 import Head from "next/head"
 import Image from "next/image"
 import ReactTooltip from "react-tooltip"
+import toast, { Toaster } from "react-hot-toast"
 import Card from "/components/Card"
 
 import prisma from "/lib/prisma"
@@ -107,6 +108,9 @@ export default function Home({ terrains, structures }) {
     )
   return (
     <>
+      <div>
+        <Toaster />
+      </div>
       <p className="title">{character.name}</p>
       <label htmlFor="energy">Énergie</label>
       <progress id="energy" max="10" value="10"></progress>
@@ -121,16 +125,10 @@ export default function Home({ terrains, structures }) {
 }
 
 function Build({ character, structures }) {
-  const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
   return structures ? (
     <>
       <h3>Construire</h3>
-      {message ? (
-        <p className={message.success ? "success" : "failure"}>
-          {message.message}
-        </p>
-      ) : null}
       {structures.map((structure) => (
         <li key={structure.id}>
           <a data-tip data-for={structure.title}>
@@ -138,7 +136,10 @@ function Build({ character, structures }) {
               className="button-80"
               role="button"
               onClick={async () => {
-                setMessage(await build(character.id, structure.id))
+                const response = await build(character.id, structure.id)
+                response.success
+                  ? toast.success(response.message)
+                  : toast.error(response.message)
                 mutate("/api/characters/" + character.id)
                 mutate("/api/characters/" + character.id + "/cell")
               }}
@@ -192,7 +193,6 @@ function Inventory({ character }) {
 }
 
 function Actions({ character }) {
-  const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
   const { data: cell } = useSWR(
     "/api/characters/" + character.id + "/cell",
@@ -201,17 +201,15 @@ function Actions({ character }) {
   return cell ? (
     <>
       <h3>Actions</h3>
-      {message ? (
-        <p className={message.success ? "success" : "failure"}>
-          {message.message}
-        </p>
-      ) : null}
       {cell.terrain.actions.map((action) => (
         <li key={action.id}>
           <a data-tip data-for={action.title}>
             <button
               onClick={async () => {
-                setMessage(await doAction(character.id, action.id))
+                response = await doAction(character.id, action.id)
+                response.success
+                  ? toast.success(response.message)
+                  : toast.error(response.message)
                 mutate("/api/characters/" + character.id)
               }}
             >

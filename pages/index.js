@@ -1,7 +1,7 @@
 import Head from "next/head"
 import Image from "next/image"
 import Link from "next/link"
-import ReactiveButton from "reactive-button"
+import toast, { Toaster } from "react-hot-toast"
 
 import { useState } from "react"
 import useSWR, { useSWRConfig } from "swr"
@@ -26,76 +26,85 @@ async function createUser(name) {
 }
 
 export default function LoginPage() {
-  const [message, setMessage] = useState()
   const { mutate } = useSWRConfig()
-  const [btn1State, setBtn1State] = useState("idle")
-  const [btn2State, setBtn2State] = useState("idle")
-  const [btn3State, setBtn3State] = useState("idle")
   return (
     <>
+      <div>
+        <Toaster />
+      </div>
       <h1>Choisissez un compte</h1>
       <UserList />
       <h3>Créer un compte</h3>
-      {message ? (
-        <p className={message.success ? "success" : "failure"}>
-          {message.message}
-        </p>
-      ) : null}
       <form
         onSubmit={async (event) => {
           // Stop the form from submitting and refreshing the page.
           event.preventDefault()
-          setMessage(await createUser(event.target.name.value))
-          mutate("/api/users")
+          toast.promise(createUser(event.target.name.value), {
+            loading: "Création du compte",
+            success: (data) => {
+              mutate("/api/users")
+              return `${data.message}`
+            },
+            error: "Une erreur est survenue",
+          })
         }}
       >
         <label htmlFor="name">Nom</label>
         <input type="text" id="name" name="name" required />
         <button type="submit">Créer</button>
       </form>
-      <h3>Fonctions de debug</h3>
-
-      <ReactiveButton
-        color="dark"
-        buttonState={btn1State}
-        idleText="1. Vider la base de données"
-        loadingText="Chargement"
-        successText="Terminé"
-        onClick={async () => {
-          setBtn1State("loading")
-          setMessage(await query("/api/setup", "DELETE"))
-          setBtn1State("success")
-          mutate("/api/users")
+      <div
+        style={{
+          marginTop: "8em",
+          padding: "1em",
+          borderRadius: "6px",
+          border: "2px solid grey",
+          backgroundColor: "#283148",
         }}
-      />
-      <br />
-      <ReactiveButton
-        color="dark"
-        buttonState={btn2State}
-        idleText="2. Remplir la base avec les valeurs par défaut"
-        loadingText="Chargement"
-        successText="Terminé"
-        onClick={async () => {
-          setBtn2State("loading")
-          setMessage(await query("/api/setup", "POST"))
-          setBtn2State("success")
-          mutate("/api/users")
-        }}
-      />
-      <br />
-      <ReactiveButton
-        color="dark"
-        buttonState={btn3State}
-        idleText="3. Créer une carte"
-        loadingText="Chargement"
-        successText="Terminé"
-        onClick={async () => {
-          setBtn3State("loading")
-          setMessage(await query("/api/map", "POST"))
-          setBtn3State("success")
-          mutate("/api/users")
-        }}
-      />
+      >
+        <h4>Fonctions de debug</h4>
+        <button
+          onClick={async () => {
+            toast.promise(query("/api/setup", "DELETE"), {
+              loading: "Vidage de la base de données",
+              success: () => {
+                mutate("/api/users")
+                return "Base de données vidée"
+              },
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          1. Vider la base de données
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            toast.promise(query("/api/setup", "POST"), {
+              loading: "Remplissage de la base de données",
+              success: () => {
+                mutate("/api/users")
+                return "Base de données remplie"
+              },
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          2. Remplir la base avec les valeurs par défaut
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            toast.promise(query("/api/map", "POST"), {
+              loading: "Création d'un monde",
+              success: (data) => `${data.message}`,
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          3. Créer une carte
+        </button>
+      </div>
     </>
   )
 }

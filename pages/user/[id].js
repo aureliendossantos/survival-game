@@ -1,6 +1,7 @@
 import Head from "next/head"
 import Image from "next/image"
 import Link from "next/link"
+import toast, { Toaster } from "react-hot-toast"
 
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -33,6 +34,9 @@ export default function UserHome() {
   const { mutate } = useSWRConfig()
   return (
     <>
+      <div>
+        <Toaster />
+      </div>
       <h1>Personnages</h1>
       <CharacterList />
       <h3>Créer un personnage</h3>
@@ -45,14 +49,21 @@ export default function UserHome() {
         onSubmit={async (event) => {
           // Stop the form from submitting and refreshing the page.
           event.preventDefault()
-          setMessage(
-            await createCharacter(
+          toast.promise(
+            createCharacter(
               event.target.name.value,
               router.query.id,
               parseInt(event.target.map.value)
-            )
+            ),
+            {
+              loading: "Création du personnage",
+              success: (data) => {
+                mutate("/api/users/" + router.query.id)
+                return `${data.message}`
+              },
+              error: "Une erreur est survenue",
+            }
           )
-          mutate("/api/users/" + router.query.id)
         }}
       >
         <label htmlFor="name">Nom</label>
