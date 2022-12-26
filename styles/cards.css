@@ -2,13 +2,17 @@
 
 .card {
   box-sizing: border-box;
-  border-radius: 2px;
-  max-width: 15em;
+  border-radius: 4px;
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  margin-bottom: 2px;
+  margin-bottom: 9px;
+  font-size: 1rem;
+}
+
+.card .dotted {
+  border: 2px dashed rgb(180, 113, 65);
 }
 
 .card .header {
@@ -24,8 +28,8 @@
 }
 
 .card .contents {
-  padding: 0 0.6em;
-  background-color: #1c1817;
+  padding: 0.6em 0.6em;
+  background-color: #2b1f1c;
 }
 
 .card .icon {
@@ -42,7 +46,12 @@
 .card .author {
   background-color: rgb(180, 113, 65);
   padding: 0 0.6em;
-  position: relative;
+  margin-left: auto;
+  align-self: stretch;
+  font-size: smaller;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .card .more-info {

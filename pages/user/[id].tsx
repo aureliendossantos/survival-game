@@ -4,7 +4,7 @@ import Link from "next/link"
 import toast, { Toaster } from "react-hot-toast"
 
 import { useRouter } from "next/router"
-import { useState } from "react"
+import React from "react"
 import useSWR, { useSWRConfig } from "swr"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
@@ -41,15 +41,17 @@ export default function UserHome() {
       <div className="section">
         <h3>Créer un personnage</h3>
         <form
-          onSubmit={async (event) => {
+          onSubmit={async (event: React.SyntheticEvent) => {
             // Stop the form from submitting and refreshing the page.
             event.preventDefault()
+            const target = event.target as typeof event.target & {
+              name: { value: string }
+              map: { value: string }
+            }
+            const name = target.name.value
+            const map = target.map.value
             toast.promise(
-              createCharacter(
-                event.target.name.value,
-                router.query.id,
-                parseInt(event.target.map.value)
-              ),
+              createCharacter(name, router.query.id, parseInt(map)),
               {
                 loading: "Création du personnage",
                 success: (data) => {

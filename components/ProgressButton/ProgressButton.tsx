@@ -1,7 +1,19 @@
 import { AwesomeButtonProgress } from "react-awesome-button"
 import AwesomeButtonStyles from "./awesomebutton.module.scss"
 
-export default function ProgressButton({ label, task, disabled, icon }) {
+type ButtonProps = {
+  label: any
+  task: Function
+  disabled?: boolean
+  icon?: boolean
+}
+
+export default function ProgressButton({
+  label,
+  task,
+  disabled,
+  icon,
+}: ButtonProps) {
   return (
     <AwesomeButtonProgress
       style={{ marginRight: "2px", marginBottom: "3px" }}

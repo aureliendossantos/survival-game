@@ -20,6 +20,8 @@ model Character {
   id              String           @id @default(cuid())
   name            String
   userId          String
+  stamina         Int              @default(10)
+  lastStaminaSet  DateTime         @default(now())
   mapId           Int              @default(1)
   x               Int              @default(1)
   y               Int              @default(1)
@@ -70,35 +72,43 @@ model Cell {
 }
 
 model Terrain {
-  description String?
   id          String   @id
   title       String   @default("Plaines")
+  description String?
+  stamina     Int      @default(0)
   cells       Cell[]
   actions     Action[]
 }
 
 model BuiltStructure {
-  id                String      @id @default(cuid())
+  id                String           @id @default(cuid())
   durability        Int
-  lastDurabilitySet DateTime    @default(now())
+  lastDurabilitySet DateTime         @default(now())
   cellId            String
   structureId       Int
-  cell              Cell        @relation(fields: [cellId], references: [id])
-  structure         Structure   @relation(fields: [structureId], references: [id])
+  cell              Cell             @relation(fields: [cellId], references: [id])
+  structure         Structure        @relation(fields: [structureId], references: [id])
   contributors      Character[]
+  moduleOfId        String?
+  moduleOf          BuiltStructure?  @relation("BuiltStructureModules", fields: [moduleOfId], references: [id])
+  modules           BuiltStructure[] @relation("BuiltStructureModules")
 }
 
 model Structure {
+  id                Int              @id @default(autoincrement())
   title             String
   description       String?
   minDurability     Int              @default(100)
   maxDurability     Int              @default(100)
-  id                Int              @id @default(autoincrement())
-  upgradeOf         Int?
-  builtStructures   BuiltStructure[]
-  parentStructure   Structure?       @relation("Upgrades", fields: [upgradeOf], references: [id])
-  availableUpgrades Structure[]      @relation("Upgrades")
   requiredItems     StructureCost[]
+  actions           Action[]
+  moduleOfId        Int?
+  moduleOf          Structure?       @relation("StructureModules", fields: [moduleOfId], references: [id])
+  modules           Structure[]      @relation("StructureModules")
+  upgradeOfId       Int?
+  upgradeOf         Structure?       @relation("StructureUpgrades", fields: [upgradeOfId], references: [id])
+  availableUpgrades Structure[]      @relation("StructureUpgrades")
+  builtStructures   BuiltStructure[]
 }
 
 model StructureCost {
@@ -114,12 +124,15 @@ model StructureCost {
 model Action {
   title          String
   description    String?
+  stamina        Int          @default(0)
   probability    Int          @default(100)
   successMessage String       @default("Vous avez trouvé $1 unités.")
   failureMessage String?      @default("Vous n'avez rien trouvé.")
   id             Int          @id @default(autoincrement())
   loot           ActionLoot[]
   terrains       Terrain[]
+  structure      Structure?   @relation(fields: [structureId], references: [id])
+  structureId    Int?
 }
 
 model ActionLoot {

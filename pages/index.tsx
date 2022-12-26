@@ -3,20 +3,10 @@ import Image from "next/image"
 import Link from "next/link"
 import toast, { Toaster } from "react-hot-toast"
 
-import { useState } from "react"
 import useSWR, { useSWRConfig } from "swr"
+import query from "lib/query"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
-
-async function query(url, method, body) {
-  return await fetch(url, {
-    method: method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then(function (response) {
-    return response.json()
-  })
-}
 
 async function createUser(name) {
   const body = {
@@ -24,6 +14,8 @@ async function createUser(name) {
   }
   return await query("/api/users", "POST", body)
 }
+
+const usersPath = "/api/users"
 
 export default function LoginPage() {
   const { mutate } = useSWRConfig()
@@ -37,13 +29,17 @@ export default function LoginPage() {
       <div className="section">
         <h3>Créer un compte</h3>
         <form
-          onSubmit={async (event) => {
+          onSubmit={async (event: React.SyntheticEvent) => {
             // Stop the form from submitting and refreshing the page.
             event.preventDefault()
-            toast.promise(createUser(event.target.name.value), {
+            const target = event.target as typeof event.target & {
+              name: { value: string }
+            }
+            const name = target.name.value
+            toast.promise(createUser(name), {
               loading: "Création du compte",
               success: (data) => {
-                mutate("/api/users")
+                mutate(usersPath)
                 return `${data.message}`
               },
               error: "Une erreur est survenue",
@@ -73,7 +69,7 @@ export default function LoginPage() {
             toast.promise(query("/api/setup", "DELETE"), {
               loading: "Vidage de la base de données",
               success: () => {
-                mutate("/api/users")
+                mutate(usersPath)
                 return "Base de données vidée"
               },
               error: "Une erreur est survenue",
@@ -88,7 +84,7 @@ export default function LoginPage() {
             toast.promise(query("/api/setup", "POST"), {
               loading: "Remplissage de la base de données",
               success: () => {
-                mutate("/api/users")
+                mutate(usersPath)
                 return "Base de données remplie"
               },
               error: "Une erreur est survenue",
@@ -129,7 +125,9 @@ export default function LoginPage() {
 }
 
 function UserList() {
-  const { data: users, error } = useSWR("/api/users", fetcher)
+  const { data: users, error } = useSWR("/api/users", fetcher, {
+    refreshInterval: 5000,
+  })
   if (error) return <p>Erreur de chargement.</p>
   if (!users) return <p>Chargement...</p>
   return (

@@ -1,4 +1,5 @@
-import prisma from "/lib/prisma"
+import prisma from "lib/prisma"
+import { NextApiRequest, NextApiResponse } from "next"
 
 function getDate() {
   const now = new Date()
@@ -9,7 +10,7 @@ function getDate() {
   })
 }
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method == "DELETE") {
     // Delete everything in the right order
     console.log(getDate() + " start deleting...")
@@ -38,17 +39,19 @@ export default async (req, res) => {
       {
         id: "beach",
         title: "Plage",
-        description: "Une bande de sable. Réchauffe les pieds.",
+        description: "Une bande de sable qui réchauffe les pieds.",
       },
       {
         id: "forest",
         title: "Forêt",
         description: "Une forêt vierge à la végétation luxuriante.",
+        stamina: -1,
       },
       {
         id: "mountains",
         title: "Montagnes",
         description: "Des pics escarpés.",
+        stamina: -2,
       },
       {
         id: "sea",
@@ -67,6 +70,7 @@ export default async (req, res) => {
       { id: 2, title: "Feuillages" },
       { id: 3, title: "Galets" },
       { id: 4, title: "Coquillages" },
+      { id: 5, title: "Marteau" },
     ]
     await Promise.all(
       items.map(async (item) => {
@@ -76,14 +80,32 @@ export default async (req, res) => {
     console.log(getDate() + " created items.")
     const structures = [
       {
+        id: 1,
         title: "Campement",
-        description: "Un premier campement.",
+        description: "Un campement rudimentaire pour reprendre des forces.",
         minDurability: 60,
         maxDurability: 120,
         requiredItems: {
           create: [
             { itemId: 1, quantity: 20 },
             { itemId: 2, quantity: 10 },
+          ],
+        },
+        modules: {
+          create: [
+            {
+              id: 2,
+              title: "Établi",
+              description: "Pour confectionner des outils simples.",
+              minDurability: 20,
+              maxDurability: 40,
+              requiredItems: {
+                create: [
+                  { itemId: 1, quantity: 15 },
+                  { itemId: 3, quantity: 10 },
+                ],
+              },
+            },
           ],
         },
       },
@@ -98,6 +120,7 @@ export default async (req, res) => {
       {
         title: "Ramasser du bois",
         description: "Récupérer des branchages et de la verdure à la main.",
+        stamina: -1,
         successMessage: "Vous avez trouvé $1 branchages et $2 feuillages.",
         terrains: { connect: { id: "forest" } },
         loot: {
@@ -110,6 +133,7 @@ export default async (req, res) => {
       {
         title: "Ramasser des coquillages",
         description: "Récupérer des galets et des coquillages à la main.",
+        stamina: -1,
         successMessage: "Vous avez trouvé $1 galets et $2 coquillages.",
         terrains: { connect: { id: "beach" } },
         loot: {
@@ -117,6 +141,26 @@ export default async (req, res) => {
             { itemId: 3, minQuantity: 2, maxQuantity: 5 },
             { itemId: 4, minQuantity: 2, maxQuantity: 3 },
           ],
+        },
+      },
+      {
+        title: "Se reposer",
+        description: "Se reposer au campement pour récupérer de l'énergie.",
+        stamina: 5,
+        successMessage: "Vous vous êtes reposé.",
+        structure: { connect: { id: 1 } },
+      },
+      {
+        title: "Confectionner un marteau",
+        description: "Il ne sert à rien pour l'instant...",
+        stamina: -2,
+        probability: 60,
+        successMessage: "Vous avez confectionné un marteau.",
+        failureMessage:
+          "En essayant de confectionner un marteau, vous avez cassé vos matériaux !",
+        structure: { connect: { id: 2 } },
+        loot: {
+          create: { itemId: 5, minQuantity: 1, maxQuantity: 1 },
         },
       },
     ]
