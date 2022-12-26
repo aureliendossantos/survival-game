@@ -8,6 +8,7 @@ import {
   BuildModules,
   BuildStarters,
   CellActions,
+  InventoryActions,
   StructureActions,
 } from "./Actions"
 import Card from "./Card"
@@ -40,6 +41,7 @@ export function TerrainInfo({ character, cell, structures }: TerrainInfoProps) {
     >
       <div className="buttons-list">
         <CellActions character={character} cell={cell} />
+        <InventoryActions character={character} />
         <BuildStarters character={character} structures={structures} />
       </div>
     </Card>

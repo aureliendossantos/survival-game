@@ -8,11 +8,23 @@ export type TerrainWithActions = Prisma.TerrainGetPayload<
   typeof terrainWithActions
 >
 
+const actionWithRequiredItems = Prisma.validator<Prisma.ActionArgs>()({
+  include: { requiredItems: { include: { item: true } } },
+})
+
+export type ActionWithRequiredItems = Prisma.ActionGetPayload<
+  typeof actionWithRequiredItems
+>
+
 const builtStructureWithAllInfo = Prisma.validator<Prisma.BuiltStructureArgs>()(
   {
     include: {
       structure: {
-        include: { actions: true },
+        include: {
+          actions: {
+            include: { requiredItems: { include: { item: true } } },
+          },
+        },
       },
       contributors: true,
       modules: true,
@@ -39,13 +51,22 @@ export type StructureWithAllInfo = Prisma.StructureGetPayload<
 
 const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
   include: {
+    characters: true,
     terrain: {
-      include: { actions: true },
+      include: {
+        actions: {
+          include: { requiredItems: { include: { item: true } } },
+        },
+      },
     },
     builtStructures: {
       include: {
         structure: {
-          include: { actions: true },
+          include: {
+            actions: {
+              include: { requiredItems: { include: { item: true } } },
+            },
+          },
         },
         contributors: true,
         modules: true,
@@ -74,7 +95,17 @@ const characterWithInventoryAndMap = Prisma.validator<Prisma.CharacterArgs>()({
   include: {
     inventory: {
       include: {
-        item: true,
+        item: {
+          include: {
+            inActionCost: {
+              include: {
+                action: {
+                  include: { requiredItems: { include: { item: true } } },
+                },
+              },
+            },
+          },
+        },
       },
     },
     map: {

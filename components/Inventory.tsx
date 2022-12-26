@@ -1,5 +1,6 @@
 import { Item } from "@prisma/client"
 import { CharacterWithInventoryAndMap } from "types/api"
+import RenderItem from "./RenderItem"
 
 type InventoryProps = {
   character: CharacterWithInventoryAndMap
@@ -10,7 +11,7 @@ export default function Inventory({ character }: InventoryProps) {
     <ul>
       {character.inventory.map((entry) => (
         <li key={entry.item.id} className="item">
-          <strong>{entry.quantity}</strong> {entry.item.title}
+          <RenderItem item={entry.item} quantity={entry.quantity} />{" "}
         </li>
       ))}
     </ul>

@@ -33,12 +33,14 @@ model Character {
 }
 
 model Item {
-  id          Int             @id @default(autoincrement())
-  description String?
-  title       String
-  inAction    ActionLoot[]
-  inInventory Inventory[]
-  inStructure StructureCost[]
+  id           Int             @id @default(autoincrement())
+  description  String?
+  title        String
+  pluralTitle  String?
+  inActionLoot ActionLoot[]
+  inActionCost ActionCost[]
+  inInventory  Inventory[]
+  inStructure  StructureCost[]
 }
 
 model Inventory {
@@ -122,17 +124,28 @@ model StructureCost {
 }
 
 model Action {
+  id             Int          @id @default(autoincrement())
   title          String
   description    String?
   stamina        Int          @default(0)
   probability    Int          @default(100)
-  successMessage String       @default("Vous avez trouvé $1 unités.")
-  failureMessage String?      @default("Vous n'avez rien trouvé.")
-  id             Int          @id @default(autoincrement())
+  successMessage String       @default("Vous avez réussi !")
+  failureMessage String?      @default("Vous avez échoué.")
+  requiredItems  ActionCost[]
   loot           ActionLoot[]
   terrains       Terrain[]
   structure      Structure?   @relation(fields: [structureId], references: [id])
   structureId    Int?
+}
+
+model ActionCost {
+  itemId   Int
+  quantity Int    @default(0)
+  actionId Int
+  item     Item   @relation(fields: [itemId], references: [id])
+  action   Action @relation(fields: [actionId], references: [id])
+
+  @@unique([actionId, itemId])
 }
 
 model ActionLoot {

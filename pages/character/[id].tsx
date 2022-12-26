@@ -16,6 +16,7 @@ import Inventory from "components/Inventory"
 import MapControls from "components/MapControls"
 import query from "lib/query"
 import Actions from "components/Actions"
+import ProgressBar from "@ramonak/react-progress-bar"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
@@ -41,7 +42,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-async function giveItem(characterId, itemId, quantity) {
+async function giveItem(characterId: string, itemId: number, quantity: number) {
   const body = {
     id: itemId,
     quantity: quantity,
@@ -58,41 +59,43 @@ type Props = {
   structures: StructureWithAllInfo[]
 }
 
+function LoadingHome({ text, percentage }) {
+  return (
+    <div className="loading">
+      <ProgressBar
+        animateOnRender
+        isLabelVisible={false}
+        completed={percentage}
+        bgColor="#2b6eff"
+        width="150px"
+        margin="6px 0"
+      />
+      <p>{text}</p>
+    </div>
+  )
+}
+
 export default function Home({ terrains, structures }: Props) {
   const router = useRouter()
+  const { id } = router.query
   const { data: response, error } = useSWR<
     {
       character: CharacterWithInventoryAndMap
       cell: CellWithAllInfo
     },
     Error
-  >("/api/characters/" + router.query.id, fetcher, { refreshInterval: 5000 })
-  if (router.isFallback)
-    return (
-      <div className="loading">
-        <progress id="loading" max="10" value="3"></progress>
-        <label htmlFor="loading">
-          <p>Chargement de la page...</p>
-        </label>
-      </div>
-    )
+  >(id ? `/api/characters/${id}` : null, fetcher, { refreshInterval: 5000 })
+  if (router.isFallback || !router.isReady)
+    return <LoadingHome text="Chargement de la page..." percentage={30} />
   if (error)
     return (
-      <div className="loading">
-        <p>
-          Erreur {error.name} : {error.message}
-        </p>
-      </div>
+      <LoadingHome
+        text={`Erreur ${error.name} : ${error.message}`}
+        percentage={0}
+      />
     )
   if (!response)
-    return (
-      <div className="loading">
-        <progress id="loading" max="10" value="7"></progress>
-        <label htmlFor="loading">
-          <p>Chargement du personnage...</p>
-        </label>
-      </div>
-    )
+    return <LoadingHome text="Chargement du personnage..." percentage={100} />
   const character = response.character
   const characterCell = response.cell
   return (
@@ -101,14 +104,29 @@ export default function Home({ terrains, structures }: Props) {
         <Toaster />
       </div>
       <p className="title">{character.name}</p>
-      <label htmlFor="energy">Énergie</label>
-      <progress id="energy" max="10" value={character.stamina}></progress>
+      <div className="buttons-list">
+        <span>Énergie</span>
+        <ProgressBar
+          completed={String(character.stamina)}
+          maxCompleted={10}
+          transitionDuration="0.5s"
+          transitionTimingFunction="ease-out"
+          bgColor="#2b6eff"
+          width="200px"
+          margin="0 6px"
+        />
+      </div>
       <div className="buttons-list">
         <div className="section">
           <Map character={character} terrains={terrains} />
           <MapControls character={character} />
         </div>
       </div>
+      {characterCell.characters
+        .filter((char) => char.id != character.id)
+        .map((char) => (
+          <p key={char.id}>{char.name} se trouve ici.</p>
+        ))}
       <Actions
         character={character}
         cell={characterCell}

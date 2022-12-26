@@ -1,13 +1,15 @@
-import { Action, BuiltStructure } from "@prisma/client"
+import { BuiltStructure } from "@prisma/client"
 import query from "lib/query"
 import toast from "react-hot-toast"
 import { useSWRConfig } from "swr"
 import {
+  ActionWithRequiredItems,
   BuiltStructureWithAllInfo,
   CellWithAllInfo,
   CharacterWithInventoryAndMap,
   StructureWithAllInfo,
 } from "types/api"
+import Item from "./RenderItem"
 import { StructureInfo, TerrainInfo } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
 
@@ -138,9 +140,9 @@ function BuildButton({ character, structure, parent }: BuildButtonProps) {
       />
       <div className="item">
         {structure.requiredItems.map((requirement) => (
-          <>
-            <strong>{requirement.quantity}</strong> {requirement.item.title}{" "}
-          </>
+          <span key={requirement.itemId}>
+            <Item item={requirement.item} quantity={requirement.quantity} />{" "}
+          </span>
         ))}
       </div>
     </li>
@@ -158,6 +160,28 @@ export function CellActions({ character, cell }: CellActionsProps) {
       {cell.terrain.actions.map((action) => (
         <ActionButton key={action.id} character={character} action={action} />
       ))}
+    </>
+  )
+}
+
+type InventoryActionsProps = {
+  character: CharacterWithInventoryAndMap
+}
+
+export function InventoryActions({ character }: InventoryActionsProps) {
+  return (
+    <>
+      {character.inventory.map((entry) =>
+        entry.item.inActionCost
+          .filter((entry) => entry.action.structureId == null)
+          .map((entry) => (
+            <ActionButton
+              key={entry.action.id}
+              character={character}
+              action={entry.action}
+            />
+          ))
+      )}
     </>
   )
 }
@@ -182,7 +206,7 @@ export function StructureActions({
 
 type ActionButtonProps = {
   character: CharacterWithInventoryAndMap
-  action: Action
+  action: ActionWithRequiredItems
 }
 
 export function ActionButton({ character, action }: ActionButtonProps) {
@@ -199,6 +223,15 @@ export function ActionButton({ character, action }: ActionButtonProps) {
           mutate("/api/characters/" + character.id)
         }}
       />
+      {action.requiredItems.length > 0 && (
+        <div className="item">
+          {action.requiredItems.map((requirement) => (
+            <span key={requirement.itemId}>
+              <Item item={requirement.item} quantity={requirement.quantity} />{" "}
+            </span>
+          ))}
+        </div>
+      )}
       {action.probability < 100 && (
         <div className="item">{action.probability}% réussite</div>
       )}

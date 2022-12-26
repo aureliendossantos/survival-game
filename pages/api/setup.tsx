@@ -15,6 +15,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // Delete everything in the right order
     console.log(getDate() + " start deleting...")
     await prisma.actionLoot.deleteMany()
+    await prisma.actionCost.deleteMany()
     await prisma.structureCost.deleteMany()
     await prisma.inventory.deleteMany()
     await prisma.builtStructure.deleteMany()
@@ -66,11 +67,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     )
     console.log(getDate() + " created terrains.")
     const items = [
-      { id: 1, title: "Branchages" },
-      { id: 2, title: "Feuillages" },
-      { id: 3, title: "Galets" },
-      { id: 4, title: "Coquillages" },
-      { id: 5, title: "Marteau" },
+      { id: 1, title: "Branche" },
+      { id: 2, title: "Feuillage" },
+      { id: 3, title: "Galet" },
+      { id: 4, title: "Coquillage" },
+      { id: 5, title: "Marteau", pluralTitle: "Marteaux" },
+      { id: 6, title: "Hache" },
+      { id: 7, title: "Ficelle" },
     ]
     await Promise.all(
       items.map(async (item) => {
@@ -151,16 +154,53 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         structure: { connect: { id: 1 } },
       },
       {
-        title: "Confectionner un marteau",
-        description: "Il ne sert à rien pour l'instant...",
+        title: "Fabriquer un marteau",
         stamina: -2,
         probability: 60,
-        successMessage: "Vous avez confectionné un marteau.",
+        successMessage: "Vous avez fabriqué un marteau.",
         failureMessage:
-          "En essayant de confectionner un marteau, vous avez cassé vos matériaux !",
+          "En essayant de fabriquer un marteau, vous avez cassé vos matériaux !",
         structure: { connect: { id: 2 } },
+        requiredItems: {
+          create: [
+            { itemId: 1, quantity: 1 },
+            { itemId: 3, quantity: 1 },
+            { itemId: 7, quantity: 1 },
+          ],
+        },
         loot: {
           create: { itemId: 5, minQuantity: 1, maxQuantity: 1 },
+        },
+      },
+      {
+        title: "Fabriquer une hache",
+        stamina: -2,
+        probability: 100,
+        successMessage: "Vous avez fabriqué une hache.",
+        failureMessage:
+          "En essayant de fabriquer une hache, vous avez cassé vos matériaux !",
+        structure: { connect: { id: 2 } },
+        requiredItems: {
+          create: [
+            { itemId: 1, quantity: 1 },
+            { itemId: 3, quantity: 2 },
+            { itemId: 7, quantity: 2 },
+            { itemId: 5, quantity: 1 },
+          ],
+        },
+        loot: {
+          create: { itemId: 6, minQuantity: 1, maxQuantity: 1 },
+        },
+      },
+      {
+        title: "Confectionner de la ficelle",
+        stamina: 0,
+        probability: 90,
+        successMessage: "Vous avez confectionné de la ficelle.",
+        failureMessage: "Vous avez cassé vos matériaux !",
+        requiredItems: { create: { itemId: 2, quantity: 1 } },
+        loot: {
+          create: { itemId: 7, minQuantity: 1, maxQuantity: 1 },
         },
       },
     ]

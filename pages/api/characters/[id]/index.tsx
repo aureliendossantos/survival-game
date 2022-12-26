@@ -20,11 +20,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const characterId = String(req.query.id)
   await updateStructures(characterId)
   const newStamina = await updateStamina(characterId)
-  const character = await prisma.character.update({
+  let character = await prisma.character.update({
     where: { id: characterId },
     data: { stamina: newStamina, lastStaminaSet: new Date() },
     include: {
-      inventory: { include: { item: true } },
+      inventory: {
+        include: {
+          item: {
+            include: {
+              inActionCost: {
+                include: {
+                  action: {
+                    include: { requiredItems: { include: { item: true } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       map: {
         include: {
           cells: {
@@ -40,6 +54,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       },
     },
   })
+  character.inventory = character.inventory.filter(
+    (entry) => entry.quantity > 0
+  )
   const cell = await prisma.cell.findFirst({
     where: {
       characters: {
@@ -47,10 +64,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       },
     },
     include: {
-      terrain: { include: { actions: true } },
+      characters: true,
+      terrain: {
+        include: {
+          actions: {
+            include: { requiredItems: { include: { item: true } } },
+          },
+        },
+      },
       builtStructures: {
         include: {
-          structure: { include: { actions: true } },
+          structure: {
+            include: {
+              actions: {
+                include: { requiredItems: { include: { item: true } } },
+              },
+            },
+          },
           contributors: true,
           modules: true,
         },
