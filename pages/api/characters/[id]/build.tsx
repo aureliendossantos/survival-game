@@ -9,7 +9,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method == "PATCH") {
     const characterId = String(req.query.id)
     const structureId = req.body.id
-    const parentBuiltStructureId = String(req.body.parentId)
+    const parentBuiltStructureId = req.body.parentId
+      ? String(req.body.parentId)
+      : null
     // L'inventaire contient-il les ressources requises ?
     const structure = await prisma.structure.findUnique({
       where: { id: structureId },
@@ -22,7 +24,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           AND: [
             { characterId: characterId },
             { itemId: requirement.itemId },
-            { quantity: { gt: requirement.quantity } },
+            { quantity: { gte: requirement.quantity } },
           ],
         },
       })
@@ -61,12 +63,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           contributors: { connect: { id: characterId } },
         },
       })
-      res.json({
+      return res.json({
         success: true,
         message: `Vous avez construit un ${structure.title}.`,
       })
     } else {
-      res.json({
+      return res.json({
         success: false,
         message: "Vous n'avez pas assez de ressources.",
       })

@@ -10,7 +10,6 @@ async function updateStamina(characterId: string) {
     },
   })
   const hoursSinceUpdate = getHoursSince(character.lastStaminaSet)
-  console.log(`Character has not been updated for ${hoursSinceUpdate} hours.`)
   return Math.min(character.stamina + hoursSinceUpdate, 10)
 }
 
@@ -78,9 +77,6 @@ async function updateStructures(characterId: string) {
   for (const [index, structure] of builtStructures.entries()) {
     const now = new Date()
     const hoursSinceUpdate = getHoursSince(structure.lastDurabilitySet)
-    console.log(
-      `Structure ${structure.id} has not been updated for ${hoursSinceUpdate} hours.`
-    )
     if (hoursSinceUpdate > 0) {
       const newDurability = Math.max(0, structure.durability - hoursSinceUpdate)
       await prisma.builtStructure.updateMany({
