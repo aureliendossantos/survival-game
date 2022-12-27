@@ -132,12 +132,7 @@ export default function Home({ terrains, structures }: Props) {
         cell={characterCell}
         structures={structures}
       />
-      <div className="section">
-        <h3>Inventaire</h3>
-        <div className="buttons-list">
-          <Inventory character={character} />
-        </div>
-      </div>
+      <Inventory character={character} />
     </>
   )
 }

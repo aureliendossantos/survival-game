@@ -9,7 +9,7 @@ import {
   CharacterWithInventoryAndMap,
   StructureWithAllInfo,
 } from "types/api"
-import Item from "./RenderItem"
+import RenderItem from "./RenderItem"
 import { StructureInfo, TerrainInfo } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
 
@@ -141,7 +141,11 @@ function BuildButton({ character, structure, parent }: BuildButtonProps) {
       <div className="item">
         {structure.requiredItems.map((requirement) => (
           <span key={requirement.itemId}>
-            <Item item={requirement.item} quantity={requirement.quantity} />{" "}
+            <RenderItem
+              item={requirement.item}
+              quantity={requirement.quantity}
+              inventory={character.inventory}
+            />{" "}
           </span>
         ))}
       </div>
@@ -227,7 +231,11 @@ export function ActionButton({ character, action }: ActionButtonProps) {
         <div className="item">
           {action.requiredItems.map((requirement) => (
             <span key={requirement.itemId}>
-              <Item item={requirement.item} quantity={requirement.quantity} />{" "}
+              <RenderItem
+                item={requirement.item}
+                quantity={requirement.quantity}
+                inventory={character.inventory}
+              />{" "}
             </span>
           ))}
         </div>
