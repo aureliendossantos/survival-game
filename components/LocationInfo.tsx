@@ -9,6 +9,7 @@ import {
   BuildStarters,
   CellActions,
   InventoryActions,
+  RepairButton,
   StructureActions,
 } from "./Actions"
 import Card from "./Card"
@@ -41,7 +42,6 @@ export function TerrainInfo({ character, cell, structures }: TerrainInfoProps) {
     >
       <div className="buttons-list">
         <CellActions character={character} cell={cell} />
-        <BuildStarters character={character} structures={structures} />
       </div>
     </Card>
   )
@@ -86,6 +86,7 @@ export function StructureInfo({
             builtStructure={structure}
             structures={structures}
           />
+          <RepairButton character={character} structure={structure} />
         </div>
         {structure.modules.map((structureModule) => (
           <StructureInfo

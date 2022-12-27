@@ -15,8 +15,9 @@ import {
 import Inventory from "components/Inventory"
 import MapControls from "components/MapControls"
 import query from "lib/query"
-import Actions from "components/Actions"
+import Actions, { InventoryActions } from "components/Actions"
 import ProgressBar from "@ramonak/react-progress-bar"
+import Card from "components/Card"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
@@ -54,25 +55,31 @@ async function giveItem(characterId: string, itemId: number, quantity: number) {
   )
 }
 
-type Props = {
-  terrains: TerrainWithActions[]
-  structures: StructureWithAllInfo[]
+type LoadingHomeProps = {
+  text: string
+  percentage: number
+  error?: boolean
 }
 
-function LoadingHome({ text, percentage }) {
+function LoadingHome({ text, percentage, error }: LoadingHomeProps) {
   return (
     <div className="loading">
       <ProgressBar
         animateOnRender
         isLabelVisible={false}
         completed={percentage}
-        bgColor="#2b6eff"
+        bgColor={error ? "pink" : "#2b6eff"}
         width="150px"
         margin="6px 0"
       />
       <p>{text}</p>
     </div>
   )
+}
+
+type Props = {
+  terrains: TerrainWithActions[]
+  structures: StructureWithAllInfo[]
 }
 
 export default function Home({ terrains, structures }: Props) {
@@ -86,12 +93,13 @@ export default function Home({ terrains, structures }: Props) {
     Error
   >(id ? `/api/characters/${id}` : null, fetcher, { refreshInterval: 5000 })
   if (router.isFallback || !router.isReady)
-    return <LoadingHome text="Chargement de la page..." percentage={30} />
+    return <LoadingHome text="Chargement de la page..." percentage={70} />
   if (error)
     return (
       <LoadingHome
         text={`Erreur ${error.name} : ${error.message}`}
-        percentage={0}
+        percentage={100}
+        error
       />
     )
   if (!response)
@@ -133,6 +141,11 @@ export default function Home({ terrains, structures }: Props) {
         structures={structures}
       />
       <Inventory character={character} />
+      <Card iconColor="mountains" icon="book" title="Manuel de survie">
+        <div className="buttons-list">
+          <InventoryActions character={character} structures={structures} />
+        </div>
+      </Card>
     </>
   )
 }

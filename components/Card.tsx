@@ -1,10 +1,10 @@
 import { ReactNode } from "react"
 import { FaCampground, FaHammer } from "react-icons/fa"
-import { GiKnapsack } from "react-icons/gi"
+import { GiSchoolBag, GiWhiteBook } from "react-icons/gi"
 
 type CardProps = {
   dottedBorder?: boolean
-  icon?: "camp" | "bench" | "bag"
+  icon?: "camp" | "bench" | "bag" | "book"
   iconColor: string
   title: string
   position?: string
@@ -33,7 +33,8 @@ export default function Card({
         <div className={"icon " + iconColor}>
           {icon == "camp" && <FaCampground />}
           {icon == "bench" && <FaHammer />}
-          {icon == "bag" && <GiKnapsack />}
+          {icon == "bag" && <GiSchoolBag />}
+          {icon == "book" && <GiWhiteBook />}
         </div>
         <div className="text">
           <div className="title">

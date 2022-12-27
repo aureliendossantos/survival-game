@@ -24,6 +24,7 @@ const builtStructureWithAllInfo = Prisma.validator<Prisma.BuiltStructureArgs>()(
           actions: {
             include: { requiredItems: { include: { item: true } } },
           },
+          repairMaterials: { include: { item: true } },
         },
       },
       contributors: true,
@@ -66,6 +67,7 @@ const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
             actions: {
               include: { requiredItems: { include: { item: true } } },
             },
+            repairMaterials: { include: { item: true } },
           },
         },
         contributors: true,

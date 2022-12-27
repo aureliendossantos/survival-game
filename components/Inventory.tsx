@@ -1,6 +1,6 @@
 import { Item } from "@prisma/client"
 import { CharacterWithInventoryAndMap } from "types/api"
-import { InventoryActions } from "./Actions"
+import { BuildStarters, InventoryActions } from "./Actions"
 import Card from "./Card"
 import RenderItem from "./RenderItem"
 
@@ -10,11 +10,8 @@ type InventoryProps = {
 
 export default function Inventory({ character }: InventoryProps) {
   return (
-    <Card icon="bag" iconColor="mountains" title="Besace">
+    <Card icon="bag" iconColor="mountains" title="Sac à dos">
       <InventoryItems character={character} />
-      <div className="buttons-list">
-        <InventoryActions character={character} />
-      </div>
     </Card>
   )
 }
@@ -22,6 +19,7 @@ export default function Inventory({ character }: InventoryProps) {
 function InventoryItems({ character }: InventoryProps) {
   return (
     <div className="buttons-list">
+      {character.inventory.length == 0 && "Vous ne portez rien dans votre sac."}
       {character.inventory.map((entry) => (
         <li key={entry.item.id} className="item">
           <RenderItem item={entry.item} quantity={entry.quantity} />{" "}

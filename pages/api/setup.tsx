@@ -86,12 +86,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         id: 1,
         title: "Campement",
         description: "Un campement rudimentaire pour reprendre des forces.",
-        minDurability: 60,
-        maxDurability: 120,
+        minDurability: 30,
+        maxDurability: 60,
         requiredItems: {
           create: [
             { itemId: 1, quantity: 20 },
             { itemId: 2, quantity: 10 },
+          ],
+        },
+        repairMaterials: {
+          create: [
+            { itemId: 1, quantity: 4 },
+            { itemId: 2, quantity: 2 },
           ],
         },
         modules: {
@@ -100,14 +106,19 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               id: 2,
               title: "Établi",
               description: "Pour confectionner des outils simples.",
-              minDurability: 20,
-              maxDurability: 40,
               requiredItems: {
                 create: [
                   { itemId: 1, quantity: 15 },
                   { itemId: 3, quantity: 10 },
                 ],
               },
+              repairMaterials: {
+                create: [
+                  { itemId: 1, quantity: 2 },
+                  { itemId: 3, quantity: 1 },
+                ],
+              },
+              repairAmount: 10,
             },
           ],
         },
@@ -195,7 +206,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       {
         title: "Confectionner de la ficelle",
         stamina: 0,
-        probability: 90,
+        probability: 80,
         successMessage: "Vous avez confectionné de la ficelle.",
         failureMessage: "Vous avez cassé vos matériaux !",
         requiredItems: { create: { itemId: 2, quantity: 1 } },

@@ -79,6 +79,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               actions: {
                 include: { requiredItems: { include: { item: true } } },
               },
+              repairMaterials: { include: { item: true } },
             },
           },
           contributors: true,

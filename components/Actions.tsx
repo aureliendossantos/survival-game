@@ -24,6 +24,17 @@ async function doAction(characterId: string, actionId: number) {
   )
 }
 
+async function repair(characterId: string, builtStructureId: string) {
+  const body = {
+    id: builtStructureId,
+  }
+  return await query(
+    "/api/characters/" + characterId + "/repair",
+    "PATCH",
+    body
+  )
+}
+
 async function build(
   characterId: string,
   structureId: number,
@@ -170,11 +181,16 @@ export function CellActions({ character, cell }: CellActionsProps) {
 
 type InventoryActionsProps = {
   character: CharacterWithInventoryAndMap
+  structures: StructureWithAllInfo[]
 }
 
-export function InventoryActions({ character }: InventoryActionsProps) {
+export function InventoryActions({
+  character,
+  structures,
+}: InventoryActionsProps) {
   return (
     <>
+      <BuildStarters character={character} structures={structures} />
       {character.inventory.map((entry) =>
         entry.item.inActionCost
           .filter((entry) => entry.action.structureId == null)
@@ -243,6 +259,51 @@ export function ActionButton({ character, action }: ActionButtonProps) {
       {action.probability < 100 && (
         <div className="item">{action.probability}% réussite</div>
       )}
+    </li>
+  )
+}
+
+type RepairButtonProps = {
+  character: CharacterWithInventoryAndMap
+  structure: BuiltStructureWithAllInfo
+}
+
+export function RepairButton({ character, structure }: RepairButtonProps) {
+  const { mutate } = useSWRConfig()
+  return (
+    <li>
+      <ProgressButton
+        label={<p>Solidifier la structure</p>}
+        task={async () => {
+          const response = await repair(character.id, structure.id)
+          response.success
+            ? toast.success(response.message)
+            : toast.error(response.message)
+          mutate("/api/characters/" + character.id)
+        }}
+      />
+      {structure.structure.repairMaterials.length > 0 && (
+        <div className="item">
+          {structure.structure.repairMaterials.map((requirement) => (
+            <span key={requirement.itemId}>
+              <RenderItem
+                item={requirement.item}
+                quantity={requirement.quantity}
+                inventory={character.inventory}
+              />{" "}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="item">
+        +
+        {Math.round(
+          (structure.structure.repairAmount /
+            structure.structure.maxDurability) *
+            100
+        )}
+        % solidité
+      </div>
     </li>
   )
 }

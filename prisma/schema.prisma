@@ -33,14 +33,15 @@ model Character {
 }
 
 model Item {
-  id           Int             @id @default(autoincrement())
-  description  String?
-  title        String
-  pluralTitle  String?
-  inActionLoot ActionLoot[]
-  inActionCost ActionCost[]
-  inInventory  Inventory[]
-  inStructure  StructureCost[]
+  id                Int                   @id @default(autoincrement())
+  description       String?
+  title             String
+  pluralTitle       String?
+  inActionLoot      ActionLoot[]
+  inActionCost      ActionCost[]
+  inInventory       Inventory[]
+  inStructure       StructureCost[]
+  inStructureRepair StructureRepairCost[]
 }
 
 model Inventory {
@@ -97,23 +98,35 @@ model BuiltStructure {
 }
 
 model Structure {
-  id                Int              @id @default(autoincrement())
+  id                Int                   @id @default(autoincrement())
   title             String
   description       String?
-  minDurability     Int              @default(100)
-  maxDurability     Int              @default(100)
+  minDurability     Int                   @default(30)
+  maxDurability     Int                   @default(40)
   requiredItems     StructureCost[]
+  repairMaterials   StructureRepairCost[]
+  repairAmount      Int                   @default(20)
   actions           Action[]
   moduleOfId        Int?
-  moduleOf          Structure?       @relation("StructureModules", fields: [moduleOfId], references: [id])
-  modules           Structure[]      @relation("StructureModules")
+  moduleOf          Structure?            @relation("StructureModules", fields: [moduleOfId], references: [id])
+  modules           Structure[]           @relation("StructureModules")
   upgradeOfId       Int?
-  upgradeOf         Structure?       @relation("StructureUpgrades", fields: [upgradeOfId], references: [id])
-  availableUpgrades Structure[]      @relation("StructureUpgrades")
+  upgradeOf         Structure?            @relation("StructureUpgrades", fields: [upgradeOfId], references: [id])
+  availableUpgrades Structure[]           @relation("StructureUpgrades")
   builtStructures   BuiltStructure[]
 }
 
 model StructureCost {
+  itemId      Int
+  quantity    Int       @default(0)
+  structureId Int
+  item        Item      @relation(fields: [itemId], references: [id])
+  structure   Structure @relation(fields: [structureId], references: [id])
+
+  @@unique([structureId, itemId])
+}
+
+model StructureRepairCost {
   itemId      Int
   quantity    Int       @default(0)
   structureId Int
