@@ -105,6 +105,12 @@ export default function Home({ terrains, structures }: Props) {
       </div>
       <p className="title">{character.name}</p>
       <div className="buttons-list">
+        <div className="section">
+          <Map character={character} terrains={terrains} />
+          <MapControls character={character} />
+        </div>
+      </div>
+      <div className="buttons-list">
         <span>Énergie</span>
         <ProgressBar
           completed={String(character.stamina)}
@@ -115,12 +121,6 @@ export default function Home({ terrains, structures }: Props) {
           width="200px"
           margin="0 6px"
         />
-      </div>
-      <div className="buttons-list">
-        <div className="section">
-          <Map character={character} terrains={terrains} />
-          <MapControls character={character} />
-        </div>
       </div>
       {characterCell.characters
         .filter((char) => char.id != character.id)
