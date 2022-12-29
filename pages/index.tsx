@@ -93,32 +93,6 @@ export default function LoginPage() {
         >
           2. Remplir la base avec les valeurs par défaut
         </button>
-        <br />
-        <button
-          onClick={async () => {
-            toast.promise(query("/api/map", "POST"), {
-              loading: "Création d'un monde",
-              success: (data) => `${data.message}`,
-              error: "Une erreur est survenue",
-            })
-          }}
-        >
-          Créer une carte
-        </button>
-        <button
-          onClick={async () => {
-            const body = {
-              type: 1,
-            }
-            toast.promise(query("/api/map", "POST", body), {
-              loading: "Création d'un monde",
-              success: (data) => `${data.message}`,
-              error: "Une erreur est survenue",
-            })
-          }}
-        >
-          Créer une grande carte
-        </button>
       </div>
     </>
   )

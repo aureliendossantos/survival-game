@@ -44,7 +44,8 @@ export default function Card({
         </div>
         {(author || contents) && (
           <div className="author">
-            {author && <div>{author}</div>}
+            {author &&
+              author.map((author, index) => <div key={index}>{author}</div>)}
             {contents &&
               contents.map((line, index) => <div key={index}>{line}</div>)}
           </div>

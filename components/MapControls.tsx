@@ -1,13 +1,13 @@
 import query from "lib/query"
 import toast from "react-hot-toast"
 import {
-  ImArrowLeft2,
-  ImArrowUp2,
   ImArrowDown2,
+  ImArrowLeft2,
   ImArrowRight2,
+  ImArrowUp2,
 } from "react-icons/im"
 import { useSWRConfig } from "swr"
-import { CharacterWithInventoryAndMap } from "types/api"
+import { CharacterWithAllInfo } from "types/api"
 import ProgressButton from "./ProgressButton/ProgressButton"
 
 async function moveCharacter(id: string, x: number, y: number, mapId: number) {
@@ -21,7 +21,7 @@ async function moveCharacter(id: string, x: number, y: number, mapId: number) {
 }
 
 type MapControlsProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
 }
 
 export default function MapControls({ character }: MapControlsProps) {
@@ -41,10 +41,18 @@ export default function MapControls({ character }: MapControlsProps) {
             cell.x == character.x + dir.x && cell.y == character.y + dir.y
         )
         const disabled = !targetCell || targetCell.terrainId == "sea"
+        const effort = disabled
+          ? 0
+          : targetCell.terrainId == "forest"
+          ? 1
+          : targetCell.terrainId == "mountains"
+          ? 2
+          : 0
         return (
           <ProgressButton
             key={index}
             label={dir.label}
+            dots={effort}
             disabled={disabled}
             icon={true}
             task={async () => {

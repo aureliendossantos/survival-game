@@ -24,14 +24,22 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     where: { id: characterId },
     data: { stamina: newStamina, lastStaminaSet: new Date() },
     include: {
+      tools: {
+        orderBy: [{ toolId: "asc" }, { durability: "desc" }],
+        include: { tool: true },
+      },
       inventory: {
+        orderBy: { itemId: "asc" },
         include: {
           item: {
             include: {
               inActionCost: {
                 include: {
                   action: {
-                    include: { requiredItems: { include: { item: true } } },
+                    include: {
+                      requiredItems: { include: { item: true } },
+                      requiredTools: true,
+                    },
                   },
                 },
               },
@@ -68,7 +76,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       terrain: {
         include: {
           actions: {
-            include: { requiredItems: { include: { item: true } } },
+            include: {
+              requiredItems: { include: { item: true } },
+              requiredTools: true,
+            },
           },
         },
       },
@@ -77,7 +88,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           structure: {
             include: {
               actions: {
-                include: { requiredItems: { include: { item: true } } },
+                include: {
+                  requiredItems: { include: { item: true } },
+                  requiredTools: true,
+                },
               },
               repairMaterials: { include: { item: true } },
             },

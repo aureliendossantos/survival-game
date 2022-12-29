@@ -29,6 +29,7 @@ model Character {
   cell            Cell             @relation(fields: [mapId, x, y], references: [mapId, x, y])
   user            User             @relation(fields: [userId], references: [id])
   inventory       Inventory[]
+  tools           ToolInstance[]
   builtStructures BuiltStructure[]
 }
 
@@ -44,12 +45,35 @@ model Item {
   inStructureRepair StructureRepairCost[]
 }
 
+model Tool {
+  id                Int              @id @default(autoincrement())
+  description       String?
+  title             String
+  pluralTitle       String?
+  durability        Int              @default(1)
+  instances         ToolInstance[]
+  inAction          Action[]
+  inActionLoot      ActionToolLoot[]
+  inStructure       Structure[]
+  inStructureRepair Structure[]      @relation("StructureRepairTools")
+}
+
+model ToolInstance {
+  id                String    @id @default(cuid())
+  durability        Int
+  lastDurabilitySet DateTime  @default(now())
+  toolId            Int
+  tool              Tool      @relation(fields: [toolId], references: [id])
+  inCharacter       Character @relation(fields: [characterId], references: [id])
+  characterId       String
+}
+
 model Inventory {
   characterId String
-  itemId      Int
-  quantity    Int       @default(0)
   character   Character @relation(fields: [characterId], references: [id])
+  itemId      Int
   item        Item      @relation(fields: [itemId], references: [id])
+  quantity    Int       @default(0)
 
   @@unique([characterId, itemId])
 }
@@ -104,7 +128,9 @@ model Structure {
   minDurability     Int                   @default(30)
   maxDurability     Int                   @default(40)
   requiredItems     StructureCost[]
+  requiredTools     Tool[]
   repairMaterials   StructureRepairCost[]
+  repairTools       Tool[]                @relation("StructureRepairTools")
   repairAmount      Int                   @default(20)
   actions           Action[]
   moduleOfId        Int?
@@ -137,23 +163,25 @@ model StructureRepairCost {
 }
 
 model Action {
-  id             Int          @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   title          String
   description    String?
-  stamina        Int          @default(0)
-  probability    Int          @default(100)
-  successMessage String       @default("Vous avez réussi !")
-  failureMessage String?      @default("Vous avez échoué.")
+  stamina        Int              @default(0)
+  probability    Int              @default(100)
+  successMessage String           @default("Vous avez réussi !")
+  failureMessage String?          @default("Vous avez échoué.")
   requiredItems  ActionCost[]
+  requiredTools  Tool[]
   loot           ActionLoot[]
+  toolLoot       ActionToolLoot[]
   terrains       Terrain[]
-  structure      Structure?   @relation(fields: [structureId], references: [id])
+  structure      Structure?       @relation(fields: [structureId], references: [id])
   structureId    Int?
 }
 
 model ActionCost {
   itemId   Int
-  quantity Int    @default(0)
+  quantity Int    @default(1)
   actionId Int
   item     Item   @relation(fields: [itemId], references: [id])
   action   Action @relation(fields: [actionId], references: [id])
@@ -163,11 +191,22 @@ model ActionCost {
 
 model ActionLoot {
   itemId      Int
-  minQuantity Int?   @default(0)
-  maxQuantity Int?   @default(0)
+  minQuantity Int    @default(1)
+  maxQuantity Int    @default(1)
   actionId    Int
   action      Action @relation(fields: [actionId], references: [id])
   item        Item   @relation(fields: [itemId], references: [id])
 
   @@unique([actionId, itemId])
+}
+
+model ActionToolLoot {
+  toolId      Int
+  minQuantity Int    @default(1)
+  maxQuantity Int    @default(1)
+  actionId    Int
+  action      Action @relation(fields: [actionId], references: [id])
+  tool        Tool   @relation(fields: [toolId], references: [id])
+
+  @@unique([actionId, toolId])
 }

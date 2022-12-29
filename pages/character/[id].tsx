@@ -8,7 +8,7 @@ import { useRouter } from "next/router"
 import useSWR from "swr"
 import {
   CellWithAllInfo,
-  CharacterWithInventoryAndMap,
+  CharacterWithAllInfo,
   StructureWithAllInfo,
   TerrainWithActions,
 } from "types/api"
@@ -87,7 +87,7 @@ export default function Home({ terrains, structures }: Props) {
   const { id } = router.query
   const { data: response, error } = useSWR<
     {
-      character: CharacterWithInventoryAndMap
+      character: CharacterWithAllInfo
       cell: CellWithAllInfo
     },
     Error
@@ -109,7 +109,11 @@ export default function Home({ terrains, structures }: Props) {
   return (
     <>
       <div>
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            error: { duration: 8000, style: { background: "#edd1d1" } },
+          }}
+        />
       </div>
       <p className="title">{character.name}</p>
       <div className="buttons-list">

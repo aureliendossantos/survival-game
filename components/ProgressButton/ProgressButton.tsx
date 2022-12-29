@@ -3,6 +3,7 @@ import AwesomeButtonStyles from "./awesomebutton.module.scss"
 
 type ButtonProps = {
   label: any
+  dots?: number
   task: Function
   disabled?: boolean
   icon?: boolean
@@ -10,6 +11,7 @@ type ButtonProps = {
 
 export default function ProgressButton({
   label,
+  dots,
   task,
   disabled,
   icon,
@@ -28,7 +30,14 @@ export default function ProgressButton({
         release()
       }}
     >
-      {label}
+      <div className="action-label">
+        {dots > 0 && (
+          <div className={"effort-dots" + (icon ? " dots-on-icon" : "")}>
+            {"⦁".repeat(dots)}
+          </div>
+        )}
+        <div className="label">{label}</div>
+      </div>
     </AwesomeButtonProgress>
   )
 }

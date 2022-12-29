@@ -2,12 +2,12 @@ import { FaCampground } from "react-icons/fa"
 import { GiPerson } from "react-icons/gi"
 import {
   CellWithBuiltStructures,
-  CharacterWithInventoryAndMap,
+  CharacterWithAllInfo,
   TerrainWithActions,
 } from "types/api"
 
 type MapProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   terrains: TerrainWithActions[]
 }
 
@@ -45,15 +45,11 @@ export default function Map({ character, terrains }: MapProps) {
 type CellProps = {
   x: number
   y: number
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   cell: CellWithBuiltStructures
 }
 
-function characterIsAt(
-  character: CharacterWithInventoryAndMap,
-  x: number,
-  y: number
-) {
+function characterIsAt(character: CharacterWithAllInfo, x: number, y: number) {
   return character.x == x && character.y == y
 }
 

@@ -3,13 +3,13 @@ import query from "lib/query"
 import toast from "react-hot-toast"
 import { useSWRConfig } from "swr"
 import {
-  ActionWithRequiredItems,
+  ActionWithRequirements,
   BuiltStructureWithAllInfo,
   CellWithAllInfo,
-  CharacterWithInventoryAndMap,
+  CharacterWithAllInfo,
   StructureWithAllInfo,
 } from "types/api"
-import RenderItem from "./RenderItem"
+import RenderItem, { RenderToolRequirement } from "./RenderItem"
 import { StructureInfo, TerrainInfo } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
 
@@ -48,7 +48,7 @@ async function build(
 }
 
 type ActionsProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   cell: CellWithAllInfo
   structures: StructureWithAllInfo[]
 }
@@ -73,7 +73,7 @@ export default function Actions({ character, cell, structures }: ActionsProps) {
 }
 
 type BuildStartersProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   structures: StructureWithAllInfo[]
 }
 
@@ -94,7 +94,7 @@ export function BuildStarters({ character, structures }: BuildStartersProps) {
 }
 
 type BuildModulesProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   builtStructure: BuiltStructureWithAllInfo
   structures: StructureWithAllInfo[]
 }
@@ -104,6 +104,7 @@ export function BuildModules({
   builtStructure,
   structures,
 }: BuildModulesProps) {
+  if (builtStructure.durability == 0) return null
   return (
     <>
       {structures
@@ -126,7 +127,7 @@ export function BuildModules({
 }
 
 type BuildButtonProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   structure: StructureWithAllInfo
   parent?: BuiltStructure
 }
@@ -165,7 +166,7 @@ function BuildButton({ character, structure, parent }: BuildButtonProps) {
 }
 
 type CellActionsProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   cell: CellWithAllInfo
 }
 
@@ -180,7 +181,7 @@ export function CellActions({ character, cell }: CellActionsProps) {
 }
 
 type InventoryActionsProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   structures: StructureWithAllInfo[]
 }
 
@@ -207,7 +208,7 @@ export function InventoryActions({
 }
 
 type StructureActionsProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   builtStructure: BuiltStructureWithAllInfo
 }
 
@@ -215,6 +216,13 @@ export function StructureActions({
   character,
   builtStructure,
 }: StructureActionsProps) {
+  if (builtStructure.durability == 0)
+    return (
+      <p>
+        Vous ne pouvez pas utiliser cette structure car elle est trop
+        endommagée.
+      </p>
+    )
   return (
     <>
       {builtStructure.structure.actions.map((action) => (
@@ -225,8 +233,8 @@ export function StructureActions({
 }
 
 type ActionButtonProps = {
-  character: CharacterWithInventoryAndMap
-  action: ActionWithRequiredItems
+  character: CharacterWithAllInfo
+  action: ActionWithRequirements
 }
 
 export function ActionButton({ character, action }: ActionButtonProps) {
@@ -234,7 +242,8 @@ export function ActionButton({ character, action }: ActionButtonProps) {
   return (
     <li>
       <ProgressButton
-        label={<p>{action.title}</p>}
+        label={action.title}
+        dots={action.stamina < 0 ? -action.stamina : 0}
         task={async () => {
           const response = await doAction(character.id, action.id)
           response.success
@@ -256,6 +265,19 @@ export function ActionButton({ character, action }: ActionButtonProps) {
           ))}
         </div>
       )}
+      {action.requiredTools.length > 0 && (
+        <div className="item">
+          {"Outils : "}
+          {action.requiredTools.map((tool) => (
+            <span key={tool.id}>
+              <RenderToolRequirement
+                tool={tool}
+                toolInventory={character.tools}
+              />{" "}
+            </span>
+          ))}
+        </div>
+      )}
       {action.probability < 100 && (
         <div className="item">{action.probability}% réussite</div>
       )}
@@ -264,16 +286,23 @@ export function ActionButton({ character, action }: ActionButtonProps) {
 }
 
 type RepairButtonProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   structure: BuiltStructureWithAllInfo
 }
 
 export function RepairButton({ character, structure }: RepairButtonProps) {
   const { mutate } = useSWRConfig()
+  if (structure.durability == structure.structure.maxDurability) return null
   return (
     <li>
       <ProgressButton
-        label={<p>Solidifier la structure</p>}
+        label={
+          <p>
+            {structure.durability > 0
+              ? "Renforcer la structure"
+              : "Réparer la structure"}
+          </p>
+        }
         task={async () => {
           const response = await repair(character.id, structure.id)
           response.success

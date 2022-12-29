@@ -8,12 +8,15 @@ export type TerrainWithActions = Prisma.TerrainGetPayload<
   typeof terrainWithActions
 >
 
-const actionWithRequiredItems = Prisma.validator<Prisma.ActionArgs>()({
-  include: { requiredItems: { include: { item: true } } },
+const actionWithRequirements = Prisma.validator<Prisma.ActionArgs>()({
+  include: {
+    requiredItems: { include: { item: true } },
+    requiredTools: true,
+  },
 })
 
-export type ActionWithRequiredItems = Prisma.ActionGetPayload<
-  typeof actionWithRequiredItems
+export type ActionWithRequirements = Prisma.ActionGetPayload<
+  typeof actionWithRequirements
 >
 
 const builtStructureWithAllInfo = Prisma.validator<Prisma.BuiltStructureArgs>()(
@@ -22,7 +25,10 @@ const builtStructureWithAllInfo = Prisma.validator<Prisma.BuiltStructureArgs>()(
       structure: {
         include: {
           actions: {
-            include: { requiredItems: { include: { item: true } } },
+            include: {
+              requiredItems: { include: { item: true } },
+              requiredTools: true,
+            },
           },
           repairMaterials: { include: { item: true } },
         },
@@ -42,6 +48,7 @@ const structureWithAllInfo = Prisma.validator<Prisma.StructureArgs>()({
     requiredItems: {
       include: { item: true },
     },
+    requiredTools: true,
     modules: { select: { id: true } },
   },
 })
@@ -56,7 +63,10 @@ const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
     terrain: {
       include: {
         actions: {
-          include: { requiredItems: { include: { item: true } } },
+          include: {
+            requiredItems: { include: { item: true } },
+            requiredTools: true,
+          },
         },
       },
     },
@@ -65,7 +75,10 @@ const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
         structure: {
           include: {
             actions: {
-              include: { requiredItems: { include: { item: true } } },
+              include: {
+                requiredItems: { include: { item: true } },
+                requiredTools: true,
+              },
             },
             repairMaterials: { include: { item: true } },
           },
@@ -93,8 +106,19 @@ export type CellWithBuiltStructures = Prisma.CellGetPayload<
   typeof cellWithBuiltStructures
 >
 
-const characterWithInventoryAndMap = Prisma.validator<Prisma.CharacterArgs>()({
+const toolInstanceWithAllInfo = Prisma.validator<Prisma.ToolInstanceArgs>()({
+  include: { tool: true },
+})
+
+export type ToolInstanceWithAllInfo = Prisma.ToolInstanceGetPayload<
+  typeof toolInstanceWithAllInfo
+>
+
+const characterWithAllInfo = Prisma.validator<Prisma.CharacterArgs>()({
   include: {
+    tools: {
+      include: { tool: true },
+    },
     inventory: {
       include: {
         item: {
@@ -102,7 +126,10 @@ const characterWithInventoryAndMap = Prisma.validator<Prisma.CharacterArgs>()({
             inActionCost: {
               include: {
                 action: {
-                  include: { requiredItems: { include: { item: true } } },
+                  include: {
+                    requiredItems: { include: { item: true } },
+                    requiredTools: true,
+                  },
                 },
               },
             },
@@ -126,6 +153,6 @@ const characterWithInventoryAndMap = Prisma.validator<Prisma.CharacterArgs>()({
   },
 })
 
-export type CharacterWithInventoryAndMap = Prisma.CharacterGetPayload<
-  typeof characterWithInventoryAndMap
+export type CharacterWithAllInfo = Prisma.CharacterGetPayload<
+  typeof characterWithAllInfo
 >

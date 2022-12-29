@@ -1,5 +1,7 @@
+import { Action, Prisma } from "@prisma/client"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
+import { ActionWithRequirements } from "types/api"
 
 function getDate() {
   const now = new Date()
@@ -15,19 +17,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // Delete everything in the right order
     console.log(getDate() + " start deleting...")
     await prisma.actionLoot.deleteMany()
+    await prisma.actionToolLoot.deleteMany()
     await prisma.actionCost.deleteMany()
     await prisma.structureCost.deleteMany()
+    await prisma.structureRepairCost.deleteMany()
     await prisma.inventory.deleteMany()
     await prisma.builtStructure.deleteMany()
     await prisma.structure.deleteMany()
     await prisma.action.deleteMany()
     await prisma.item.deleteMany()
+    await prisma.toolInstance.deleteMany()
+    await prisma.tool.deleteMany()
     await prisma.character.deleteMany()
     await prisma.cell.deleteMany()
     await prisma.terrain.deleteMany()
     await prisma.map.deleteMany()
     await prisma.user.deleteMany()
-    console.log(getDate() + " deleted 12 tables.")
+    console.log(getDate() + " deleted all tables.")
     res.json({
       success: true,
       message: "Tables vidées. (" + getDate() + ")",
@@ -69,15 +75,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const items = [
       { id: 1, title: "Branche" },
       { id: 2, title: "Feuillage" },
-      { id: 3, title: "Galet" },
-      { id: 4, title: "Coquillage" },
-      { id: 5, title: "Marteau", pluralTitle: "Marteaux" },
-      { id: 6, title: "Hache" },
-      { id: 7, title: "Ficelle" },
+      { id: 3, title: "Ficelle" },
+      { id: 4, title: "Galet" },
+      { id: 7, title: "Coquillage" },
     ]
     await Promise.all(
       items.map(async (item) => {
         await prisma.item.create({ data: item })
+      })
+    )
+    const tools = [
+      { id: 1, title: "Marteau", pluralTitle: "Marteaux", durability: 6 },
+      { id: 2, title: "Hache", durability: 13 },
+      { id: 3, title: "Aiguille", durability: 17 },
+    ]
+    await Promise.all(
+      tools.map(async (tool) => {
+        await prisma.tool.create({ data: tool })
       })
     )
     console.log(getDate() + " created items.")
@@ -109,13 +123,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
               requiredItems: {
                 create: [
                   { itemId: 1, quantity: 15 },
-                  { itemId: 3, quantity: 10 },
+                  { itemId: 4, quantity: 10 },
                 ],
               },
               repairMaterials: {
                 create: [
                   { itemId: 1, quantity: 2 },
-                  { itemId: 3, quantity: 1 },
+                  { itemId: 4, quantity: 1 },
                 ],
               },
               repairAmount: 10,
@@ -130,12 +144,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
     )
     console.log(getDate() + " created structures.")
-    const actions = [
+    const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
       {
         title: "Ramasser du bois",
-        description: "Récupérer des branchages et de la verdure à la main.",
+        description: "Récupérer des branches et de la verdure à la main.",
         stamina: -1,
-        successMessage: "Vous avez trouvé $1 branchages et $2 feuillages.",
+        successMessage: "Vous avez trouvé $1 branches et $2 feuillages.",
         terrains: { connect: { id: "forest" } },
         loot: {
           create: [
@@ -145,15 +159,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       },
       {
-        title: "Ramasser des coquillages",
+        title: "Ramasser des galets",
         description: "Récupérer des galets et des coquillages à la main.",
         stamina: -1,
         successMessage: "Vous avez trouvé $1 galets et $2 coquillages.",
         terrains: { connect: { id: "beach" } },
         loot: {
           create: [
-            { itemId: 3, minQuantity: 2, maxQuantity: 5 },
-            { itemId: 4, minQuantity: 2, maxQuantity: 3 },
+            { itemId: 4, minQuantity: 2, maxQuantity: 5 },
+            { itemId: 7, minQuantity: 2, maxQuantity: 3 },
           ],
         },
       },
@@ -173,48 +187,58 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           "En essayant de fabriquer un marteau, vous avez cassé vos matériaux !",
         structure: { connect: { id: 2 } },
         requiredItems: {
-          create: [
-            { itemId: 1, quantity: 1 },
-            { itemId: 3, quantity: 1 },
-            { itemId: 7, quantity: 1 },
-          ],
+          create: [{ itemId: 1 }, { itemId: 4, quantity: 2 }],
         },
-        loot: {
-          create: { itemId: 5, minQuantity: 1, maxQuantity: 1 },
+        toolLoot: {
+          create: { toolId: 1 },
         },
       },
       {
         title: "Fabriquer une hache",
         stamina: -2,
-        probability: 100,
+        probability: 90,
         successMessage: "Vous avez fabriqué une hache.",
         failureMessage:
           "En essayant de fabriquer une hache, vous avez cassé vos matériaux !",
         structure: { connect: { id: 2 } },
         requiredItems: {
           create: [
-            { itemId: 1, quantity: 1 },
-            { itemId: 3, quantity: 2 },
-            { itemId: 7, quantity: 2 },
-            { itemId: 5, quantity: 1 },
+            { itemId: 1, quantity: 2 },
+            { itemId: 4, quantity: 2 },
           ],
         },
-        loot: {
-          create: { itemId: 6, minQuantity: 1, maxQuantity: 1 },
+        requiredTools: {
+          connect: { id: 1 },
+        },
+        toolLoot: {
+          create: { toolId: 2 },
+        },
+      },
+      {
+        title: "Tailler une aiguille",
+        stamina: 0,
+        probability: 30,
+        successMessage: "Vous avez taillé une aiguille dans la coquille.",
+        failureMessage:
+          "En essayant d'obtenir une aiguille, vous avez cassé la coquille !",
+        requiredItems: { create: { itemId: 7, quantity: 1 } },
+        toolLoot: {
+          create: { toolId: 3, minQuantity: 1, maxQuantity: 1 },
         },
       },
       {
         title: "Confectionner de la ficelle",
         stamina: 0,
-        probability: 80,
+        probability: 70,
         successMessage: "Vous avez confectionné de la ficelle.",
         failureMessage: "Vous avez cassé vos matériaux !",
         requiredItems: { create: { itemId: 2, quantity: 1 } },
+        requiredTools: { connect: { id: 1 } },
         loot: {
           create: { itemId: 7, minQuantity: 1, maxQuantity: 1 },
         },
       },
-    ]
+    ])
     await Promise.all(
       actions.map(async (action) => {
         await prisma.action.create({ data: action })

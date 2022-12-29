@@ -6,18 +6,9 @@ import toast, { Toaster } from "react-hot-toast"
 import { useRouter } from "next/router"
 import React from "react"
 import useSWR, { useSWRConfig } from "swr"
+import query from "lib/query"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
-
-async function query(url, method, body) {
-  return await fetch(url, {
-    method: method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then(function (response) {
-    return response.json()
-  })
-}
 
 async function createCharacter(name, userId, mapId) {
   const body = {
@@ -73,6 +64,49 @@ export default function UserHome() {
             <button type="submit">Créer</button>
           </div>
         </form>
+      </div>
+      <div
+        style={{
+          marginTop: "8em",
+          padding: "1em",
+          borderRadius: "6px",
+          border: "2px solid grey",
+          backgroundColor: "#283148",
+        }}
+      >
+        <h4>Créer un monde</h4>
+        <button
+          onClick={async () => {
+            toast.promise(query("/api/map", "POST"), {
+              loading: "Création d'un monde",
+              success: (data) => {
+                mutate("/api/map")
+                return `${data.message}`
+              },
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          Créer une petite carte
+        </button>
+        <br />
+        <button
+          onClick={async () => {
+            const body = {
+              type: 1,
+            }
+            toast.promise(query("/api/map", "POST", body), {
+              loading: "Création d'un monde",
+              success: (data) => {
+                mutate("/api/map")
+                return `${data.message}`
+              },
+              error: "Une erreur est survenue",
+            })
+          }}
+        >
+          Créer une grande carte
+        </button>
       </div>
     </>
   )

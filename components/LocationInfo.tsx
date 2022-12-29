@@ -1,7 +1,7 @@
 import {
   BuiltStructureWithAllInfo,
   CellWithAllInfo,
-  CharacterWithInventoryAndMap,
+  CharacterWithAllInfo,
   StructureWithAllInfo,
 } from "types/api"
 import {
@@ -27,7 +27,7 @@ export default function LocationInfo({ cell }: LocationInfoProps) {
 }
 
 type TerrainInfoProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   cell: CellWithAllInfo
   structures: StructureWithAllInfo[]
 }
@@ -48,7 +48,7 @@ export function TerrainInfo({ character, cell, structures }: TerrainInfoProps) {
 }
 
 type StructureProps = {
-  character: CharacterWithInventoryAndMap
+  character: CharacterWithAllInfo
   structure: BuiltStructureWithAllInfo
   builtStructures: BuiltStructureWithAllInfo[]
   structures: StructureWithAllInfo[]
