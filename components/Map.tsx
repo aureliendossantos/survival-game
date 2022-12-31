@@ -4,7 +4,7 @@ import {
   CellWithBuiltStructures,
   CharacterWithAllInfo,
   TerrainWithActions,
-} from "types/api"
+} from "lib/api/types"
 
 type MapProps = {
   character: CharacterWithAllInfo

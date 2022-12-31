@@ -3,12 +3,10 @@ import {
   CellWithAllInfo,
   CharacterWithAllInfo,
   StructureWithAllInfo,
-} from "types/api"
+} from "lib/api/types"
 import {
   BuildModules,
-  BuildStarters,
   CellActions,
-  InventoryActions,
   RepairButton,
   StructureActions,
 } from "./Actions"

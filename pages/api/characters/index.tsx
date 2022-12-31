@@ -1,6 +1,14 @@
-import prisma from "/lib/prisma"
+import prisma from "lib/prisma"
+import { NextApiRequest, NextApiResponse } from "next"
 
-export default async (req, res) => {
+export default async function getCharacters(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method == "GET") {
+    const query = await prisma.character.findMany()
+    return res.json(query)
+  }
   if (req.method == "POST") {
     const character = await prisma.character.create({
       data: {
@@ -13,11 +21,8 @@ export default async (req, res) => {
     })
     return res.json({
       success: true,
-      message: "Personnage créé avec l'ID " + character.id,
+      message: `Personnage ${character.name} créé.`,
     })
-  } else if (req.method == "GET") {
-    const query = await prisma.character.findMany()
-    return res.json(query)
   }
   return res.status(405).json({ message: "Method not allowed" })
 }

@@ -1,6 +1,7 @@
-import { CharacterWithAllInfo } from "types/api"
+import { CharacterWithAllInfo } from "lib/api/types"
 import Card from "./Card"
-import RenderItem, { RenderToolInstance } from "./RenderItem"
+import RenderItem from "./RenderItem"
+import { RenderToolInstance } from "./RenderTool"
 
 type InventoryProps = {
   character: CharacterWithAllInfo

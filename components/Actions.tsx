@@ -8,8 +8,9 @@ import {
   CellWithAllInfo,
   CharacterWithAllInfo,
   StructureWithAllInfo,
-} from "types/api"
-import RenderItem, { RenderToolRequirement } from "./RenderItem"
+} from "lib/api/types"
+import RenderItem from "./RenderItem"
+import { RenderToolRequirement } from "./RenderTool"
 import { StructureInfo, TerrainInfo } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
 
@@ -243,7 +244,7 @@ export function ActionButton({ character, action }: ActionButtonProps) {
     <li>
       <ProgressButton
         label={action.title}
-        dots={action.stamina < 0 ? -action.stamina : 0}
+        stamina={action.stamina}
         task={async () => {
           const response = await doAction(character.id, action.id)
           response.success
@@ -267,7 +268,7 @@ export function ActionButton({ character, action }: ActionButtonProps) {
       )}
       {action.requiredTools.length > 0 && (
         <div className="item">
-          {"Outils : "}
+          {"Outil requis : "}
           {action.requiredTools.map((tool) => (
             <span key={tool.id}>
               <RenderToolRequirement

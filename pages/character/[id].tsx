@@ -1,9 +1,7 @@
 import { GetStaticProps, GetStaticPaths } from "next"
 import { Toaster } from "react-hot-toast"
 import Map from "components/Map"
-
 import prisma from "lib/prisma"
-
 import { useRouter } from "next/router"
 import useSWR from "swr"
 import {
@@ -11,13 +9,13 @@ import {
   CharacterWithAllInfo,
   StructureWithAllInfo,
   TerrainWithActions,
-} from "types/api"
+} from "lib/api/types"
 import Inventory from "components/Inventory"
 import MapControls from "components/MapControls"
-import query from "lib/query"
 import Actions, { InventoryActions } from "components/Actions"
-import ProgressBar from "@ramonak/react-progress-bar"
 import Card from "components/Card"
+import CharacterAttributes from "components/CharacterAttributes"
+import LoadingScreen from "components/LoadingScreen"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
@@ -43,40 +41,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-async function giveItem(characterId: string, itemId: number, quantity: number) {
-  const body = {
-    id: itemId,
-    quantity: quantity,
-  }
-  return await query(
-    "/api/characters/" + characterId + "/inventory",
-    "PATCH",
-    body
-  )
-}
-
-type LoadingHomeProps = {
-  text: string
-  percentage: number
-  error?: boolean
-}
-
-function LoadingHome({ text, percentage, error }: LoadingHomeProps) {
-  return (
-    <div className="loading">
-      <ProgressBar
-        animateOnRender
-        isLabelVisible={false}
-        completed={percentage}
-        bgColor={error ? "pink" : "#2b6eff"}
-        width="150px"
-        margin="6px 0"
-      />
-      <p>{text}</p>
-    </div>
-  )
-}
-
 type Props = {
   terrains: TerrainWithActions[]
   structures: StructureWithAllInfo[]
@@ -93,17 +57,17 @@ export default function Home({ terrains, structures }: Props) {
     Error
   >(id ? `/api/characters/${id}` : null, fetcher, { refreshInterval: 5000 })
   if (router.isFallback || !router.isReady)
-    return <LoadingHome text="Chargement de la page..." percentage={70} />
+    return <LoadingScreen text="Chargement de la page..." percentage={70} />
   if (error)
     return (
-      <LoadingHome
+      <LoadingScreen
         text={`Erreur ${error.name} : ${error.message}`}
         percentage={100}
         error
       />
     )
   if (!response)
-    return <LoadingHome text="Chargement du personnage..." percentage={100} />
+    return <LoadingScreen text="Chargement du personnage..." percentage={100} />
   const character = response.character
   const characterCell = response.cell
   return (
@@ -111,28 +75,29 @@ export default function Home({ terrains, structures }: Props) {
       <div>
         <Toaster
           toastOptions={{
+            duration: 6000,
             error: { duration: 8000, style: { background: "#edd1d1" } },
           }}
         />
       </div>
-      <p className="title">{character.name}</p>
-      <div className="buttons-list">
+      <div style={{ display: "flex" }}>
+        <div className="section">
+          <span className="title">{character.name} </span>
+          <span style={{ fontSize: "x-small", color: "lightgrey" }}>
+            Monde {character.mapId}
+          </span>
+        </div>
+      </div>
+      <div style={{ display: "flex" }}>
         <div className="section">
           <Map character={character} terrains={terrains} />
           <MapControls character={character} />
         </div>
       </div>
-      <div className="buttons-list">
-        <span>Énergie</span>
-        <ProgressBar
-          completed={String(character.stamina)}
-          maxCompleted={10}
-          transitionDuration="0.5s"
-          transitionTimingFunction="ease-out"
-          bgColor="#2b6eff"
-          width="200px"
-          margin="0 6px"
-        />
+      <div style={{ display: "flex" }}>
+        <div className="section">
+          <CharacterAttributes character={character} />
+        </div>
       </div>
       {characterCell.characters
         .filter((char) => char.id != character.id)

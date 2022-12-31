@@ -7,7 +7,7 @@ export default async (req, res) => {
     })
     return res.json({
       success: true,
-      message: "Compte créé avec l'ID " + user.id,
+      message: `Compte ${user.name} créé.`,
     })
   } else if (req.method == "GET") {
     const query = await prisma.user.findMany()

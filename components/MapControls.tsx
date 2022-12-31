@@ -7,7 +7,7 @@ import {
   ImArrowUp2,
 } from "react-icons/im"
 import { useSWRConfig } from "swr"
-import { CharacterWithAllInfo } from "types/api"
+import { CharacterWithAllInfo } from "lib/api/types"
 import ProgressButton from "./ProgressButton/ProgressButton"
 
 async function moveCharacter(id: string, x: number, y: number, mapId: number) {
@@ -41,18 +41,18 @@ export default function MapControls({ character }: MapControlsProps) {
             cell.x == character.x + dir.x && cell.y == character.y + dir.y
         )
         const disabled = !targetCell || targetCell.terrainId == "sea"
-        const effort = disabled
+        const stamina = disabled
           ? 0
           : targetCell.terrainId == "forest"
-          ? 1
+          ? -1
           : targetCell.terrainId == "mountains"
-          ? 2
+          ? -2
           : 0
         return (
           <ProgressButton
             key={index}
             label={dir.label}
-            dots={effort}
+            stamina={stamina}
             disabled={disabled}
             icon={true}
             task={async () => {
