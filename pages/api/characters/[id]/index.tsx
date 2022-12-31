@@ -62,9 +62,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       },
     },
   })
-  character.inventory = character.inventory.filter(
+  /*character.inventory = character.inventory.filter(
     (entry) => entry.quantity > 0
-  )
+  )*/
   const cell = await prisma.cell.findFirst({
     where: {
       characters: {

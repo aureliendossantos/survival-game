@@ -20,11 +20,13 @@ function Materials({ character }: InventoryProps) {
   return (
     <div className="buttons-list">
       {character.inventory.length == 0 && "Vous ne portez rien dans votre sac."}
-      {character.inventory.map((entry) => (
-        <li key={entry.item.id} className="item">
-          <RenderItem item={entry.item} quantity={entry.quantity} />{" "}
-        </li>
-      ))}
+      {character.inventory
+        .filter((entry) => entry.quantity > 0)
+        .map((entry) => (
+          <li key={entry.item.id} className="item">
+            <RenderItem item={entry.item} quantity={entry.quantity} />{" "}
+          </li>
+        ))}
     </div>
   )
 }

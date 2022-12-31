@@ -16,6 +16,8 @@ export default function ProgressButton({
   disabled,
   icon,
 }: ButtonProps) {
+  const dot = stamina > 0 ? "◦" : "•"
+  const dotStyle = stamina > 0 ? "stamina-dots" : "stamina-dots bigger-dots"
   return (
     <AwesomeButtonProgress
       style={{ marginRight: "2px", marginBottom: "3px" }}
@@ -32,9 +34,7 @@ export default function ProgressButton({
     >
       <div className="action-label">
         {stamina != 0 && (
-          <div className={"stamina-dots" + (icon ? " dots-on-icon" : "")}>
-            {(stamina > 0 ? "+ " : "") + "⦁".repeat(Math.abs(stamina))}
-          </div>
+          <div className={dotStyle}>{dot.repeat(Math.abs(stamina))}</div>
         )}
         <div className="label">{label}</div>
       </div>
