@@ -47,6 +47,12 @@ h4 {
   margin-bottom: 3px;
   font-size: small;
   text-align: center;
+  .requirements-not-met {
+    color: grey;
+  }
+  .quantity {
+    font-weight: 700;
+  }
 }
 
 div.action-label {

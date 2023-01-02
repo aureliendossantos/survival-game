@@ -13,17 +13,15 @@ export default function RenderMaterial({
 }: MaterialProps) {
   return (
     <span
-      style={
-        inventory
-          ? meetRequirements(material, quantity, inventory)
-            ? null
-            : { color: "grey" }
-          : null
+      className={
+        inventory &&
+        !meetRequirements(material, quantity, inventory) &&
+        "requirements-not-met"
       }
     >
       {quantity && (
         <>
-          <strong>{quantity}</strong>{" "}
+          <span className="quantity">{quantity}</span>{" "}
         </>
       )}
       {material.title}

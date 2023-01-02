@@ -9,12 +9,10 @@ type ToolProps = {
 export function RenderToolRequirement({ tool, toolInventory }: ToolProps) {
   return (
     <span
-      style={
-        toolInventory
-          ? toolInventory.find((entry) => entry.toolId == tool.id)
-            ? null
-            : { color: "grey" }
-          : null
+      className={
+        toolInventory &&
+        !toolInventory.find((entry) => entry.toolId == tool.id) &&
+        "requirements-not-met"
       }
     >
       {tool.title}

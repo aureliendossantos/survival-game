@@ -1,12 +1,9 @@
-import Head from "next/head"
-import Image from "next/image"
 import Link from "next/link"
 import toast, { Toaster } from "react-hot-toast"
 
 import useSWR, { useSWRConfig } from "swr"
 import query from "lib/query"
-
-const fetcher = (url) => fetch(url).then((res) => res.json())
+import { fetcher } from "lib/fetcher"
 
 async function createUser(name) {
   const body = {

@@ -1,60 +1,43 @@
-import {
-  CharacterWithAllInfo,
-  CellWithAllInfo,
-  StructureWithAllInfo,
-  TerrainWithActions,
-} from "lib/api/types"
-import Actions, { InventoryActions } from "./Actions"
+import StructureCards, { InventoryActions } from "./Actions"
 import Card from "./Card"
 import CharacterAttributes from "./CharacterAttributes"
-import Inventory from "./Inventory"
+import InventoryCard from "./Inventory"
 import Map from "components/Map"
 import MapControls from "./MapControls"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
+import CharactersHere from "./CharactersHere"
+import { TerrainCard } from "./LocationInfo"
 
-type GameScreenProps = {
-  terrains: TerrainWithActions[]
-  structures: StructureWithAllInfo[]
-  character: CharacterWithAllInfo
-  cell: CellWithAllInfo
-}
-
-export default function GameScreen({
-  terrains,
-  structures,
-  character,
-  cell,
-}: GameScreenProps) {
+export default function GameScreen() {
+  const { character } = useCharacterAndCell()
   return (
     <>
       <div style={{ display: "flex" }}>
         <div className="section">
-          <span className="title">{character.name} </span>
+          <span className="title">{character && character.name} </span>
           <span style={{ fontSize: "x-small", color: "lightgrey" }}>
-            Monde {character.mapId}
+            Monde {character && character.mapId}
           </span>
         </div>
       </div>
       <div style={{ display: "flex" }}>
         <div className="section">
-          <Map character={character} terrains={terrains} />
-          <MapControls character={character} />
+          <Map />
+          <MapControls />
         </div>
       </div>
       <div style={{ display: "flex" }}>
         <div className="section">
-          <CharacterAttributes character={character} />
+          <CharacterAttributes />
         </div>
       </div>
-      {cell.characters
-        .filter((char) => char.id != character.id)
-        .map((char) => (
-          <p key={char.id}>{char.name} se trouve ici.</p>
-        ))}
-      <Actions character={character} cell={cell} structures={structures} />
-      <Inventory character={character} />
+      <CharactersHere />
+      <TerrainCard />
+      <StructureCards />
+      <InventoryCard />
       <Card iconColor="mountains" icon="book" title="Manuel de survie">
         <div className="buttons-list">
-          <InventoryActions character={character} structures={structures} />
+          <InventoryActions />
         </div>
       </Card>
     </>

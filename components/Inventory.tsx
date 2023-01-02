@@ -1,22 +1,20 @@
-import { CharacterWithAllInfo } from "lib/api/types"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import Card from "./Card"
 import RenderMaterial from "./RenderMaterial"
 import { RenderToolInstance } from "./RenderTool"
 
-type InventoryProps = {
-  character: CharacterWithAllInfo
-}
-
-export default function Inventory({ character }: InventoryProps) {
+export default function InventoryCard() {
   return (
     <Card icon="bag" iconColor="mountains" title="Sac à dos">
-      <Tools character={character} />
-      <Materials character={character} />
+      <Tools />
+      <Materials />
     </Card>
   )
 }
 
-function Materials({ character }: InventoryProps) {
+function Materials() {
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <div className="buttons-list">
       {character.inventory.length == 0 && "Vous ne portez rien dans votre sac."}
@@ -34,7 +32,9 @@ function Materials({ character }: InventoryProps) {
   )
 }
 
-function Tools({ character }: InventoryProps) {
+function Tools() {
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <div className="buttons-list">
       {character.tools.map((entry) => (

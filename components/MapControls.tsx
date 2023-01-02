@@ -7,8 +7,8 @@ import {
   ImArrowUp2,
 } from "react-icons/im"
 import { useSWRConfig } from "swr"
-import { CharacterWithAllInfo } from "lib/api/types"
 import ProgressButton from "./ProgressButton/ProgressButton"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 
 async function moveCharacter(id: string, x: number, y: number, mapId: number) {
   const body = {
@@ -20,12 +20,10 @@ async function moveCharacter(id: string, x: number, y: number, mapId: number) {
   return await query("/api/characters/" + id + "/move", "PATCH", body)
 }
 
-type MapControlsProps = {
-  character: CharacterWithAllInfo
-}
-
-export default function MapControls({ character }: MapControlsProps) {
+export default function MapControls() {
   const { mutate } = useSWRConfig()
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   const map = character.map.cells
   const directions = [
     { x: -1, y: 0, label: <ImArrowLeft2 key={0} /> },

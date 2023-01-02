@@ -1,9 +1,5 @@
-import {
-  BuiltStructureWithAllInfo,
-  CellWithAllInfo,
-  CharacterWithAllInfo,
-  StructureWithAllInfo,
-} from "lib/api/types"
+import { BuiltStructureWithAllInfo } from "lib/api/types"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import {
   BuildModules,
   CellActions,
@@ -12,25 +8,9 @@ import {
 } from "./Actions"
 import Card from "./Card"
 
-type LocationInfoProps = {
-  cell: CellWithAllInfo
-}
-
-export default function LocationInfo({ cell }: LocationInfoProps) {
-  return (
-    <div className="location">
-      <h4>À votre emplacement :</h4>
-    </div>
-  )
-}
-
-type TerrainInfoProps = {
-  character: CharacterWithAllInfo
-  cell: CellWithAllInfo
-  structures: StructureWithAllInfo[]
-}
-
-export function TerrainInfo({ character, cell, structures }: TerrainInfoProps) {
+export function TerrainCard() {
+  const { cell } = useCharacterAndCell()
+  if (!cell) return null
   return (
     <Card
       iconColor={"tile " + cell.terrain.id}
@@ -39,25 +19,20 @@ export function TerrainInfo({ character, cell, structures }: TerrainInfoProps) {
       description={cell.terrain.description}
     >
       <div className="buttons-list">
-        <CellActions character={character} cell={cell} />
+        <CellActions />
       </div>
     </Card>
   )
 }
 
 type StructureProps = {
-  character: CharacterWithAllInfo
   structure: BuiltStructureWithAllInfo
   builtStructures: BuiltStructureWithAllInfo[]
-  structures: StructureWithAllInfo[]
 }
 
-export function StructureInfo({
-  character,
-  structure,
-  builtStructures,
-  structures,
-}: StructureProps) {
+export function StructureCard({ structure, builtStructures }: StructureProps) {
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <div className="structure">
       <Card
@@ -79,22 +54,16 @@ export function StructureInfo({
       >
         <div className="buttons-list">
           <StructureActions character={character} builtStructure={structure} />
-          <BuildModules
-            character={character}
-            builtStructure={structure}
-            structures={structures}
-          />
+          <BuildModules character={character} builtStructure={structure} />
           <RepairButton character={character} structure={structure} />
         </div>
         {structure.modules.map((structureModule) => (
-          <StructureInfo
+          <StructureCard
             key={structureModule.id}
-            character={character}
             structure={builtStructures.find(
               (builtStructure) => builtStructure.id == structureModule.id
             )}
             builtStructures={builtStructures}
-            structures={structures}
           />
         ))}
       </Card>

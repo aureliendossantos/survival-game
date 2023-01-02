@@ -1,5 +1,3 @@
-import Head from "next/head"
-import Image from "next/image"
 import Link from "next/link"
 import toast, { Toaster } from "react-hot-toast"
 
@@ -7,8 +5,7 @@ import { useRouter } from "next/router"
 import React from "react"
 import useSWR, { useSWRConfig } from "swr"
 import query from "lib/query"
-
-const fetcher = (url) => fetch(url).then((res) => res.json())
+import { fetcher } from "lib/fetcher"
 
 async function createCharacter(name, userId, mapId) {
   const body = {
@@ -54,15 +51,19 @@ export default function UserHome() {
             )
           }}
         >
-          <div className="buttons-list">
-            <label htmlFor="name">Nom</label>
+          <p>
+            <label htmlFor="name">Nom </label>
             <input type="text" id="name" name="name" required />
-            <label htmlFor="map">Monde</label>
+          </p>
+          <p>
+            <label htmlFor="map">Monde </label>
             <select name="map" id="map">
               <MapOptions />
             </select>
+          </p>
+          <p>
             <button type="submit">Créer</button>
-          </div>
+          </p>
         </form>
       </div>
       <div
@@ -87,7 +88,7 @@ export default function UserHome() {
             })
           }}
         >
-          Créer une petite carte
+          Créer un nouveau petit monde ?
         </button>
         <br />
         <button
@@ -105,7 +106,7 @@ export default function UserHome() {
             })
           }}
         >
-          Créer une grande carte
+          Créer un nouveau grand monde ?
         </button>
       </div>
     </>

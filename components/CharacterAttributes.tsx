@@ -1,6 +1,9 @@
 import ProgressBar from "@ramonak/react-progress-bar"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 
-export default function CharacterAttributes({ character }) {
+export default function CharacterAttributes() {
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <div className="buttons-list">
       <span>Énergie</span>

@@ -5,14 +5,15 @@ import { useSWRConfig } from "swr"
 import {
   ActionWithRequirements,
   BuiltStructureWithAllInfo,
-  CellWithAllInfo,
   CharacterWithAllInfo,
   StructureWithAllInfo,
 } from "lib/api/types"
 import RenderMaterial from "./RenderMaterial"
 import { RenderToolRequirement } from "./RenderTool"
-import { StructureInfo, TerrainInfo } from "./LocationInfo"
+import { StructureCard, TerrainCard } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
+import useStructures from "lib/queries/useStructures"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 
 async function doAction(characterId: string, actionId: number) {
   const body = {
@@ -48,47 +49,33 @@ async function build(
   return await query("/api/characters/" + characterId + "/build", "PATCH", body)
 }
 
-type ActionsProps = {
-  character: CharacterWithAllInfo
-  cell: CellWithAllInfo
-  structures: StructureWithAllInfo[]
-}
-
-export default function Actions({ character, cell, structures }: ActionsProps) {
+export default function StructureCards() {
+  const { cell } = useCharacterAndCell()
+  if (!cell) return null
   return (
     <>
-      <TerrainInfo character={character} cell={cell} structures={structures} />
       {cell.builtStructures
         .filter((structure) => structure.moduleOfId == null)
         .map((structure) => (
-          <StructureInfo
+          <StructureCard
             key={structure.id}
-            character={character}
             structure={structure}
             builtStructures={cell.builtStructures}
-            structures={structures}
           />
         ))}
     </>
   )
 }
 
-type BuildStartersProps = {
-  character: CharacterWithAllInfo
-  structures: StructureWithAllInfo[]
-}
-
-export function BuildStarters({ character, structures }: BuildStartersProps) {
+export function BuildStarters() {
+  const { structures } = useStructures()
+  if (!structures) return null
   return (
     <>
       {structures
         .filter((structure) => structure.moduleOfId == null)
         .map((structure) => (
-          <BuildButton
-            key={structure.id}
-            character={character}
-            structure={structure}
-          />
+          <BuildButton key={structure.id} structure={structure} />
         ))}
     </>
   )
@@ -97,15 +84,11 @@ export function BuildStarters({ character, structures }: BuildStartersProps) {
 type BuildModulesProps = {
   character: CharacterWithAllInfo
   builtStructure: BuiltStructureWithAllInfo
-  structures: StructureWithAllInfo[]
 }
 
-export function BuildModules({
-  character,
-  builtStructure,
-  structures,
-}: BuildModulesProps) {
-  if (builtStructure.durability == 0) return null
+export function BuildModules({ character, builtStructure }: BuildModulesProps) {
+  const { structures } = useStructures()
+  if (!structures || builtStructure.durability == 0) return null
   return (
     <>
       {structures
@@ -117,7 +100,6 @@ export function BuildModules({
           return (
             <BuildButton
               key={structureModule.id}
-              character={character}
               structure={structureModule}
               parent={builtStructure}
             />
@@ -128,13 +110,14 @@ export function BuildModules({
 }
 
 type BuildButtonProps = {
-  character: CharacterWithAllInfo
   structure: StructureWithAllInfo
   parent?: BuiltStructure
 }
 
-function BuildButton({ character, structure, parent }: BuildButtonProps) {
+function BuildButton({ structure, parent }: BuildButtonProps) {
   const { mutate } = useSWRConfig()
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <li>
       <ProgressButton
@@ -167,42 +150,29 @@ function BuildButton({ character, structure, parent }: BuildButtonProps) {
   )
 }
 
-type CellActionsProps = {
-  character: CharacterWithAllInfo
-  cell: CellWithAllInfo
-}
-
-export function CellActions({ character, cell }: CellActionsProps) {
+export function CellActions() {
+  const { cell } = useCharacterAndCell()
+  if (!cell) return null
   return (
     <>
       {cell.terrain.actions.map((action) => (
-        <ActionButton key={action.id} character={character} action={action} />
+        <ActionButton key={action.id} action={action} />
       ))}
     </>
   )
 }
 
-type InventoryActionsProps = {
-  character: CharacterWithAllInfo
-  structures: StructureWithAllInfo[]
-}
-
-export function InventoryActions({
-  character,
-  structures,
-}: InventoryActionsProps) {
+export function InventoryActions() {
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <>
-      <BuildStarters character={character} structures={structures} />
+      <BuildStarters />
       {character.inventory.map((entry) =>
         entry.material.inActionCost
           .filter((entry) => entry.action.structureId == null)
           .map((entry) => (
-            <ActionButton
-              key={entry.action.id}
-              character={character}
-              action={entry.action}
-            />
+            <ActionButton key={entry.action.id} action={entry.action} />
           ))
       )}
     </>
@@ -228,19 +198,20 @@ export function StructureActions({
   return (
     <>
       {builtStructure.structure.actions.map((action) => (
-        <ActionButton key={action.id} character={character} action={action} />
+        <ActionButton key={action.id} action={action} />
       ))}
     </>
   )
 }
 
 type ActionButtonProps = {
-  character: CharacterWithAllInfo
   action: ActionWithRequirements
 }
 
-export function ActionButton({ character, action }: ActionButtonProps) {
+export function ActionButton({ action }: ActionButtonProps) {
   const { mutate } = useSWRConfig()
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <li>
       <ProgressButton
