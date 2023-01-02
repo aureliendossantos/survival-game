@@ -1,6 +1,4 @@
 import { GetStaticProps, GetStaticPaths } from "next"
-import { Toaster } from "react-hot-toast"
-import Map from "components/Map"
 import prisma from "lib/prisma"
 import { useRouter } from "next/router"
 import useSWR from "swr"
@@ -10,12 +8,9 @@ import {
   StructureWithAllInfo,
   TerrainWithActions,
 } from "lib/api/types"
-import Inventory from "components/Inventory"
-import MapControls from "components/MapControls"
-import Actions, { InventoryActions } from "components/Actions"
-import Card from "components/Card"
-import CharacterAttributes from "components/CharacterAttributes"
 import LoadingScreen from "components/LoadingScreen"
+import GameScreen from "components/GameScreen"
+import { Toaster } from "react-hot-toast"
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
@@ -46,6 +41,11 @@ type Props = {
   structures: StructureWithAllInfo[]
 }
 
+/**
+ * Fetches character and game data, handles errors then returns the game screen.
+ * @param param0
+ * @returns
+ */
 export default function Home({ terrains, structures }: Props) {
   const router = useRouter()
   const { id } = router.query
@@ -53,6 +53,7 @@ export default function Home({ terrains, structures }: Props) {
     {
       character: CharacterWithAllInfo
       cell: CellWithAllInfo
+      message?: string
     },
     Error
   >(id ? `/api/characters/${id}` : null, fetcher, { refreshInterval: 5000 })
@@ -62,6 +63,14 @@ export default function Home({ terrains, structures }: Props) {
     return (
       <LoadingScreen
         text={`Erreur ${error.name} : ${error.message}`}
+        percentage={100}
+        error
+      />
+    )
+  if (response && response.message)
+    return (
+      <LoadingScreen
+        text={`Erreur : ${response.message}`}
         percentage={100}
         error
       />
@@ -80,41 +89,12 @@ export default function Home({ terrains, structures }: Props) {
           }}
         />
       </div>
-      <div style={{ display: "flex" }}>
-        <div className="section">
-          <span className="title">{character.name} </span>
-          <span style={{ fontSize: "x-small", color: "lightgrey" }}>
-            Monde {character.mapId}
-          </span>
-        </div>
-      </div>
-      <div style={{ display: "flex" }}>
-        <div className="section">
-          <Map character={character} terrains={terrains} />
-          <MapControls character={character} />
-        </div>
-      </div>
-      <div style={{ display: "flex" }}>
-        <div className="section">
-          <CharacterAttributes character={character} />
-        </div>
-      </div>
-      {characterCell.characters
-        .filter((char) => char.id != character.id)
-        .map((char) => (
-          <p key={char.id}>{char.name} se trouve ici.</p>
-        ))}
-      <Actions
+      <GameScreen
+        terrains={terrains}
+        structures={structures}
         character={character}
         cell={characterCell}
-        structures={structures}
       />
-      <Inventory character={character} />
-      <Card iconColor="mountains" icon="book" title="Manuel de survie">
-        <div className="buttons-list">
-          <InventoryActions character={character} structures={structures} />
-        </div>
-      </Card>
     </>
   )
 }

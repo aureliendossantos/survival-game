@@ -1,16 +1,9 @@
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 
-async function updateStamina(characterId: string) {
-  const character = await prisma.character.findUnique({
-    where: { id: characterId },
-    select: {
-      stamina: true,
-      lastStaminaSet: true,
-    },
-  })
-  const hoursSinceUpdate = getHoursSince(character.lastStaminaSet)
-  return Math.min(character.stamina + hoursSinceUpdate, 10)
+async function getNewStamina(stamina: number, lastSet: Date) {
+  const hoursSinceUpdate = getHoursSince(lastSet)
+  return Math.min(stamina + hoursSinceUpdate, 10)
 }
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -18,8 +11,21 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(405).json({ message: "Method not allowed" })
   }
   const characterId = String(req.query.id)
+  const characterCheck = await prisma.character.findUnique({
+    where: { id: characterId },
+    select: {
+      stamina: true,
+      lastStaminaSet: true,
+    },
+  })
+  if (characterCheck == null) {
+    return res.status(404).json({ message: "Ce personnage est introuvable." })
+  }
   await updateStructures(characterId)
-  const newStamina = await updateStamina(characterId)
+  const newStamina = await getNewStamina(
+    characterCheck.stamina,
+    characterCheck.lastStaminaSet
+  )
   let character = await prisma.character.update({
     where: { id: characterId },
     data: { stamina: newStamina, lastStaminaSet: new Date() },

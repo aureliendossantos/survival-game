@@ -1,10 +1,10 @@
 import createDefaultData from "lib/api/createDefaultData"
-import deleteAllTables from "lib/api/deleteAllData"
+import deleteAllData from "lib/api/deleteAllData"
 import { NextApiRequest, NextApiResponse } from "next"
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method == "DELETE") {
-    await deleteAllTables()
+    await deleteAllData()
     res.json({
       success: true,
       message: "Tables vidées.",
