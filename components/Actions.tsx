@@ -9,7 +9,7 @@ import {
   CharacterWithAllInfo,
   StructureWithAllInfo,
 } from "lib/api/types"
-import RenderItem from "./RenderItem"
+import RenderMaterial from "./RenderMaterial"
 import { RenderToolRequirement } from "./RenderTool"
 import { StructureInfo, TerrainInfo } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
@@ -38,7 +38,7 @@ async function repair(characterId: string, builtStructureId: string) {
 
 async function build(
   characterId: string,
-  structureId: number,
+  structureId: string,
   parentBuiltStructureId?: string
 ) {
   const body = {
@@ -139,6 +139,7 @@ function BuildButton({ character, structure, parent }: BuildButtonProps) {
     <li>
       <ProgressButton
         label={<p>Construire un {structure.title}</p>}
+        stamina={structure.requiredStamina}
         task={async () => {
           const response = await build(
             character.id,
@@ -151,11 +152,11 @@ function BuildButton({ character, structure, parent }: BuildButtonProps) {
           mutate("/api/characters/" + character.id)
         }}
       />
-      <div className="item">
-        {structure.requiredItems.map((requirement) => (
-          <span key={requirement.itemId}>
-            <RenderItem
-              item={requirement.item}
+      <div className="material">
+        {structure.requiredMaterials.map((requirement) => (
+          <span key={requirement.materialId}>
+            <RenderMaterial
+              material={requirement.material}
               quantity={requirement.quantity}
               inventory={character.inventory}
             />{" "}
@@ -194,7 +195,7 @@ export function InventoryActions({
     <>
       <BuildStarters character={character} structures={structures} />
       {character.inventory.map((entry) =>
-        entry.item.inActionCost
+        entry.material.inActionCost
           .filter((entry) => entry.action.structureId == null)
           .map((entry) => (
             <ActionButton
@@ -253,12 +254,12 @@ export function ActionButton({ character, action }: ActionButtonProps) {
           mutate("/api/characters/" + character.id)
         }}
       />
-      {action.requiredItems.length > 0 && (
-        <div className="item">
-          {action.requiredItems.map((requirement) => (
-            <span key={requirement.itemId}>
-              <RenderItem
-                item={requirement.item}
+      {action.requiredMaterials.length > 0 && (
+        <div className="material">
+          {action.requiredMaterials.map((requirement) => (
+            <span key={requirement.materialId}>
+              <RenderMaterial
+                material={requirement.material}
                 quantity={requirement.quantity}
                 inventory={character.inventory}
               />{" "}
@@ -267,7 +268,7 @@ export function ActionButton({ character, action }: ActionButtonProps) {
         </div>
       )}
       {action.requiredTools.length > 0 && (
-        <div className="item">
+        <div className="material">
           {"Outil requis : "}
           {action.requiredTools.map((tool) => (
             <span key={tool.id}>
@@ -280,7 +281,7 @@ export function ActionButton({ character, action }: ActionButtonProps) {
         </div>
       )}
       {action.probability < 100 && (
-        <div className="item">{action.probability}% réussite</div>
+        <div className="material">{action.probability}% réussite</div>
       )}
     </li>
   )
@@ -304,6 +305,7 @@ export function RepairButton({ character, structure }: RepairButtonProps) {
               : "Réparer la structure"}
           </p>
         }
+        stamina={structure.structure.repairStamina}
         task={async () => {
           const response = await repair(character.id, structure.id)
           response.success
@@ -313,11 +315,11 @@ export function RepairButton({ character, structure }: RepairButtonProps) {
         }}
       />
       {structure.structure.repairMaterials.length > 0 && (
-        <div className="item">
+        <div className="material">
           {structure.structure.repairMaterials.map((requirement) => (
-            <span key={requirement.itemId}>
-              <RenderItem
-                item={requirement.item}
+            <span key={requirement.materialId}>
+              <RenderMaterial
+                material={requirement.material}
                 quantity={requirement.quantity}
                 inventory={character.inventory}
               />{" "}
@@ -325,7 +327,7 @@ export function RepairButton({ character, structure }: RepairButtonProps) {
           ))}
         </div>
       )}
-      <div className="item">
+      <div className="material">
         +
         {Math.round(
           (structure.structure.repairAmount /

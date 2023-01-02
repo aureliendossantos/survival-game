@@ -33,11 +33,12 @@ model Character {
   builtStructures BuiltStructure[]
 }
 
-model Item {
-  id                Int                   @id @default(autoincrement())
-  description       String?
+model Material {
+  id                String                @id
+  order             Int
   title             String
   pluralTitle       String?
+  description       String?
   inActionLoot      ActionLoot[]
   inActionCost      ActionCost[]
   inInventory       Inventory[]
@@ -46,7 +47,8 @@ model Item {
 }
 
 model Tool {
-  id                Int              @id @default(autoincrement())
+  id                String           @id
+  order             Int
   description       String?
   title             String
   pluralTitle       String?
@@ -62,7 +64,7 @@ model ToolInstance {
   id                String    @id @default(cuid())
   durability        Int
   lastDurabilitySet DateTime  @default(now())
-  toolId            Int
+  toolId            String
   tool              Tool      @relation(fields: [toolId], references: [id])
   inCharacter       Character @relation(fields: [characterId], references: [id])
   characterId       String
@@ -71,11 +73,11 @@ model ToolInstance {
 model Inventory {
   characterId String
   character   Character @relation(fields: [characterId], references: [id])
-  itemId      Int
-  item        Item      @relation(fields: [itemId], references: [id])
+  materialId  String
+  material    Material  @relation(fields: [materialId], references: [id])
   quantity    Int       @default(0)
 
-  @@unique([characterId, itemId])
+  @@unique([characterId, materialId])
 }
 
 model Map {
@@ -112,7 +114,7 @@ model BuiltStructure {
   durability        Int
   lastDurabilitySet DateTime         @default(now())
   cellId            String
-  structureId       Int
+  structureId       String
   cell              Cell             @relation(fields: [cellId], references: [id])
   structure         Structure        @relation(fields: [structureId], references: [id])
   contributors      Character[]
@@ -122,86 +124,88 @@ model BuiltStructure {
 }
 
 model Structure {
-  id                Int                   @id @default(autoincrement())
+  id                String                @id
   title             String
   description       String?
   minDurability     Int                   @default(30)
   maxDurability     Int                   @default(40)
-  requiredItems     StructureCost[]
+  requiredStamina   Int                   @default(-1)
+  requiredMaterials StructureCost[]
   requiredTools     Tool[]
+  repairStamina     Int                   @default(-1)
   repairMaterials   StructureRepairCost[]
   repairTools       Tool[]                @relation("StructureRepairTools")
   repairAmount      Int                   @default(20)
   actions           Action[]
-  moduleOfId        Int?
+  moduleOfId        String?
   moduleOf          Structure?            @relation("StructureModules", fields: [moduleOfId], references: [id])
   modules           Structure[]           @relation("StructureModules")
-  upgradeOfId       Int?
+  upgradeOfId       String?
   upgradeOf         Structure?            @relation("StructureUpgrades", fields: [upgradeOfId], references: [id])
   availableUpgrades Structure[]           @relation("StructureUpgrades")
   builtStructures   BuiltStructure[]
 }
 
 model StructureCost {
-  itemId      Int
+  materialId  String
   quantity    Int       @default(0)
-  structureId Int
-  item        Item      @relation(fields: [itemId], references: [id])
+  structureId String
+  material    Material  @relation(fields: [materialId], references: [id])
   structure   Structure @relation(fields: [structureId], references: [id])
 
-  @@unique([structureId, itemId])
+  @@unique([structureId, materialId])
 }
 
 model StructureRepairCost {
-  itemId      Int
+  materialId  String
   quantity    Int       @default(0)
-  structureId Int
-  item        Item      @relation(fields: [itemId], references: [id])
+  structureId String
+  material    Material  @relation(fields: [materialId], references: [id])
   structure   Structure @relation(fields: [structureId], references: [id])
 
-  @@unique([structureId, itemId])
+  @@unique([structureId, materialId])
 }
 
 model Action {
-  id             Int              @id @default(autoincrement())
-  title          String
-  description    String?
-  stamina        Int              @default(0)
-  probability    Int              @default(100)
-  successMessage String           @default("Vous avez réussi !")
-  failureMessage String?          @default("Vous avez échoué.")
-  requiredItems  ActionCost[]
-  requiredTools  Tool[]
-  loot           ActionLoot[]
-  toolLoot       ActionToolLoot[]
-  terrains       Terrain[]
-  structure      Structure?       @relation(fields: [structureId], references: [id])
-  structureId    Int?
+  id                Int              @id
+  title             String
+  description       String?
+  stamina           Int              @default(0)
+  probability       Int              @default(100)
+  successMessage    String           @default("Vous avez réussi !")
+  failureMessage    String?          @default("Vous avez échoué.")
+  requiredMaterials ActionCost[]
+  requiredTools     Tool[]
+  loot              ActionLoot[]
+  toolLoot          ActionToolLoot[]
+  terrains          Terrain[]
+  structure         Structure?       @relation(fields: [structureId], references: [id])
+  structureId       String?
 }
 
 model ActionCost {
-  itemId   Int
-  quantity Int    @default(1)
-  actionId Int
-  item     Item   @relation(fields: [itemId], references: [id])
-  action   Action @relation(fields: [actionId], references: [id])
+  materialId String
+  quantity   Int      @default(1)
+  actionId   Int
+  material   Material @relation(fields: [materialId], references: [id])
+  action     Action   @relation(fields: [actionId], references: [id])
 
-  @@unique([actionId, itemId])
+  @@unique([actionId, materialId])
 }
 
 model ActionLoot {
-  itemId      Int
-  minQuantity Int    @default(1)
-  maxQuantity Int    @default(1)
+  materialId  String
+  minQuantity Int      @default(1)
+  maxQuantity Int      @default(1)
   actionId    Int
-  action      Action @relation(fields: [actionId], references: [id])
-  item        Item   @relation(fields: [itemId], references: [id])
+  action      Action   @relation(fields: [actionId], references: [id])
+  material    Material @relation(fields: [materialId], references: [id])
 
-  @@unique([actionId, itemId])
+  @@unique([actionId, materialId])
 }
 
 model ActionToolLoot {
-  toolId      Int
+  toolId      String
   minQuantity Int    @default(1)
   maxQuantity Int    @default(1)
   actionId    Int

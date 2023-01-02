@@ -9,6 +9,7 @@ import {
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 import { ActionWithRequirements } from "lib/api/types"
+import consumeStamina from "lib/api/consumeStamina"
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -25,7 +26,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const action = await prisma.action.findUnique({
     where: { id: req.body.id },
     include: {
-      requiredItems: true,
+      requiredMaterials: true,
       requiredTools: true,
       loot: true,
       toolLoot: { include: { tool: true } },
@@ -46,12 +47,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     })
   }
   // Retirer les matériaux de l'inventaire
-  for (const requirement of action.requiredItems) {
+  for (const requirement of action.requiredMaterials) {
     await prisma.inventory.update({
       where: {
-        characterId_itemId: {
+        characterId_materialId: {
           characterId: characterId,
-          itemId: requirement.itemId,
+          materialId: requirement.materialId,
         },
       },
       data: { quantity: { decrement: requirement.quantity } },
@@ -89,15 +90,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const quantity = randomInt(loot.minQuantity, loot.maxQuantity)
     await prisma.inventory.upsert({
       where: {
-        characterId_itemId: {
+        characterId_materialId: {
           characterId: characterId,
-          itemId: loot.itemId,
+          materialId: loot.materialId,
         },
       },
       update: { quantity: { increment: quantity } },
       create: {
         characterId: characterId,
-        itemId: loot.itemId,
+        materialId: loot.materialId,
         quantity: quantity,
       },
     })
@@ -121,7 +122,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
   }
   // Diminuer l'énergie
-  await consumeActionStamina(action, character)
+  await consumeStamina(action.stamina, character)
   return res.json({
     success: true,
     message: action.successMessage,
@@ -130,17 +131,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
 async function requirementsMet(
   action: Action & {
-    requiredItems: ActionCost[]
+    requiredMaterials: ActionCost[]
     requiredTools: Tool[]
   },
   characterId: string
 ) {
-  for (const requirement of action.requiredItems) {
+  for (const requirement of action.requiredMaterials) {
     const test = await prisma.inventory.findMany({
       where: {
         AND: [
           { characterId: characterId },
-          { itemId: requirement.itemId },
+          { materialId: requirement.materialId },
           { quantity: { gte: requirement.quantity } },
         ],
       },
@@ -156,17 +157,4 @@ async function requirementsMet(
     if (test.length == 0) return false
   }
   return true
-}
-
-async function consumeActionStamina(action: Action, character: Character) {
-  if (action.stamina != 0) {
-    const newStamina = Math.min(
-      Math.max(character.stamina + action.stamina, 0),
-      10
-    )
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { stamina: newStamina },
-    })
-  }
 }

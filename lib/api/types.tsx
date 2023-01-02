@@ -10,7 +10,7 @@ export type TerrainWithActions = Prisma.TerrainGetPayload<
 
 const actionWithRequirements = Prisma.validator<Prisma.ActionArgs>()({
   include: {
-    requiredItems: { include: { item: true } },
+    requiredMaterials: { include: { material: true } },
     requiredTools: true,
   },
 })
@@ -26,11 +26,11 @@ const builtStructureWithAllInfo = Prisma.validator<Prisma.BuiltStructureArgs>()(
         include: {
           actions: {
             include: {
-              requiredItems: { include: { item: true } },
+              requiredMaterials: { include: { material: true } },
               requiredTools: true,
             },
           },
-          repairMaterials: { include: { item: true } },
+          repairMaterials: { include: { material: true } },
         },
       },
       contributors: true,
@@ -45,8 +45,8 @@ export type BuiltStructureWithAllInfo = Prisma.BuiltStructureGetPayload<
 
 const structureWithAllInfo = Prisma.validator<Prisma.StructureArgs>()({
   include: {
-    requiredItems: {
-      include: { item: true },
+    requiredMaterials: {
+      include: { material: true },
     },
     requiredTools: true,
     modules: { select: { id: true } },
@@ -64,7 +64,7 @@ const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
       include: {
         actions: {
           include: {
-            requiredItems: { include: { item: true } },
+            requiredMaterials: { include: { material: true } },
             requiredTools: true,
           },
         },
@@ -76,11 +76,11 @@ const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
           include: {
             actions: {
               include: {
-                requiredItems: { include: { item: true } },
+                requiredMaterials: { include: { material: true } },
                 requiredTools: true,
               },
             },
-            repairMaterials: { include: { item: true } },
+            repairMaterials: { include: { material: true } },
           },
         },
         contributors: true,
@@ -121,13 +121,13 @@ const characterWithAllInfo = Prisma.validator<Prisma.CharacterArgs>()({
     },
     inventory: {
       include: {
-        item: {
+        material: {
           include: {
             inActionCost: {
               include: {
                 action: {
                   include: {
-                    requiredItems: { include: { item: true } },
+                    requiredMaterials: { include: { material: true } },
                     requiredTools: true,
                   },
                 },

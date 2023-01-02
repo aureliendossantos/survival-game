@@ -3,7 +3,7 @@ import prisma from "lib/prisma"
 /**
  * Delete all database tables in the right order to avoid conflicts.
  */
-export default async function deleteAllTables() {
+export default async function deleteAllData() {
   await prisma.actionLoot.deleteMany()
   await prisma.actionToolLoot.deleteMany()
   await prisma.actionCost.deleteMany()
@@ -13,7 +13,7 @@ export default async function deleteAllTables() {
   await prisma.builtStructure.deleteMany()
   await prisma.structure.deleteMany()
   await prisma.action.deleteMany()
-  await prisma.item.deleteMany()
+  await prisma.material.deleteMany()
   await prisma.toolInstance.deleteMany()
   await prisma.tool.deleteMany()
   await prisma.character.deleteMany()

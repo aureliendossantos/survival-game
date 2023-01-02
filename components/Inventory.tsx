@@ -1,6 +1,6 @@
 import { CharacterWithAllInfo } from "lib/api/types"
 import Card from "./Card"
-import RenderItem from "./RenderItem"
+import RenderMaterial from "./RenderMaterial"
 import { RenderToolInstance } from "./RenderTool"
 
 type InventoryProps = {
@@ -23,8 +23,11 @@ function Materials({ character }: InventoryProps) {
       {character.inventory
         .filter((entry) => entry.quantity > 0)
         .map((entry) => (
-          <li key={entry.item.id} className="item">
-            <RenderItem item={entry.item} quantity={entry.quantity} />{" "}
+          <li key={entry.material.id} className="material">
+            <RenderMaterial
+              material={entry.material}
+              quantity={entry.quantity}
+            />{" "}
           </li>
         ))}
     </div>
@@ -35,7 +38,7 @@ function Tools({ character }: InventoryProps) {
   return (
     <div className="buttons-list">
       {character.tools.map((entry) => (
-        <li key={entry.id} className="item">
+        <li key={entry.id} className="material">
           <RenderToolInstance tool={entry} />{" "}
         </li>
       ))}

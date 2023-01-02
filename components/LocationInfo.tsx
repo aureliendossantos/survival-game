@@ -62,7 +62,7 @@ export function StructureInfo({
     <div className="structure">
       <Card
         dottedBorder={structure.moduleOfId != null}
-        icon={structure.structure.id == 2 ? "bench" : "camp"}
+        icon={structure.structure.id}
         iconColor={"tile structure-icon"}
         title={structure.structure.title}
         description={structure.structure.description}

@@ -25,8 +25,8 @@ export const getStaticProps: GetStaticProps = async () => {
   })
   const structures = await prisma.structure.findMany({
     include: {
-      requiredItems: {
-        include: { item: true },
+      requiredMaterials: {
+        include: { material: true },
       },
       modules: { select: { id: true } },
     },

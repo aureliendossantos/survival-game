@@ -1,17 +1,21 @@
-import { Inventory, Item, Tool } from "@prisma/client"
+import { Inventory, Material, Tool } from "@prisma/client"
 
-type ItemProps = {
-  item: Item
+type MaterialProps = {
+  material: Material
   quantity?: number
   inventory?: Inventory[]
 }
 
-export default function RenderItem({ item, quantity, inventory }: ItemProps) {
+export default function RenderMaterial({
+  material,
+  quantity,
+  inventory,
+}: MaterialProps) {
   return (
     <span
       style={
         inventory
-          ? meetRequirements(item, quantity, inventory)
+          ? meetRequirements(material, quantity, inventory)
             ? null
             : { color: "grey" }
           : null
@@ -22,18 +26,18 @@ export default function RenderItem({ item, quantity, inventory }: ItemProps) {
           <strong>{quantity}</strong>{" "}
         </>
       )}
-      {item.title}
-      {quantity > 1 && (item.pluralTitle || "s")}
+      {material.title}
+      {quantity > 1 && (material.pluralTitle || "s")}
     </span>
   )
 }
 
 function meetRequirements(
-  item: Item | Tool,
+  material: Material | Tool,
   quantity: number,
   inventory?: Inventory[]
 ) {
-  const entry = inventory.find((entry) => entry.itemId == item.id)
+  const entry = inventory.find((entry) => entry.materialId == material.id)
   if (!entry) return false
   return entry.quantity >= quantity
 }

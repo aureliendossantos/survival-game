@@ -1,3 +1,5 @@
+import consumeMaterials from "lib/api/consumeMaterials"
+import consumeStamina from "lib/api/consumeStamina"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 
@@ -6,18 +8,28 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(405).json({ message: "Bad method" })
   const characterId = String(req.query.id)
   const builtStructureId: string = req.body.id
-  // L'inventaire contient-il les ressources requises ?
+  const character = await prisma.character.findUnique({
+    where: { id: characterId },
+  })
   const builtStructure = await prisma.builtStructure.findUnique({
     where: { id: builtStructureId },
     include: { structure: { include: { repairMaterials: true } } },
   })
+  // Le personnage a-t-il assez d'énergie ?
+  if (character.stamina < -builtStructure.structure.requiredStamina) {
+    return res.json({
+      success: false,
+      message: "Vous êtes trop fatigué.",
+    })
+  }
+  // L'inventaire contient-il les ressources requises ?
   let requirementsMet = true
   for (const requirement of builtStructure.structure.repairMaterials) {
     const test = await prisma.inventory.findMany({
       where: {
         AND: [
           { characterId: characterId },
-          { itemId: requirement.itemId },
+          { materialId: requirement.materialId },
           { quantity: { gte: requirement.quantity } },
         ],
       },
@@ -29,18 +41,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       success: false,
       message: "Vous n'avez pas assez de ressources.",
     })
-  // Retirer les ressources de l'inventaire
-  for (const requirement of builtStructure.structure.repairMaterials) {
-    await prisma.inventory.update({
-      where: {
-        characterId_itemId: {
-          characterId: characterId,
-          itemId: requirement.itemId,
-        },
-      },
-      data: { quantity: { decrement: requirement.quantity } },
-    })
-  }
+  consumeStamina(builtStructure.structure.requiredStamina, character)
+  consumeMaterials(builtStructure.structure.repairMaterials, character)
   // Réparer la structure
   await prisma.builtStructure.update({
     where: {

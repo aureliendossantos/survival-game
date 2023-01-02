@@ -4,7 +4,7 @@ import { GiSchoolBag, GiWhiteBook } from "react-icons/gi"
 
 type CardProps = {
   dottedBorder?: boolean
-  icon?: "camp" | "bench" | "bag" | "book"
+  icon?: string
   iconColor: string
   title: string
   position?: string
@@ -32,7 +32,7 @@ export default function Card({
       <div className="header">
         <div className={"icon " + iconColor}>
           {icon == "camp" && <FaCampground />}
-          {icon == "bench" && <FaHammer />}
+          {icon == "workbench" && <FaHammer />}
           {icon == "bag" && <GiSchoolBag />}
           {icon == "book" && <GiWhiteBook />}
         </div>

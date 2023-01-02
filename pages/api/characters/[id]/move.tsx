@@ -1,10 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import prisma from "lib/prisma"
 
-export type Request = {
-  id: string
-}
-
 const move = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method == "PATCH") {
     const mapId = req.body.mapId

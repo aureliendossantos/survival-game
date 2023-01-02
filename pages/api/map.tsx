@@ -1,4 +1,5 @@
 import prisma from "lib/prisma"
+import { maps, dictionary } from "data/maps"
 
 export default async (req, res) => {
   if (req.method == "POST") {
@@ -7,31 +8,9 @@ export default async (req, res) => {
       data: {},
     })
     console.log("Created map " + map.id + ". Creating cells...")
-    const worlds = [
-      [
-        ["s", "b", "p"],
-        ["b", "p", "f"],
-        ["p", "f", "m"],
-      ],
-      [
-        ["s", "b", "p", "p", "b", "s"],
-        ["b", "p", "f", "f", "m", "b"],
-        ["b", "f", "m", "m", "f", "p"],
-        ["b", "f", "f", "m", "f", "b"],
-        ["s", "b", "p", "f", "p", "s"],
-        ["s", "s", "p", "p", "s", "s"],
-      ],
-    ]
-    const dictionary = {
-      s: "sea",
-      b: "beach",
-      p: "plains",
-      f: "forest",
-      m: "mountains",
-    }
     const cells = []
     const worldType = req.body.type || 0
-    worlds[worldType].map((row, y) =>
+    maps[worldType].map((row, y) =>
       row.map((terrain, x) =>
         cells.push({
           x: x,

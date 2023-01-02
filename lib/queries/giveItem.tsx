@@ -1,12 +1,12 @@
 import query from "lib/query"
 
-export default async function giveItem(
+export default async function giveMaterial(
   characterId: string,
-  itemId: number,
+  materialId: number,
   quantity: number
 ) {
   const body = {
-    id: itemId,
+    id: materialId,
     quantity: quantity,
   }
   return await query(`/api/characters/${characterId}/inventory`, "PATCH", body)

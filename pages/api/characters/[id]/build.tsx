@@ -1,3 +1,5 @@
+import consumeMaterials from "lib/api/consumeMaterials"
+import consumeStamina from "lib/api/consumeStamina"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 
@@ -12,18 +14,28 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const parentBuiltStructureId = req.body.parentId
       ? String(req.body.parentId)
       : null
-    // L'inventaire contient-il les ressources requises ?
+    const character = await prisma.character.findUnique({
+      where: { id: characterId },
+    })
     const structure = await prisma.structure.findUnique({
       where: { id: structureId },
-      include: { requiredItems: true },
+      include: { requiredMaterials: true },
     })
+    // Le personnage a-t-il assez d'énergie ?
+    if (character.stamina < -structure.requiredStamina) {
+      return res.json({
+        success: false,
+        message: "Vous êtes trop fatigué.",
+      })
+    }
+    // L'inventaire contient-il les ressources requises ?
     let requirementsMet = true
-    for (const requirement of structure.requiredItems) {
+    for (const requirement of structure.requiredMaterials) {
       const test = await prisma.inventory.findMany({
         where: {
           AND: [
             { characterId: characterId },
-            { itemId: requirement.itemId },
+            { materialId: requirement.materialId },
             { quantity: { gte: requirement.quantity } },
           ],
         },
@@ -33,18 +45,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     }
     if (requirementsMet) {
-      // Retirer les ressources de l'inventaire
-      for (const requirement of structure.requiredItems) {
-        await prisma.inventory.update({
-          where: {
-            characterId_itemId: {
-              characterId: characterId,
-              itemId: requirement.itemId,
-            },
-          },
-          data: { quantity: { decrement: requirement.quantity } },
-        })
-      }
+      consumeStamina(structure.requiredStamina, character)
+      consumeMaterials(structure.requiredMaterials, character)
       // Construire la structure
       const cell = await prisma.cell.findFirst({
         where: {

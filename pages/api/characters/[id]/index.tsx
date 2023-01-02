@@ -25,19 +25,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     data: { stamina: newStamina, lastStaminaSet: new Date() },
     include: {
       tools: {
-        orderBy: [{ toolId: "asc" }, { durability: "desc" }],
+        orderBy: [{ tool: { order: "asc" } }, { durability: "desc" }],
         include: { tool: true },
       },
       inventory: {
-        orderBy: { itemId: "asc" },
+        orderBy: { material: { order: "asc" } },
         include: {
-          item: {
+          material: {
             include: {
               inActionCost: {
+                orderBy: { action: { id: "asc" } },
                 include: {
                   action: {
                     include: {
-                      requiredItems: { include: { item: true } },
+                      requiredMaterials: { include: { material: true } },
                       requiredTools: true,
                     },
                   },
@@ -76,8 +77,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       terrain: {
         include: {
           actions: {
+            orderBy: { id: "asc" },
             include: {
-              requiredItems: { include: { item: true } },
+              requiredMaterials: { include: { material: true } },
               requiredTools: true,
             },
           },
@@ -89,11 +91,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             include: {
               actions: {
                 include: {
-                  requiredItems: { include: { item: true } },
+                  requiredMaterials: { include: { material: true } },
                   requiredTools: true,
                 },
               },
-              repairMaterials: { include: { item: true } },
+              repairMaterials: { include: { material: true } },
             },
           },
           contributors: true,
