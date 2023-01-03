@@ -1,24 +1,14 @@
-import { Inventory, Material, Tool } from "@prisma/client"
+import { Material } from "@prisma/client"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 
 type MaterialProps = {
   material: Material
   quantity?: number
-  inventory?: Inventory[]
 }
 
-export default function RenderMaterial({
-  material,
-  quantity,
-  inventory,
-}: MaterialProps) {
+export default function RenderMaterial({ material, quantity }: MaterialProps) {
   return (
-    <span
-      className={
-        inventory &&
-        !meetRequirements(material, quantity, inventory) &&
-        "requirements-not-met"
-      }
-    >
+    <span>
       {quantity && (
         <>
           <span className="quantity">{quantity}</span>{" "}
@@ -30,12 +20,21 @@ export default function RenderMaterial({
   )
 }
 
-function meetRequirements(
-  material: Material | Tool,
-  quantity: number,
-  inventory?: Inventory[]
-) {
-  const entry = inventory.find((entry) => entry.materialId == material.id)
-  if (!entry) return false
-  return entry.quantity >= quantity
+export function MaterialRequirement({ material, quantity }: MaterialProps) {
+  const { character } = useCharacterAndCell()
+  const entry =
+    character &&
+    character.inventory.find((entry) => entry.materialId == material.id)
+  const requirementMet = entry && entry.quantity >= quantity
+  return (
+    <span className={!requirementMet && "requirements-not-met"}>
+      {quantity && (
+        <>
+          <span className="quantity">{quantity}</span>{" "}
+        </>
+      )}
+      {material.title}
+      {quantity > 1 && (material.pluralTitle || "s")}
+    </span>
+  )
 }

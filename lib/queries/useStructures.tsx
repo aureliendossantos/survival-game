@@ -7,7 +7,6 @@ export default function useStructures() {
     `/api/structures`,
     fetcher
   )
-
   return {
     structures: data,
     structuresError: error,

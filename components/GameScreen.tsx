@@ -4,20 +4,16 @@ import CharacterAttributes from "./CharacterAttributes"
 import InventoryCard from "./Inventory"
 import Map from "components/Map"
 import MapControls from "./MapControls"
-import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import CharactersHere from "./CharactersHere"
 import { TerrainCard } from "./LocationInfo"
+import CharacterName from "./CharacterName"
 
 export default function GameScreen() {
-  const { character } = useCharacterAndCell()
   return (
     <>
       <div style={{ display: "flex" }}>
         <div className="section">
-          <span className="title">{character && character.name} </span>
-          <span style={{ fontSize: "x-small", color: "lightgrey" }}>
-            Monde {character && character.mapId}
-          </span>
+          <CharacterName />
         </div>
       </div>
       <div style={{ display: "flex" }}>

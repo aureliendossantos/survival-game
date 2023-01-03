@@ -1,3 +1,4 @@
+import getHoursSince from "lib/getHoursSince"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 
@@ -7,9 +8,8 @@ async function getNewStamina(stamina: number, lastSet: Date) {
 }
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method != "GET") {
+  if (req.method != "GET")
     return res.status(405).json({ message: "Method not allowed" })
-  }
   const characterId = String(req.query.id)
   const characterCheck = await prisma.character.findUnique({
     where: { id: characterId },
@@ -18,9 +18,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       lastStaminaSet: true,
     },
   })
-  if (characterCheck == null) {
+  if (characterCheck == null)
     return res.status(404).json({ message: "Ce personnage est introuvable." })
-  }
   await updateStructures(characterId)
   const newStamina = await getNewStamina(
     characterCheck.stamina,
@@ -113,10 +112,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   res.json({ character, cell })
 }
 
-function getHoursSince(time: Date) {
-  return Math.floor((new Date().getTime() - time.getTime()) / 3.6e6)
-}
-
 async function updateStructures(characterId: string) {
   const builtStructures = await prisma.builtStructure.findMany({
     where: {
@@ -127,14 +122,14 @@ async function updateStructures(characterId: string) {
       },
     },
   })
-  for (const [index, structure] of builtStructures.entries()) {
+  for (const builtStructure of builtStructures) {
     const now = new Date()
-    const hoursSinceUpdate = getHoursSince(structure.lastDurabilitySet)
+    const hoursSinceUpdate = getHoursSince(builtStructure.lastDurabilitySet)
     if (hoursSinceUpdate > 0) {
-      const newDurability = Math.max(0, structure.durability - hoursSinceUpdate)
+      const newDurability = Math.max(0, builtStructure.durability - hoursSinceUpdate)
       await prisma.builtStructure.updateMany({
         where: {
-          id: structure.id,
+          id: builtStructure.id,
         },
         data: {
           durability: newDurability,

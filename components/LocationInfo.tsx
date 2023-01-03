@@ -31,8 +31,6 @@ type StructureProps = {
 }
 
 export function StructureCard({ structure, builtStructures }: StructureProps) {
-  const { character } = useCharacterAndCell()
-  if (!character) return null
   return (
     <div className="structure">
       <Card
@@ -53,9 +51,9 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
         ]}
       >
         <div className="buttons-list">
-          <StructureActions character={character} builtStructure={structure} />
-          <BuildModules character={character} builtStructure={structure} />
-          <RepairButton character={character} structure={structure} />
+          <StructureActions builtStructure={structure} />
+          <BuildModules builtStructure={structure} />
+          <RepairButton structure={structure} />
         </div>
         {structure.modules.map((structureModule) => (
           <StructureCard

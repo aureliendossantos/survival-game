@@ -1,20 +1,17 @@
 import { Tool } from "@prisma/client"
 import { ToolInstanceWithAllInfo } from "lib/api/types"
+import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 
 type ToolProps = {
   tool: Tool
-  toolInventory?: ToolInstanceWithAllInfo[]
 }
 
-export function RenderToolRequirement({ tool, toolInventory }: ToolProps) {
+export function RenderToolRequirement({ tool }: ToolProps) {
+  const { character } = useCharacterAndCell()
+  const requirementMet =
+    character && character.tools.find((entry) => entry.toolId == tool.id)
   return (
-    <span
-      className={
-        toolInventory &&
-        !toolInventory.find((entry) => entry.toolId == tool.id) &&
-        "requirements-not-met"
-      }
-    >
+    <span className={!requirementMet && "requirements-not-met"}>
       {tool.title}
     </span>
   )

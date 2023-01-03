@@ -5,15 +5,16 @@ import { useSWRConfig } from "swr"
 import {
   ActionWithRequirements,
   BuiltStructureWithAllInfo,
-  CharacterWithAllInfo,
   StructureWithAllInfo,
 } from "lib/api/types"
-import RenderMaterial from "./RenderMaterial"
+import { MaterialRequirement } from "./RenderMaterial"
 import { RenderToolRequirement } from "./RenderTool"
-import { StructureCard, TerrainCard } from "./LocationInfo"
+import { StructureCard } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
 import useStructures from "lib/queries/useStructures"
 import useCharacterAndCell from "lib/queries/useCharacterAndCell"
+import useCharacterId from "lib/queries/useCharacterId"
+import useStructure from "lib/queries/useStructure"
 
 async function doAction(characterId: string, actionId: number) {
   const body = {
@@ -69,55 +70,53 @@ export default function StructureCards() {
 
 export function BuildStarters() {
   const { structures } = useStructures()
+  // TEMP: Might later be the list of structureIds the character
+  // learned about. It will allow us to remove useStructures(),
+  // which returns every structure in the game, which is not ideal.
   if (!structures) return null
   return (
     <>
       {structures
         .filter((structure) => structure.moduleOfId == null)
         .map((structure) => (
-          <BuildButton key={structure.id} structure={structure} />
+          <BuildButton key={structure.id} structureId={structure.id} />
         ))}
     </>
   )
 }
 
 type BuildModulesProps = {
-  character: CharacterWithAllInfo
   builtStructure: BuiltStructureWithAllInfo
 }
 
-export function BuildModules({ character, builtStructure }: BuildModulesProps) {
-  const { structures } = useStructures()
-  if (!structures || builtStructure.durability == 0) return null
+export function BuildModules({ builtStructure }: BuildModulesProps) {
+  const { structure } = useStructure(builtStructure.structureId)
+  if (!structure || builtStructure.durability == 0) return null
   return (
     <>
-      {structures
-        .find((structure) => structure.id == builtStructure.structureId)
-        .modules.map((builtStructureModule) => {
-          const structureModule = structures.find(
-            (structure) => structure.id == builtStructureModule.id
-          )
-          return (
-            <BuildButton
-              key={structureModule.id}
-              structure={structureModule}
-              parent={builtStructure}
-            />
-          )
-        })}
+      {structure.modules.map((builtStructureModule) => {
+        return (
+          <BuildButton
+            key={builtStructureModule.id}
+            structureId={builtStructureModule.id}
+            parent={builtStructure}
+          />
+        )
+      })}
     </>
   )
 }
 
 type BuildButtonProps = {
-  structure: StructureWithAllInfo
+  structureId: string
   parent?: BuiltStructure
 }
 
-function BuildButton({ structure, parent }: BuildButtonProps) {
+function BuildButton({ structureId, parent }: BuildButtonProps) {
   const { mutate } = useSWRConfig()
-  const { character } = useCharacterAndCell()
-  if (!character) return null
+  const characterId = useCharacterId()
+  const { structure } = useStructure(structureId)
+  if (!structure) return null
   return (
     <li>
       <ProgressButton
@@ -125,23 +124,22 @@ function BuildButton({ structure, parent }: BuildButtonProps) {
         stamina={structure.requiredStamina}
         task={async () => {
           const response = await build(
-            character.id,
+            characterId,
             structure.id,
             parent && parent.id
           )
           response.success
             ? toast.success(response.message)
             : toast.error(response.message)
-          mutate("/api/characters/" + character.id)
+          mutate("/api/characters/" + characterId)
         }}
       />
       <div className="material">
         {structure.requiredMaterials.map((requirement) => (
           <span key={requirement.materialId}>
-            <RenderMaterial
+            <MaterialRequirement
               material={requirement.material}
               quantity={requirement.quantity}
-              inventory={character.inventory}
             />{" "}
           </span>
         ))}
@@ -180,14 +178,10 @@ export function InventoryActions() {
 }
 
 type StructureActionsProps = {
-  character: CharacterWithAllInfo
   builtStructure: BuiltStructureWithAllInfo
 }
 
-export function StructureActions({
-  character,
-  builtStructure,
-}: StructureActionsProps) {
+export function StructureActions({ builtStructure }: StructureActionsProps) {
   if (builtStructure.durability == 0)
     return (
       <p>
@@ -210,29 +204,27 @@ type ActionButtonProps = {
 
 export function ActionButton({ action }: ActionButtonProps) {
   const { mutate } = useSWRConfig()
-  const { character } = useCharacterAndCell()
-  if (!character) return null
+  const characterId = useCharacterId()
   return (
     <li>
       <ProgressButton
         label={action.title}
         stamina={action.stamina}
         task={async () => {
-          const response = await doAction(character.id, action.id)
+          const response = await doAction(characterId, action.id)
           response.success
             ? toast.success(response.message)
             : toast.error(response.message)
-          mutate("/api/characters/" + character.id)
+          mutate("/api/characters/" + characterId)
         }}
       />
       {action.requiredMaterials.length > 0 && (
         <div className="material">
           {action.requiredMaterials.map((requirement) => (
             <span key={requirement.materialId}>
-              <RenderMaterial
+              <MaterialRequirement
                 material={requirement.material}
                 quantity={requirement.quantity}
-                inventory={character.inventory}
               />{" "}
             </span>
           ))}
@@ -243,10 +235,7 @@ export function ActionButton({ action }: ActionButtonProps) {
           {"Outil requis : "}
           {action.requiredTools.map((tool) => (
             <span key={tool.id}>
-              <RenderToolRequirement
-                tool={tool}
-                toolInventory={character.tools}
-              />{" "}
+              <RenderToolRequirement tool={tool} />{" "}
             </span>
           ))}
         </div>
@@ -259,12 +248,12 @@ export function ActionButton({ action }: ActionButtonProps) {
 }
 
 type RepairButtonProps = {
-  character: CharacterWithAllInfo
   structure: BuiltStructureWithAllInfo
 }
 
-export function RepairButton({ character, structure }: RepairButtonProps) {
+export function RepairButton({ structure }: RepairButtonProps) {
   const { mutate } = useSWRConfig()
+  const characterId = useCharacterId()
   if (structure.durability == structure.structure.maxDurability) return null
   return (
     <li>
@@ -278,21 +267,20 @@ export function RepairButton({ character, structure }: RepairButtonProps) {
         }
         stamina={structure.structure.repairStamina}
         task={async () => {
-          const response = await repair(character.id, structure.id)
+          const response = await repair(characterId, structure.id)
           response.success
             ? toast.success(response.message)
             : toast.error(response.message)
-          mutate("/api/characters/" + character.id)
+          mutate("/api/characters/" + characterId)
         }}
       />
       {structure.structure.repairMaterials.length > 0 && (
         <div className="material">
           {structure.structure.repairMaterials.map((requirement) => (
             <span key={requirement.materialId}>
-              <RenderMaterial
+              <MaterialRequirement
                 material={requirement.material}
                 quantity={requirement.quantity}
-                inventory={character.inventory}
               />{" "}
             </span>
           ))}
