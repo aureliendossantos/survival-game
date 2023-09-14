@@ -1,3 +1,4 @@
+import { characterWithAllInfo } from "lib/api/types"
 import getHoursSince from "lib/getHoursSince"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
@@ -28,88 +29,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   let character = await prisma.character.update({
     where: { id: characterId },
     data: { stamina: newStamina, lastStaminaSet: new Date() },
-    include: {
-      tools: {
-        orderBy: [{ tool: { order: "asc" } }, { durability: "desc" }],
-        include: { tool: true },
-      },
-      inventory: {
-        orderBy: { material: { order: "asc" } },
-        include: {
-          material: {
-            include: {
-              inActionCost: {
-                orderBy: { action: { id: "asc" } },
-                include: {
-                  action: {
-                    include: {
-                      requiredMaterials: { include: { material: true } },
-                      requiredTools: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      map: {
-        include: {
-          cells: {
-            select: {
-              id: true,
-              x: true,
-              y: true,
-              terrainId: true,
-              builtStructures: true,
-            },
-          },
-        },
-      },
-    },
+    include: characterWithAllInfo.include,
   })
-  /*character.inventory = character.inventory.filter(
-    (entry) => entry.quantity > 0
-  )*/
-  const cell = await prisma.cell.findFirst({
-    where: {
-      characters: {
-        some: { id: { equals: characterId } },
-      },
-    },
-    include: {
-      characters: true,
-      terrain: {
-        include: {
-          actions: {
-            orderBy: { id: "asc" },
-            include: {
-              requiredMaterials: { include: { material: true } },
-              requiredTools: true,
-            },
-          },
-        },
-      },
-      builtStructures: {
-        include: {
-          structure: {
-            include: {
-              actions: {
-                include: {
-                  requiredMaterials: { include: { material: true } },
-                  requiredTools: true,
-                },
-              },
-              repairMaterials: { include: { material: true } },
-            },
-          },
-          contributors: true,
-          modules: true,
-        },
-      },
-    },
-  })
-  res.json({ character, cell })
+  res.json({ character, cell: character.cell })
 }
 
 async function updateStructures(characterId: string) {
@@ -126,7 +48,10 @@ async function updateStructures(characterId: string) {
     const now = new Date()
     const hoursSinceUpdate = getHoursSince(builtStructure.lastDurabilitySet)
     if (hoursSinceUpdate > 0) {
-      const newDurability = Math.max(0, builtStructure.durability - hoursSinceUpdate)
+      const newDurability = Math.max(
+        0,
+        builtStructure.durability - hoursSinceUpdate
+      )
       await prisma.builtStructure.updateMany({
         where: {
           id: builtStructure.id,

@@ -13,10 +13,10 @@ export default async function getCharacters(
     const character = await prisma.character.create({
       data: {
         name: req.body.name,
-        userId: req.body.userId,
-        mapId: req.body.mapId,
-        x: 1,
-        y: 1,
+        user: { connect: { id: req.body.userId } },
+        map: { connect: { id: req.body.mapId } },
+        cell: { connect: { mapId_x_y: { mapId: req.body.mapId, x: 1, y: 1 } } },
+        inventory: { create: {} },
       },
     })
     return res.json({

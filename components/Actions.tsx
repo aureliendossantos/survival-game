@@ -166,7 +166,7 @@ export function InventoryActions() {
   return (
     <>
       <BuildStarters />
-      {character.inventory.map((entry) =>
+      {character.inventory.materials.map((entry) =>
         entry.material.inActionCost
           .filter((entry) => entry.action.structureId == null)
           .map((entry) => (

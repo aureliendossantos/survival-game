@@ -25,16 +25,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   // L'inventaire contient-il les ressources requises ?
   let requirementsMet = true
   for (const requirement of builtStructure.structure.repairMaterials) {
-    const test = await prisma.inventory.findMany({
+    const test = await prisma.posessedMaterial.findFirst({
       where: {
         AND: [
-          { characterId: characterId },
+          { inventoryId: character.inventoryId },
           { materialId: requirement.materialId },
           { quantity: { gte: requirement.quantity } },
         ],
       },
     })
-    if (test.length == 0) requirementsMet = false
+    if (!test) requirementsMet = false
   }
   if (!requirementsMet)
     return res.json({
@@ -42,7 +42,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       message: "Vous n'avez pas assez de ressources.",
     })
   consumeStamina(builtStructure.structure.requiredStamina, character)
-  consumeMaterials(builtStructure.structure.repairMaterials, character)
+  consumeMaterials(
+    builtStructure.structure.repairMaterials,
+    character.inventoryId
+  )
   // Réparer la structure
   await prisma.builtStructure.update({
     where: {

@@ -27,9 +27,9 @@ model Character {
   y               Int              @default(1)
   map             Map              @relation(fields: [mapId], references: [id])
   cell            Cell             @relation(fields: [mapId, x, y], references: [mapId, x, y])
-  user            User             @relation(fields: [userId], references: [id])
-  inventory       Inventory[]
-  tools           ToolInstance[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventoryId     String           @unique
+  inventory       Inventory        @relation(fields: [inventoryId], references: [id])
   builtStructures BuiltStructure[]
 }
 
@@ -41,9 +41,30 @@ model Material {
   description       String?
   inActionLoot      ActionLoot[]
   inActionCost      ActionCost[]
-  inInventory       Inventory[]
+  posessedIn        PosessedMaterial[]
   inStructure       StructureCost[]
   inStructureRepair StructureRepairCost[]
+}
+
+model Food {
+  id           String           @id
+  order        Int
+  description  String?
+  title        String
+  pluralTitle  String?
+  durability   Int              @default(40)
+  instances    FoodInstance[]
+  inActionLoot ActionFoodLoot[]
+}
+
+model FoodInstance {
+  id                String    @id @default(cuid())
+  durability        Int
+  lastDurabilitySet DateTime  @default(now())
+  foodId            String
+  food              Food      @relation(fields: [foodId], references: [id])
+  inInventory       Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  inventoryId       String
 }
 
 model Tool {
@@ -66,18 +87,27 @@ model ToolInstance {
   lastDurabilitySet DateTime  @default(now())
   toolId            String
   tool              Tool      @relation(fields: [toolId], references: [id])
-  inCharacter       Character @relation(fields: [characterId], references: [id])
-  characterId       String
+  inInventory       Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  inventoryId       String
 }
 
 model Inventory {
-  characterId String
-  character   Character @relation(fields: [characterId], references: [id])
+  id             String             @id @default(cuid())
+  materials      PosessedMaterial[]
+  food           FoodInstance[]
+  tools          ToolInstance[]
+  character      Character?
+  builtStructure BuiltStructure?
+}
+
+model PosessedMaterial {
+  inventoryId String
+  inInventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
   materialId  String
   material    Material  @relation(fields: [materialId], references: [id])
   quantity    Int       @default(0)
 
-  @@unique([characterId, materialId])
+  @@unique([inventoryId, materialId])
 }
 
 model Map {
@@ -93,7 +123,7 @@ model Cell {
   y               Int
   terrainId       String           @default("plains")
   builtStructures BuiltStructure[]
-  map             Map              @relation(fields: [mapId], references: [id])
+  map             Map              @relation(fields: [mapId], references: [id], onDelete: Cascade)
   terrain         Terrain          @relation(fields: [terrainId], references: [id])
   characters      Character[]
 
@@ -113,13 +143,15 @@ model BuiltStructure {
   id                String           @id @default(cuid())
   durability        Int
   lastDurabilitySet DateTime         @default(now())
+  inventoryId       String?          @unique
+  inventory         Inventory?       @relation(fields: [inventoryId], references: [id])
   cellId            String
   structureId       String
-  cell              Cell             @relation(fields: [cellId], references: [id])
+  cell              Cell             @relation(fields: [cellId], references: [id], onDelete: Cascade)
   structure         Structure        @relation(fields: [structureId], references: [id])
   contributors      Character[]
   moduleOfId        String?
-  moduleOf          BuiltStructure?  @relation("BuiltStructureModules", fields: [moduleOfId], references: [id])
+  moduleOf          BuiltStructure?  @relation("BuiltStructureModules", fields: [moduleOfId], references: [id], onDelete: Cascade)
   modules           BuiltStructure[] @relation("BuiltStructureModules")
 }
 
@@ -127,6 +159,7 @@ model Structure {
   id                String                @id
   title             String
   description       String?
+  hasInventory      Boolean               @default(false)
   minDurability     Int                   @default(30)
   maxDurability     Int                   @default(40)
   requiredStamina   Int                   @default(-1)
@@ -176,8 +209,9 @@ model Action {
   failureMessage    String?          @default("Vous avez échoué.")
   requiredMaterials ActionCost[]
   requiredTools     Tool[]
-  loot              ActionLoot[]
-  toolLoot          ActionToolLoot[]
+  materials         ActionLoot[]
+  food              ActionFoodLoot[]
+  tools             ActionToolLoot[]
   terrains          Terrain[]
   structure         Structure?       @relation(fields: [structureId], references: [id])
   structureId       String?
@@ -202,6 +236,17 @@ model ActionLoot {
   material    Material @relation(fields: [materialId], references: [id])
 
   @@unique([actionId, materialId])
+}
+
+model ActionFoodLoot {
+  foodId      String
+  minQuantity Int    @default(1)
+  maxQuantity Int    @default(1)
+  actionId    Int
+  action      Action @relation(fields: [actionId], references: [id])
+  food        Food   @relation(fields: [foodId], references: [id])
+
+  @@unique([actionId, foodId])
 }
 
 model ActionToolLoot {

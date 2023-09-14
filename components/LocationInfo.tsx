@@ -7,6 +7,7 @@ import {
   StructureActions,
 } from "./Actions"
 import Card from "./Card"
+import { Materials, Tools } from "./Inventory"
 
 export function TerrainCard() {
   const { cell } = useCharacterAndCell()
@@ -50,6 +51,16 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
             "%",
         ]}
       >
+        {structure.structure.hasInventory && (
+          <>
+            {structure.inventory.materials.length == 0 &&
+              structure.inventory.food.length == 0 &&
+              structure.inventory.tools.length == 0 &&
+              "Le coffre est vide."}
+            <Tools inventory={structure.inventory} />
+            <Materials inventory={structure.inventory} />
+          </>
+        )}
         <div className="buttons-list">
           <StructureActions builtStructure={structure} />
           <BuildModules builtStructure={structure} />

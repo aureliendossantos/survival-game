@@ -1,14 +1,6 @@
-import {
-  Action,
-  ActionCost,
-  Tool,
-  ActionLoot,
-  ActionToolLoot,
-  Character,
-} from "@prisma/client"
+import { Action, ActionCost, Character, Tool } from "@prisma/client"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
-import { ActionWithRequirements } from "lib/api/types"
 import consumeStamina from "lib/api/consumeStamina"
 
 function randomInt(min: number, max: number) {
@@ -28,8 +20,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     include: {
       requiredMaterials: true,
       requiredTools: true,
-      loot: true,
-      toolLoot: { include: { tool: true } },
+      materials: true,
+      tools: { include: { tool: true } },
     },
   })
   // Le personnage a-t-il assez d'énergie ?
@@ -40,7 +32,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     })
   }
   // L'inventaire contient-il les matériaux et outils requis ?
-  if (!(await requirementsMet(action, characterId))) {
+  if (!(await requirementsMet(action, character))) {
     return res.json({
       success: false,
       message: "Vous n'avez pas assez de ressources.",
@@ -48,10 +40,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
   // Retirer les matériaux de l'inventaire
   for (const requirement of action.requiredMaterials) {
-    await prisma.inventory.update({
+    await prisma.posessedMaterial.update({
       where: {
-        characterId_materialId: {
-          characterId: characterId,
+        inventoryId_materialId: {
+          inventoryId: character.inventoryId,
           materialId: requirement.materialId,
         },
       },
@@ -62,7 +54,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   for (const requiredTool of action.requiredTools) {
     const toolInstance = await prisma.toolInstance.findFirst({
       where: {
-        characterId: characterId,
+        inventoryId: character.inventoryId,
         toolId: requiredTool.id,
       },
     })
@@ -86,18 +78,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
   // Donner le loot
   // for loop instead of map because of the await
-  for (const [index, loot] of action.loot.entries()) {
+  for (const [index, loot] of action.materials.entries()) {
     const quantity = randomInt(loot.minQuantity, loot.maxQuantity)
-    await prisma.inventory.upsert({
+    await prisma.posessedMaterial.upsert({
       where: {
-        characterId_materialId: {
-          characterId: characterId,
+        inventoryId_materialId: {
+          inventoryId: character.inventoryId,
           materialId: loot.materialId,
         },
       },
       update: { quantity: { increment: quantity } },
       create: {
-        characterId: characterId,
+        inventoryId: character.inventoryId,
         materialId: loot.materialId,
         quantity: quantity,
       },
@@ -108,13 +100,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     )
   }
   // Donner les outils lootés
-  for (const toolLoot of action.toolLoot) {
-    const tool = toolLoot.tool
-    const quantity = randomInt(toolLoot.minQuantity, toolLoot.maxQuantity)
+  for (const loot of action.tools) {
+    const tool = loot.tool
+    const quantity = randomInt(loot.minQuantity, loot.maxQuantity)
     for (const index of [...Array(quantity).keys()])
-      await prisma.character.update({
+      await prisma.inventory.update({
         where: {
-          id: characterId,
+          id: character.inventoryId,
         },
         data: {
           tools: { create: { toolId: tool.id, durability: tool.durability } },
@@ -134,13 +126,13 @@ async function requirementsMet(
     requiredMaterials: ActionCost[]
     requiredTools: Tool[]
   },
-  characterId: string
+  character: Character
 ) {
   for (const requirement of action.requiredMaterials) {
-    const test = await prisma.inventory.findMany({
+    const test = await prisma.posessedMaterial.findMany({
       where: {
         AND: [
-          { characterId: characterId },
+          { inventoryId: character.inventoryId },
           { materialId: requirement.materialId },
           { quantity: { gte: requirement.quantity } },
         ],
@@ -151,7 +143,10 @@ async function requirementsMet(
   for (const requirement of action.requiredTools) {
     const test = await prisma.toolInstance.findMany({
       where: {
-        AND: [{ characterId: characterId }, { toolId: requirement.id }],
+        AND: [
+          { inventoryId: character.inventoryId },
+          { toolId: requirement.id },
+        ],
       },
     })
     if (test.length == 0) return false

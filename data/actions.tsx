@@ -8,7 +8,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     stamina: -1,
     successMessage: "Vous avez trouvé $1 branches et $2 feuillages.",
     terrains: { connect: { id: "forest" } },
-    loot: {
+    materials: {
       create: [
         { materialId: "branch", minQuantity: 6, maxQuantity: 10 },
         { materialId: "greenery", minQuantity: 3, maxQuantity: 5 },
@@ -23,7 +23,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     successMessage: "Vous obtenez $1 tronc d'arbre.",
     terrains: { connect: { id: "forest" } },
     requiredTools: { connect: { id: "axe" } },
-    loot: { create: { materialId: "trunk" } },
+    materials: { create: { materialId: "trunk" } },
   },
   {
     id: 3,
@@ -32,7 +32,9 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     successMessage: "Vous obtenez $1 bûches.",
     requiredMaterials: { create: { materialId: "trunk" } },
     requiredTools: { connect: { id: "axe" } },
-    loot: { create: { materialId: "log", minQuantity: 6, maxQuantity: 10 } },
+    materials: {
+      create: { materialId: "log", minQuantity: 6, maxQuantity: 10 },
+    },
   },
   {
     id: 4,
@@ -41,7 +43,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     stamina: -1,
     successMessage: "Vous avez trouvé $1 galets et $2 coquillages.",
     terrains: { connect: { id: "beach" } },
-    loot: {
+    materials: {
       create: [
         { materialId: "stone", minQuantity: 2, maxQuantity: 5 },
         { materialId: "shell", minQuantity: 2, maxQuantity: 3 },
@@ -68,7 +70,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     requiredMaterials: {
       create: [{ materialId: "branch" }, { materialId: "stone", quantity: 2 }],
     },
-    toolLoot: { create: { toolId: "hammer" } },
+    tools: { create: { toolId: "hammer" } },
   },
   {
     id: 7,
@@ -86,7 +88,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
       ],
     },
     requiredTools: { connect: { id: "hammer" } },
-    toolLoot: { create: { toolId: "axe" } },
+    tools: { create: { toolId: "axe" } },
   },
   {
     id: 8,
@@ -98,7 +100,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
       "En essayant d'obtenir une aiguille, vous avez cassé la coquille !",
     requiredMaterials: { create: { materialId: "shell", quantity: 1 } },
     requiredTools: { connect: { id: "hammer" } },
-    toolLoot: { create: { toolId: "needle" } },
+    tools: { create: { toolId: "needle" } },
   },
   {
     id: 9,
@@ -109,7 +111,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     failureMessage: "Vous avez cassé vos matériaux !",
     requiredMaterials: { create: { materialId: "greenery", quantity: 1 } },
     requiredTools: { connect: { id: "needle" } },
-    loot: { create: { materialId: "string" } },
+    materials: { create: { materialId: "string" } },
   },
   {
     id: 10,
@@ -119,7 +121,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     structure: { connect: { id: "workbench" } },
     requiredMaterials: { create: { materialId: "string", quantity: 16 } },
     requiredTools: { connect: { id: "needle" } },
-    loot: { create: { materialId: "string" } },
+    materials: { create: { materialId: "string" } },
   },
   {
     id: 11,
@@ -131,6 +133,6 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
       create: [{ materialId: "branch", quantity: 3 }, { materialId: "net" }],
     },
     requiredTools: { connect: { id: "needle" } },
-    toolLoot: { create: { toolId: "fishingNet" } },
+    tools: { create: { toolId: "fishingNet" } },
   },
 ])

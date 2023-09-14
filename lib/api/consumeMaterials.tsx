@@ -1,15 +1,15 @@
-import { Character, StructureCost } from "@prisma/client"
+import { StructureCost } from "@prisma/client"
 import prisma from "lib/prisma"
 
 export default async function consumeMaterials(
   costs: StructureCost[],
-  character: Character
+  inventoryId: string
 ) {
   for (const cost of costs) {
-    await prisma.inventory.update({
+    await prisma.posessedMaterial.update({
       where: {
-        characterId_materialId: {
-          characterId: character.id,
+        inventoryId_materialId: {
+          inventoryId: inventoryId,
           materialId: cost.materialId,
         },
       },

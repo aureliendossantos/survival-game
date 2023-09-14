@@ -31,22 +31,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // L'inventaire contient-il les ressources requises ?
     let requirementsMet = true
     for (const requirement of structure.requiredMaterials) {
-      const test = await prisma.inventory.findMany({
+      const test = await prisma.posessedMaterial.findFirst({
         where: {
           AND: [
-            { characterId: characterId },
+            { inventoryId: character.inventoryId },
             { materialId: requirement.materialId },
             { quantity: { gte: requirement.quantity } },
           ],
         },
       })
-      if (test.length == 0) {
-        requirementsMet = false
-      }
+      if (!test) requirementsMet = false
     }
     if (requirementsMet) {
       consumeStamina(structure.requiredStamina, character)
-      consumeMaterials(structure.requiredMaterials, character)
+      consumeMaterials(structure.requiredMaterials, character.inventoryId)
       // Construire la structure
       const cell = await prisma.cell.findFirst({
         where: {
@@ -55,14 +53,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
       await prisma.builtStructure.create({
         data: {
-          structureId: structure.id,
+          structure: { connect: { id: structure.id } },
           durability: randomInt(
             structure.minDurability,
             structure.maxDurability
           ),
-          cellId: cell.id,
-          moduleOfId: parentBuiltStructureId,
+          cell: { connect: { id: cell.id } },
+          moduleOf: parentBuiltStructureId
+            ? { connect: { id: parentBuiltStructureId } }
+            : undefined,
           contributors: { connect: { id: characterId } },
+          inventory: structure.hasInventory ? { create: {} } : undefined,
         },
       })
       return res.json({

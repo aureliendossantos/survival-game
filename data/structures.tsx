@@ -41,6 +41,19 @@ export const structures = Prisma.validator<
           },
           repairAmount: 10,
         },
+        {
+          id: "chest",
+          title: "Coffre",
+          description: "Pour stocker et partager des objets.",
+          hasInventory: true,
+          requiredMaterials: {
+            create: [{ materialId: "branch", quantity: 1 }],
+          },
+          repairMaterials: {
+            create: [{ materialId: "branch", quantity: 2 }],
+          },
+          repairAmount: 10,
+        },
       ],
     },
   },

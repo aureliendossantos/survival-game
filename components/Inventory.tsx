@@ -2,23 +2,27 @@ import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import Card from "./Card"
 import RenderMaterial from "./RenderMaterial"
 import { RenderToolInstance } from "./RenderTool"
+import { InventoryWithAllInfo } from "lib/api/types"
 
-export default function InventoryCard() {
+export default function PlayerInventoryCard() {
+  const { character } = useCharacterAndCell()
+  if (!character) return null
   return (
     <Card icon="bag" iconColor="mountains" title="Sac à dos">
-      <Tools />
-      <Materials />
+      {character.inventory.materials.length == 0 &&
+        character.inventory.food.length == 0 &&
+        character.inventory.tools.length == 0 &&
+        "Vous ne portez rien dans votre sac."}
+      <Tools inventory={character.inventory} />
+      <Materials inventory={character.inventory} />
     </Card>
   )
 }
 
-function Materials() {
-  const { character } = useCharacterAndCell()
-  if (!character) return null
+export function Materials({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
     <div className="buttons-list">
-      {character.inventory.length == 0 && "Vous ne portez rien dans votre sac."}
-      {character.inventory
+      {inventory.materials
         .filter((entry) => entry.quantity > 0)
         .map((entry) => (
           <li key={entry.material.id} className="material">
@@ -32,12 +36,10 @@ function Materials() {
   )
 }
 
-function Tools() {
-  const { character } = useCharacterAndCell()
-  if (!character) return null
+export function Tools({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
     <div className="buttons-list">
-      {character.tools.map((entry) => (
+      {inventory.tools.map((entry) => (
         <li key={entry.id} className="material">
           <RenderToolInstance tool={entry} />{" "}
         </li>

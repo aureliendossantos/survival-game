@@ -9,7 +9,8 @@ type ToolProps = {
 export function RenderToolRequirement({ tool }: ToolProps) {
   const { character } = useCharacterAndCell()
   const requirementMet =
-    character && character.tools.find((entry) => entry.toolId == tool.id)
+    character &&
+    character.inventory.tools.find((entry) => entry.toolId == tool.id)
   return (
     <span className={!requirementMet && "requirements-not-met"}>
       {tool.title}
