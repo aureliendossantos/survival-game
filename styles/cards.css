@@ -20,14 +20,8 @@
 }
 
 .card .header .description,
-.card .contents,
 .card .more-info {
   font-size: smaller;
-}
-
-.card .contents {
-  padding: 0.6em 0.6em;
-  background-color: #2b1f1c;
 }
 
 .card .icon {

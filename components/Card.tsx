@@ -51,7 +51,7 @@ export default function Card({
           </div>
         )}
       </div>
-      <div className="contents">{children}</div>
+      <div className="bg-[#2b1f1c] p-[0.6em] text-[smaller]">{children}</div>
       {moreInfo && (
         <div className="more-info">
           <ul>
