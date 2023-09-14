@@ -1,0 +1,22 @@
+.event {
+  position: relative;
+  max-width: 480px;
+  margin: auto;
+  background-color: rgb(121, 75, 43);
+  .image {
+    position: relative;
+    .gradient {
+      position: absolute;
+      bottom: 0;
+      height: 20%;
+      width: 100%;
+      background-image: linear-gradient(transparent, rgb(121, 75, 43));
+    }
+  }
+  .text {
+    padding: 1px 1em 1em 1em;
+    .buttons {
+      text-align: right;
+    }
+  }
+}

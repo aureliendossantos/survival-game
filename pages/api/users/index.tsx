@@ -1,6 +1,7 @@
-import prisma from "/lib/prisma"
+import prisma from "lib/prisma"
+import { NextApiRequest, NextApiResponse } from "next"
 
-export default async (req, res) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method == "POST") {
     const user = await prisma.user.create({
       data: { name: req.body.name },
@@ -10,8 +11,8 @@ export default async (req, res) => {
       message: `Compte ${user.name} créé.`,
     })
   } else if (req.method == "GET") {
-    const query = await prisma.user.findMany()
-    return res.json(query)
+    const users = await prisma.user.findMany()
+    return res.json(users)
   }
   return res.status(405).json({ message: "Method not allowed" })
 }
