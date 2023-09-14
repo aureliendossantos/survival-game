@@ -8,7 +8,10 @@ async function getNewStamina(stamina: number, lastSet: Date) {
   return Math.min(stamina + hoursSinceUpdate, 10)
 }
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method != "GET")
     return res.status(405).json({ message: "Method not allowed" })
   const characterId = String(req.query.id)

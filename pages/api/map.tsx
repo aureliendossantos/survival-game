@@ -1,7 +1,11 @@
 import prisma from "lib/prisma"
+import { NextApiRequest, NextApiResponse } from "next"
 import { maps, dictionary } from "data/maps"
 
-export default async (req, res) => {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method == "POST") {
     console.log("Creating map...")
     const map = await prisma.map.create({

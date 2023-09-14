@@ -1,4 +1,3 @@
-import { cellWithAllInfo } from "lib/api/types"
 import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 
@@ -9,15 +8,13 @@ export default async function handler(
   if (req.method != "GET") {
     return res.status(405).json({ message: "Method not allowed" })
   }
-  const query = await prisma.cell.findFirst({
+  const query = await prisma.user.findUnique({
     where: {
-      characters: {
-        some: {
-          id: { equals: String(req.body.id) },
-        },
-      },
+      id: String(req.query.id),
     },
-    include: cellWithAllInfo.include,
+    include: {
+      characters: true,
+    },
   })
   res.json(query)
 }
