@@ -40,12 +40,13 @@ function Cell({ cell }: CellProps) {
   const { character } = useCharacterAndCell()
   if (!character) return null
   return (
-    <td key={cell.id} className={cell.terrainId}>
-      {characterIsAt(character, cell.x, cell.y) && <GiPerson />}
+    <td key={cell.id} className={`relative h-[50px] w-[50px] p-0`}>
+      <div className={cell.terrainId} />
       {cell.builtStructures.length > 0 && (
-        <div className="structure-marker">
-          <FaCampground />
-        </div>
+        <div className="spritesheet bg-[-600%_-300%]" />
+      )}
+      {characterIsAt(character, cell.x, cell.y) && (
+        <div className="spritesheet bg-[-600%_-200%]" />
       )}
     </td>
   )

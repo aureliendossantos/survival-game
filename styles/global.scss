@@ -10,6 +10,12 @@ body {
   max-width: 480px;
 }
 
+.spritesheet {
+  background-image: url("/spritesheet.png");
+  background-size: 700% 500%;
+  @apply absolute left-0 top-0 h-full w-full;
+}
+
 h1,
 h2,
 h3,
@@ -126,31 +132,33 @@ table {
   margin-bottom: 9px;
 }
 
-td {
-  height: 3em;
-  width: 3em;
-  text-align: center;
-  vertical-align: middle;
-}
-
 .structure-icon {
   background-color: rgb(216, 206, 163);
+  @apply spritesheet;
+}
+.item-icon {
+  background-color: rgb(216, 190, 135);
+  @apply spritesheet;
 }
 .plains {
   background-color: rgb(152, 185, 113);
+  @apply spritesheet bg-[-400%_-300%];
 }
 .forest {
   background-color: rgb(45, 121, 62);
+  @apply spritesheet bg-[-400%_-200%];
 }
 .mountains {
   background-color: rgb(216, 190, 135);
+  @apply spritesheet bg-[-300%_-200%];
 }
 .beach {
   background-color: rgb(245, 244, 174);
-  color: maroon;
+  @apply spritesheet bg-[-500%_-200%];
 }
 .sea {
   background-color: rgb(46, 90, 119);
+  @apply spritesheet bg-[-500%_-300%];
 }
 
 .loading {

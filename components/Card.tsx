@@ -30,11 +30,16 @@ export default function Card({
   return (
     <div className={"card" + (dottedBorder ? " dotted" : "")}>
       <div className="header">
-        <div className={"icon " + iconColor}>
-          {icon == "camp" && <FaCampground />}
-          {icon == "workbench" && <FaHammer />}
-          {icon == "bag" && <GiSchoolBag />}
-          {icon == "book" && <GiWhiteBook />}
+        <div className="m-[9.5px]">
+          <div
+            className={`relative flex h-[48px] w-[48px] items-center justify-center overflow-hidden rounded-sm text-[x-large]`}
+          >
+            <div className={`${iconColor}`} />
+            {icon == "camp" && <div className="spritesheet bg-[-600%_-300%]" />}
+            {icon == "workbench" && <FaHammer className="z-10" />}
+            {icon == "bag" && <GiSchoolBag className="z-10" />}
+            {icon == "book" && <GiWhiteBook className="z-10" />}
+          </div>
         </div>
         <div className="text">
           <div className="title">

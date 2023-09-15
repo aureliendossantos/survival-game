@@ -8,7 +8,7 @@ export default function PlayerInventoryCard() {
   const { character } = useCharacterAndCell()
   if (!character) return null
   return (
-    <Card icon="bag" iconColor="mountains" title="Sac à dos">
+    <Card icon="bag" iconColor="item-icon" title="Sac à dos">
       {character.inventory.materials.length == 0 &&
         character.inventory.food.length == 0 &&
         character.inventory.tools.length == 0 &&

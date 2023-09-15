@@ -24,17 +24,6 @@
   font-size: smaller;
 }
 
-.card .icon {
-  height: 48px;
-  width: 48px;
-  margin: 9.5px;
-  border-radius: 2px;
-  font-size: x-large;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .card .author {
   background-color: rgb(180, 113, 65);
   padding: 0 0.6em;

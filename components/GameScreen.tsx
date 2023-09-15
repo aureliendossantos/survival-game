@@ -31,7 +31,7 @@ export default function GameScreen() {
       <TerrainCard />
       <StructureCards />
       <InventoryCard />
-      <Card iconColor="mountains" icon="book" title="Manuel de survie">
+      <Card iconColor="item-icon" icon="book" title="Manuel de survie">
         <div className="buttons-list">
           <InventoryActions />
         </div>
