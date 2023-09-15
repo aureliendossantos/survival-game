@@ -2,9 +2,43 @@ import prisma from "lib/prisma"
 import { NextApiRequest, NextApiResponse } from "next"
 import { maps, dictionary } from "data/maps"
 
+/**
+ * @swagger
+ * /api/map:
+ *   post:
+ *     description: "Creates a new map"
+ *     requestBody:
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: integer
+ *                 description: "The type of map to create. See `data/maps.ts` for the list of available maps. Default: `0`"
+ *     responses:
+ *       200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                success:
+ *                  type: boolean
+ *                message:
+ *                  type: string
+ *   get:
+ *     description: "Gets the list of all maps IDs."
+ *     responses:
+ *       200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method == "POST") {
     console.log("Creating map...")
@@ -21,13 +55,13 @@ export default async function handler(
           y: y,
           terrainId: dictionary[terrain],
           mapId: map.id,
-        })
-      )
+        }),
+      ),
     )
     await Promise.all(
       cells.map(async (cell) => {
         await prisma.cell.create({ data: cell })
-      })
+      }),
     )
     return res.json({
       success: true,
@@ -35,20 +69,6 @@ export default async function handler(
     })
   }
   if (req.method == "GET") {
-    if (req.body.id) {
-      const query = await prisma.map.findUnique({
-        where: {
-          id: req.body.id,
-        },
-        include: {
-          cells: {
-            include: { builtStructures: true },
-          },
-          characters: true,
-        },
-      })
-      return res.json(query)
-    }
     const query = await prisma.map.findMany()
     return res.json(query)
   }
