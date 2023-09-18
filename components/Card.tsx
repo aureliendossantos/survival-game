@@ -36,12 +36,17 @@ export default function Card({
           >
             <div className={`${iconColor}`} />
             {icon == "camp" && <div className="spritesheet bg-[-600%_-300%]" />}
-            {icon == "workbench" && <FaHammer className="z-10" />}
-            {icon == "bag" && <GiSchoolBag className="z-10" />}
-            {icon == "book" && <GiWhiteBook className="z-10" />}
+            {icon == "workbench" && (
+              <div className="spritesheet bg-[-400%_-500%]" />
+            )}
+            {icon == "bag" && <div className="spritesheet bg-[-0%_-600%]" />}
+            {icon == "book" && <div className="spritesheet bg-[-0%_-500%]" />}
+            {icon == "chest" && (
+              <div className="spritesheet bg-[-500%_-500%]" />
+            )}
           </div>
         </div>
-        <div className="text">
+        <div className="text leading-tight">
           <div className="title">
             {title} {position && <span className="position">{position}</span>}
           </div>
@@ -56,7 +61,7 @@ export default function Card({
           </div>
         )}
       </div>
-      <div className="bg-[#2b1f1c] p-[0.6em] text-[smaller]">{children}</div>
+      <div className="bg-[#2b1f1c] p-[9.5px] text-[smaller]">{children}</div>
       {moreInfo && (
         <div className="more-info">
           <ul>

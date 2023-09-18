@@ -36,7 +36,7 @@ export default function MapControls() {
       {directions.map((dir, index) => {
         const targetCell = map.find(
           (cell) =>
-            cell.x == character.x + dir.x && cell.y == character.y + dir.y
+            cell.x == character.x + dir.x && cell.y == character.y + dir.y,
         )
         const disabled = !targetCell || targetCell.terrainId == "sea"
         const stamina = disabled
@@ -52,14 +52,14 @@ export default function MapControls() {
             label={dir.label}
             stamina={stamina}
             disabled={disabled}
-            icon={true}
+            iconSize={true}
             task={async () => {
               if (!disabled) {
                 const response = await moveCharacter(
                   character.id,
                   dir.x,
                   dir.y,
-                  character.mapId
+                  character.mapId,
                 )
                 !response.success && toast.error(response.message)
                 mutate("/api/characters/" + character.id)

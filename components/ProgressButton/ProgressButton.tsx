@@ -1,29 +1,32 @@
 import { AwesomeButtonProgress } from "react-awesome-button"
 import AwesomeButtonStyles from "./awesomebutton.module.scss"
+import IconButtonStyles from "./iconbutton.module.scss"
+import { ReactNode } from "react"
 
 type ButtonProps = {
-  label: any
+  label?: ReactNode
+  iconClass?: string
   stamina?: number
   task: Function
   disabled?: boolean
-  icon?: boolean
+  iconSize?: boolean
 }
 
 export default function ProgressButton({
   label,
+  iconClass,
   stamina,
   task,
   disabled,
-  icon,
+  iconSize,
 }: ButtonProps) {
   const dot = stamina > 0 ? "◦" : "•"
-  const dotStyle = stamina > 0 ? "stamina-dots" : "stamina-dots bigger-dots"
   return (
     <AwesomeButtonProgress
       style={{ marginRight: "2px", marginBottom: "3px" }}
-      size={icon ? "icon" : "auto"}
+      size={iconSize ? "icon" : "auto"}
       type={disabled ? "disabled" : "primary"}
-      cssModule={AwesomeButtonStyles}
+      cssModule={iconClass ? IconButtonStyles : AwesomeButtonStyles}
       loadingLabel=""
       resultLabel=""
       disabled={disabled}
@@ -32,11 +35,30 @@ export default function ProgressButton({
         release()
       }}
     >
-      <div className="action-label">
-        {stamina != 0 && (
-          <div className={dotStyle}>{dot.repeat(Math.abs(stamina))}</div>
+      <div className="relative h-full w-full">
+        {label && (
+          <>
+            <div className="z-10">{label}</div>
+            {stamina != 0 && (
+              <div className="stamina-dots">
+                {dot.repeat(Math.abs(stamina))}
+              </div>
+            )}
+          </>
         )}
-        <div className="label">{label}</div>
+        {iconClass && (
+          <div className="flex flex-col overflow-hidden rounded-sm">
+            <div className="relative mx-1 -mb-1 mt-1 h-[58px] w-[58px]">
+              <div
+                className={`spritesheet ${iconClass}`}
+                style={{ filter: "invert(100%)" }}
+              />
+            </div>
+            <div className="mb-1 text-center text-[12px] text-white/50">
+              {dot.repeat(Math.abs(stamina))}
+            </div>
+          </div>
+        )}
       </div>
     </AwesomeButtonProgress>
   )

@@ -13,37 +13,42 @@ export default function PlayerInventoryCard() {
         character.inventory.food.length == 0 &&
         character.inventory.tools.length == 0 &&
         "Vous ne portez rien dans votre sac."}
-      <Tools inventory={character.inventory} />
-      <Materials inventory={character.inventory} />
+      <div className="flex flex-col gap-[3px] text-base">
+        <Tools inventory={character.inventory} />
+        <Materials inventory={character.inventory} />
+      </div>
     </Card>
   )
 }
 
 export function Materials({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
-    <div className="buttons-list">
+    <ul className="flex gap-[3px]">
       {inventory.materials
         .filter((entry) => entry.quantity > 0)
         .map((entry) => (
-          <li key={entry.material.id} className="material">
+          <li
+            key={entry.material.id}
+            className="rounded bg-[#1c1817] p-[0.6em]"
+          >
             <RenderMaterial
               material={entry.material}
               quantity={entry.quantity}
             />{" "}
           </li>
         ))}
-    </div>
+    </ul>
   )
 }
 
 export function Tools({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
-    <div className="buttons-list">
+    <ul className="flex gap-[3px]">
       {inventory.tools.map((entry) => (
-        <li key={entry.id} className="material">
+        <li key={entry.id} className="rounded bg-[#1c1817] p-[0.6em]">
           <RenderToolInstance tool={entry} />{" "}
         </li>
       ))}
-    </div>
+    </ul>
   )
 }

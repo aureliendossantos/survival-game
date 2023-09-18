@@ -4,6 +4,7 @@ import toast, { Toaster } from "react-hot-toast"
 import useSWR, { useSWRConfig } from "swr"
 import query from "lib/query"
 import { fetcher } from "lib/fetcher"
+import ProgressButton from "components/ProgressButton/ProgressButton"
 
 async function createUser(name) {
   const body = {
@@ -21,11 +22,12 @@ export default function LoginPage() {
       <div>
         <Toaster />
       </div>
-      <h1>Choisissez un compte</h1>
+      <h1 className="mb-4 mt-8 text-xl">Choisissez un compte</h1>
       <UserList />
-      <div className="section">
-        <h3>Créer un compte</h3>
+      <div className="mt-8 rounded bg-[#2b1f1c] p-4">
+        <h3 className="mb-4 text-xl">Créer un compte</h3>
         <form
+          className="flex flex-col gap-4"
           onSubmit={async (event: React.SyntheticEvent) => {
             // Stop the form from submitting and refreshing the page.
             event.preventDefault()
@@ -43,26 +45,26 @@ export default function LoginPage() {
             })
           }}
         >
-          <div className="buttons-list">
-            <label htmlFor="name">Nom</label>
-            <input type="text" id="name" name="name" required />
-            <button type="submit">Créer</button>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="name">Nom :</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Entrez votre nom..."
+              required
+              className="rounded-lg bg-[#4b5365] px-3 py-2 shadow-inner"
+            />
           </div>
+          <ProgressButton label="Créer" task={async () => {}} />
         </form>
       </div>
-      <div
-        style={{
-          marginTop: "8em",
-          padding: "1em",
-          borderRadius: "6px",
-          border: "2px solid grey",
-          backgroundColor: "#283148",
-        }}
-      >
+      <div className="mt-40 flex flex-col gap-2 rounded border-2 border-gray-500 bg-[#283148] p-4">
         <h4>Fonctions de debug</h4>
         <p>Utiliser en cas de problème.</p>
-        <button
-          onClick={async () => {
+        <ProgressButton
+          label="1. Vider la base de données"
+          task={async () => {
             toast.promise(query("/api/setup", "DELETE"), {
               loading: "Vidage de la base de données",
               success: () => {
@@ -72,12 +74,10 @@ export default function LoginPage() {
               error: "Une erreur est survenue",
             })
           }}
-        >
-          1. Vider la base de données
-        </button>
-        <br />
-        <button
-          onClick={async () => {
+        />
+        <ProgressButton
+          label="2. Remplir la base avec les valeurs par défaut"
+          task={async () => {
             toast.promise(query("/api/setup", "POST"), {
               loading: "Remplissage de la base de données",
               success: () => {
@@ -87,9 +87,7 @@ export default function LoginPage() {
               error: "Une erreur est survenue",
             })
           }}
-        >
-          2. Remplir la base avec les valeurs par défaut
-        </button>
+        />
       </div>
     </>
   )
@@ -102,12 +100,16 @@ function UserList() {
   if (error) return <p>Erreur de chargement.</p>
   if (!users) return <p>Chargement...</p>
   return (
-    <ul className="user-list">
+    <div className="flex max-w-[300px] flex-col">
       {users.map((user) => (
-        <Link href={"/user/" + user.id} key={user.id}>
-          <li>{user.name}</li>
+        <Link
+          href={"/user/" + user.id}
+          key={user.id}
+          className="bg-[#222c42] p-[1em] first:rounded-t-lg last:rounded-b-lg even:bg-[#2f3b55]"
+        >
+          {user.name}
         </Link>
       ))}
-    </ul>
+    </div>
   )
 }

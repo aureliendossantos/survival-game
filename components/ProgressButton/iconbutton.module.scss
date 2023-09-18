@@ -1,0 +1,8 @@
+@import "./awesomebutton.module.scss";
+
+.#{$button-root} {
+  height: unset;
+  .#{$button-root}__content {
+    padding: 0;
+  }
+}

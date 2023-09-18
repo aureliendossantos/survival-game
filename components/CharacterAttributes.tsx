@@ -5,7 +5,7 @@ export default function CharacterAttributes() {
   const { character } = useCharacterAndCell()
   if (!character) return null
   return (
-    <div className="buttons-list">
+    <div className="flex items-center gap-1">
       <span>Énergie</span>
       <ProgressBar
         completed={String(character.stamina)}

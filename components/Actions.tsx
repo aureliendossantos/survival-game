@@ -1,4 +1,4 @@
-import { BuiltStructure } from "@prisma/client"
+import { Action, BuiltStructure, Structure } from "@prisma/client"
 import query from "lib/query"
 import toast from "react-hot-toast"
 import { useSWRConfig } from "swr"
@@ -23,7 +23,7 @@ async function doAction(characterId: string, actionId: number) {
   return await query(
     "/api/characters/" + characterId + "/action",
     "PATCH",
-    body
+    body,
   )
 }
 
@@ -34,14 +34,14 @@ async function repair(characterId: string, builtStructureId: string) {
   return await query(
     "/api/characters/" + characterId + "/repair",
     "PATCH",
-    body
+    body,
   )
 }
 
 async function build(
   characterId: string,
   structureId: string,
-  parentBuiltStructureId?: string
+  parentBuiltStructureId?: string,
 ) {
   const body = {
     id: structureId,
@@ -107,6 +107,19 @@ export function BuildModules({ builtStructure }: BuildModulesProps) {
   )
 }
 
+function getStructureIcon(structure: Structure) {
+  switch (structure.id) {
+    case "camp":
+      return "bg-[-600%_-300%]"
+    case "workbench":
+      return "bg-[-400%_-500%]"
+    case "chest":
+      return "bg-[-500%_-500%]"
+    default:
+      return "bg-[-0%_-0%]"
+  }
+}
+
 type BuildButtonProps = {
   structureId: string
   parent?: BuiltStructure
@@ -118,22 +131,22 @@ function BuildButton({ structureId, parent }: BuildButtonProps) {
   const { structure } = useStructure(structureId)
   if (!structure) return null
   return (
-    <li>
-      <ProgressButton
-        label={<p>Construire un {structure.title}</p>}
-        stamina={structure.requiredStamina}
-        task={async () => {
-          const response = await build(
-            characterId,
-            structure.id,
-            parent && parent.id
-          )
-          response.success
-            ? toast.success(response.message)
-            : toast.error(response.message)
-          mutate("/api/characters/" + characterId)
-        }}
-      />
+    <ActionRow
+      title={`Construire un ${structure.title}`}
+      iconClass={getStructureIcon(structure)}
+      stamina={structure.requiredStamina}
+      task={async () => {
+        const response = await build(
+          characterId,
+          structure.id,
+          parent && parent.id,
+        )
+        response.success
+          ? toast.success(response.message)
+          : toast.error(response.message)
+        mutate("/api/characters/" + characterId)
+      }}
+    >
       <div className="material">
         {structure.requiredMaterials.map((requirement) => (
           <span key={requirement.materialId}>
@@ -144,7 +157,7 @@ function BuildButton({ structureId, parent }: BuildButtonProps) {
           </span>
         ))}
       </div>
-    </li>
+    </ActionRow>
   )
 }
 
@@ -171,7 +184,7 @@ export function InventoryActions() {
           .filter((entry) => entry.action.structureId == null)
           .map((entry) => (
             <ActionButton key={entry.action.id} action={entry.action} />
-          ))
+          )),
       )}
     </>
   )
@@ -198,6 +211,45 @@ export function StructureActions({ builtStructure }: StructureActionsProps) {
   )
 }
 
+function getActionIcon(action: Action) {
+  switch (action.id) {
+    case 1:
+      return "bg-[-200%_-400%]"
+    case 2:
+      return "bg-[-100%_-0%]"
+    case 4:
+      return "bg-[-200%_-0%]"
+    case 6:
+      return "bg-[-100%_-500%]"
+    case 7:
+      return "bg-[-200%_-500%]"
+    case 8:
+      return "bg-[-100%_-400%]"
+    case 9:
+      return "bg-[-0%_-400%]"
+    case 10:
+      return "bg-[-600%_-400%]"
+    case 11:
+      return "bg-[-600%_-500%]"
+    default:
+      return "bg-[-0%_-0%]"
+  }
+}
+
+function ActionRow({ title, iconClass, stamina, task, children }: any) {
+  return (
+    <li>
+      <div className="flex rounded bg-[#1c1817]">
+        <ProgressButton iconClass={iconClass} stamina={stamina} task={task} />
+        <div className="flex flex-col justify-between py-2 pl-3">
+          <div className="font-semibold">{title}</div>
+          <div className="flex gap-[3px]">{children}</div>
+        </div>
+      </div>
+    </li>
+  )
+}
+
 type ActionButtonProps = {
   action: ActionWithRequirements
 }
@@ -206,18 +258,28 @@ export function ActionButton({ action }: ActionButtonProps) {
   const { mutate } = useSWRConfig()
   const characterId = useCharacterId()
   return (
-    <li>
-      <ProgressButton
-        label={action.title}
-        stamina={action.stamina}
-        task={async () => {
-          const response = await doAction(characterId, action.id)
-          response.success
-            ? toast.success(response.message)
-            : toast.error(response.message)
-          mutate("/api/characters/" + characterId)
-        }}
-      />
+    <ActionRow
+      title={action.title}
+      iconClass={getActionIcon(action)}
+      stamina={action.stamina}
+      task={async () => {
+        const response = await doAction(characterId, action.id)
+        response.success
+          ? toast.success(response.message)
+          : toast.error(response.message)
+        mutate("/api/characters/" + characterId)
+      }}
+    >
+      {action.requiredTools.length > 0 && (
+        <div className="material">
+          {/**"Outil requis : "*/}
+          {action.requiredTools.map((tool) => (
+            <span key={tool.id}>
+              <RenderToolRequirement tool={tool} />{" "}
+            </span>
+          ))}
+        </div>
+      )}
       {action.requiredMaterials.length > 0 && (
         <div className="material">
           {action.requiredMaterials.map((requirement) => (
@@ -230,20 +292,10 @@ export function ActionButton({ action }: ActionButtonProps) {
           ))}
         </div>
       )}
-      {action.requiredTools.length > 0 && (
-        <div className="material">
-          {"Outil requis : "}
-          {action.requiredTools.map((tool) => (
-            <span key={tool.id}>
-              <RenderToolRequirement tool={tool} />{" "}
-            </span>
-          ))}
-        </div>
-      )}
       {action.probability < 100 && (
         <div className="material">{action.probability}% réussite</div>
       )}
-    </li>
+    </ActionRow>
   )
 }
 
@@ -256,24 +308,22 @@ export function RepairButton({ structure }: RepairButtonProps) {
   const characterId = useCharacterId()
   if (structure.durability == structure.structure.maxDurability) return null
   return (
-    <li>
-      <ProgressButton
-        label={
-          <p>
-            {structure.durability > 0
-              ? "Renforcer la structure"
-              : "Réparer la structure"}
-          </p>
-        }
-        stamina={structure.structure.repairStamina}
-        task={async () => {
-          const response = await repair(characterId, structure.id)
-          response.success
-            ? toast.success(response.message)
-            : toast.error(response.message)
-          mutate("/api/characters/" + characterId)
-        }}
-      />
+    <ActionRow
+      title={
+        structure.durability > 0
+          ? "Renforcer la structure"
+          : "Réparer la structure"
+      }
+      iconClass="bg-[-700%_-500%]"
+      stamina={structure.structure.repairStamina}
+      task={async () => {
+        const response = await repair(characterId, structure.id)
+        response.success
+          ? toast.success(response.message)
+          : toast.error(response.message)
+        mutate("/api/characters/" + characterId)
+      }}
+    >
       {structure.structure.repairMaterials.length > 0 && (
         <div className="material">
           {structure.structure.repairMaterials.map((requirement) => (
@@ -291,10 +341,10 @@ export function RepairButton({ structure }: RepairButtonProps) {
         {Math.round(
           (structure.structure.repairAmount /
             structure.structure.maxDurability) *
-            100
+            100,
         )}
         % solidité
       </div>
-    </li>
+    </ActionRow>
   )
 }
