@@ -1,23 +1,38 @@
 import prisma from "lib/prisma"
 
 /**
- * Delete all database tables in the right order to avoid conflicts.
+ * Delete all database entries in the right order to avoid conflicts.
  */
 export default async function deleteAllData() {
+  console.log("Emptying ActionLoot...")
   await prisma.actionLoot.deleteMany()
+  console.log("Emptying ActionFoodLoot...")
   await prisma.actionFoodLoot.deleteMany()
+  console.log("Emptying ActionToolLoot...")
   await prisma.actionToolLoot.deleteMany()
+  console.log("Emptying ActionCost...")
   await prisma.actionCost.deleteMany()
+  console.log("Emptying StructureCost...")
   await prisma.structureCost.deleteMany()
+  console.log("Emptying RepairCost...")
   await prisma.structureRepairCost.deleteMany()
+  console.log("Emptying User...")
   await prisma.user.deleteMany()
+  console.log("Emptying Inventory...")
   await prisma.inventory.deleteMany()
-  await prisma.structure.deleteMany()
-  await prisma.action.deleteMany()
-  await prisma.material.deleteMany()
-  await prisma.food.deleteMany()
-  await prisma.tool.deleteMany()
+  console.log("Emptying Map...")
   await prisma.map.deleteMany()
+  console.log("Emptying Structure...")
+  await prisma.structure.deleteMany()
+  console.log("Emptying Action...")
+  await prisma.action.deleteMany()
+  console.log("Emptying Material...")
+  await prisma.material.deleteMany()
+  console.log("Emptying Food...")
+  await prisma.food.deleteMany()
+  console.log("Emptying Tool...")
+  await prisma.tool.deleteMany()
+  console.log("Emptying Terrain...")
   await prisma.terrain.deleteMany()
   // Tables that should be emptied automatically (cascade delete) but better safe than sorry:
   await prisma.character.deleteMany()
@@ -26,4 +41,5 @@ export default async function deleteAllData() {
   await prisma.posessedMaterial.deleteMany()
   await prisma.cell.deleteMany()
   await prisma.builtStructure.deleteMany()
+  console.log("Successfully deleted all data.")
 }

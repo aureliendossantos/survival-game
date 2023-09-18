@@ -19,9 +19,9 @@ export function TerrainCard() {
       position={"x:" + cell.x + " y:" + cell.y}
       description={cell.terrain.description}
     >
-      <div className="buttons-list">
+      <ul className="buttons-list">
         <CellActions />
-      </div>
+      </ul>
     </Card>
   )
 }
@@ -41,12 +41,12 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
         title={structure.structure.title}
         description={structure.structure.description}
         author={structure.contributors.map(
-          (character) => "🧑‍🦰 " + character.name
+          (character) => "🧑‍🦰 " + character.name,
         )}
         contents={[
           "Solidité : " +
             Math.round(
-              (structure.durability / structure.structure.maxDurability) * 100
+              (structure.durability / structure.structure.maxDurability) * 100,
             ) +
             "%",
         ]}
@@ -61,16 +61,16 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
             <Materials inventory={structure.inventory} />
           </>
         )}
-        <div className="buttons-list">
+        <ul className="buttons-list">
           <StructureActions builtStructure={structure} />
           <BuildModules builtStructure={structure} />
           <RepairButton structure={structure} />
-        </div>
+        </ul>
         {structure.modules.map((structureModule) => (
           <StructureCard
             key={structureModule.id}
             structure={builtStructures.find(
-              (builtStructure) => builtStructure.id == structureModule.id
+              (builtStructure) => builtStructure.id == structureModule.id,
             )}
             builtStructures={builtStructures}
           />

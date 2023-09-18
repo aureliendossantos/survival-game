@@ -32,9 +32,9 @@ export default function GameScreen() {
       <StructureCards />
       <InventoryCard />
       <Card iconColor="item-icon" icon="book" title="Manuel de survie">
-        <div className="buttons-list">
+        <ul className="buttons-list">
           <InventoryActions />
-        </div>
+        </ul>
       </Card>
     </>
   )
