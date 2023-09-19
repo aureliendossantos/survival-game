@@ -6,6 +6,7 @@ import { ReactNode } from "react"
 type ButtonProps = {
   label?: ReactNode
   iconClass?: string
+  type?: "primary" | "secondary"
   stamina?: number
   task: Function
   disabled?: boolean
@@ -15,6 +16,7 @@ type ButtonProps = {
 export default function ProgressButton({
   label,
   iconClass,
+  type,
   stamina,
   task,
   disabled,
@@ -25,7 +27,7 @@ export default function ProgressButton({
     <AwesomeButtonProgress
       style={{ marginRight: "2px", marginBottom: "3px" }}
       size={iconSize ? "icon" : "auto"}
-      type={disabled ? "disabled" : "primary"}
+      type={disabled ? "disabled" : type || "primary"}
       cssModule={iconClass ? IconButtonStyles : AwesomeButtonStyles}
       loadingLabel=""
       resultLabel=""
@@ -51,10 +53,12 @@ export default function ProgressButton({
             <div className="relative mx-1 -mb-1 mt-1 h-[58px] w-[58px]">
               <div
                 className={`spritesheet ${iconClass}`}
-                style={{ filter: "invert(100%)" }}
+                style={{
+                  filter: type != "secondary" ? "invert(100%)" : "contrast(.9)",
+                }}
               />
             </div>
-            <div className="mb-1 text-center text-[12px] text-white/50">
+            <div className="mb-1 min-h-[16px] text-center text-[12px] text-white/50">
               {dot.repeat(Math.abs(stamina))}
             </div>
           </div>

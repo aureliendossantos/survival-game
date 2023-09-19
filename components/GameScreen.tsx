@@ -10,7 +10,7 @@ import CharacterName from "./CharacterName"
 
 export default function GameScreen() {
   return (
-    <>
+    <div className="flex flex-col gap-[9px]">
       <div style={{ display: "flex" }}>
         <div className="section">
           <CharacterName />
@@ -36,6 +36,6 @@ export default function GameScreen() {
           <InventoryActions />
         </ul>
       </Card>
-    </>
+    </div>
   )
 }

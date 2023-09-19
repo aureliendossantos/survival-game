@@ -28,7 +28,11 @@ export default function Card({
   children,
 }: CardProps) {
   return (
-    <div className={"card" + (dottedBorder ? " dotted" : "")}>
+    <div
+      className={`card ${
+        dottedBorder && "mt-[9px] border-2 border-dashed border-[#b47141]"
+      }`}
+    >
       <div className="header">
         <div className="m-[9.5px]">
           <div

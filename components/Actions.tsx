@@ -134,6 +134,7 @@ function BuildButton({ structureId, parent }: BuildButtonProps) {
     <ActionRow
       title={`Construire un ${structure.title}`}
       iconClass={getStructureIcon(structure)}
+      iconType="secondary"
       stamina={structure.requiredStamina}
       task={async () => {
         const response = await build(
@@ -231,16 +232,30 @@ function getActionIcon(action: Action) {
       return "bg-[-600%_-400%]"
     case 11:
       return "bg-[-600%_-500%]"
+    case 13:
+      return "bg-[-700%_-400%]"
     default:
       return "bg-[-0%_-0%]"
   }
 }
 
-function ActionRow({ title, iconClass, stamina, task, children }: any) {
+function ActionRow({
+  title,
+  iconClass,
+  iconType,
+  stamina,
+  task,
+  children,
+}: any) {
   return (
     <li>
       <div className="flex rounded bg-[#1c1817]">
-        <ProgressButton iconClass={iconClass} stamina={stamina} task={task} />
+        <ProgressButton
+          iconClass={iconClass}
+          type={iconType}
+          stamina={stamina}
+          task={task}
+        />
         <div className="flex flex-col justify-between py-2 pl-3">
           <div className="font-semibold">{title}</div>
           <div className="flex gap-[3px]">{children}</div>

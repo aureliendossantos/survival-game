@@ -5,4 +5,11 @@ $button-primary-color-hover: darken($button-primary-color, 5%);
 $button-primary-color-active: darken($button-primary-color, 10%);
 $button-primary-border: none;
 
+$button-secondary-color: #908574;
+$button-secondary-color-dark: darken($button-secondary-color, 15%);
+$button-secondary-color-light: lighten($button-secondary-color, 50%);
+$button-secondary-color-hover: darken($button-secondary-color, 5%);
+$button-secondary-color-active: darken($button-secondary-color, 10%);
+$button-secondary-border: none;
+
 $button-default-line-height: 16px;

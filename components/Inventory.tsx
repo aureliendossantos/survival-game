@@ -14,6 +14,7 @@ export default function PlayerInventoryCard() {
         character.inventory.tools.length == 0 &&
         "Vous ne portez rien dans votre sac."}
       <div className="flex flex-col gap-[3px] text-base">
+        <Food inventory={character.inventory} />
         <Tools inventory={character.inventory} />
         <Materials inventory={character.inventory} />
       </div>
@@ -23,7 +24,7 @@ export default function PlayerInventoryCard() {
 
 export function Materials({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
-    <ul className="flex gap-[3px]">
+    <ul className="flex flex-wrap gap-[3px]">
       {inventory.materials
         .filter((entry) => entry.quantity > 0)
         .map((entry) => (
@@ -43,7 +44,7 @@ export function Materials({ inventory }: { inventory: InventoryWithAllInfo }) {
 
 export function Tools({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
-    <ul className="flex gap-[3px]">
+    <ul className="flex flex-wrap gap-[3px]">
       {inventory.tools.map((entry) => (
         <li key={entry.id} className="rounded bg-[#1c1817] p-[0.6em]">
           <RenderToolInstance tool={entry} />{" "}
