@@ -1,10 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client"
 
-let prisma: PrismaClient<
-  Prisma.PrismaClientOptions,
-  never,
-  Prisma.RejectOnNotFound | Prisma.RejectPerOperation
->
+let prisma: PrismaClient<Prisma.PrismaClientOptions, never>
 
 if (process.env.NODE_ENV === "production") {
   prisma = new PrismaClient()
