@@ -7,7 +7,10 @@ function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method != "PATCH") {
     return res.status(405).json({ message: "Bad method" })
   }
@@ -21,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       requiredMaterials: true,
       requiredTools: true,
       materials: true,
+      food: { include: { food: true } },
       tools: { include: { tool: true } },
     },
   })
@@ -69,6 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
   }
+  // Diminuer l'énergie
+  await consumeStamina(action.stamina, character)
   // Vérification de la probabilité
   if (action.probability < randomInt(0, 100)) {
     return res.json({
@@ -96,7 +102,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
     action.successMessage = action.successMessage.replace(
       "$" + (index + 1),
-      String(quantity)
+      String(quantity),
+    )
+  }
+  // Donner la nourriture lootée
+  for (const [index, loot] of action.food.entries()) {
+    const food = loot.food
+    const quantity = randomInt(loot.minQuantity, loot.maxQuantity)
+    for (const index of [...Array(quantity).keys()])
+      await prisma.inventory.update({
+        where: {
+          id: character.inventoryId,
+        },
+        data: {
+          food: { create: { foodId: food.id, durability: food.durability } },
+        },
+      })
+    action.successMessage = action.successMessage.replace(
+      "$" + (index + 1),
+      String(quantity),
     )
   }
   // Donner les outils lootés
@@ -113,8 +137,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       })
   }
-  // Diminuer l'énergie
-  await consumeStamina(action.stamina, character)
   return res.json({
     success: true,
     message: action.successMessage,
@@ -126,7 +148,7 @@ async function requirementsMet(
     requiredMaterials: ActionCost[]
     requiredTools: Tool[]
   },
-  character: Character
+  character: Character,
 ) {
   for (const requirement of action.requiredMaterials) {
     const test = await prisma.posessedMaterial.findMany({

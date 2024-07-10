@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client"
 
-const terrainWithActions = Prisma.validator<Prisma.TerrainArgs>()({
+const terrainWithActions = Prisma.validator<Prisma.TerrainDefaultArgs>()({
   include: { actions: true },
 })
 
@@ -8,7 +8,7 @@ export type TerrainWithActions = Prisma.TerrainGetPayload<
   typeof terrainWithActions
 >
 
-const actionWithRequirements = Prisma.validator<Prisma.ActionArgs>()({
+const actionWithRequirements = Prisma.validator<Prisma.ActionDefaultArgs>()({
   include: {
     requiredMaterials: { include: { material: true } },
     requiredTools: true,
@@ -19,28 +19,30 @@ export type ActionWithRequirements = Prisma.ActionGetPayload<
   typeof actionWithRequirements
 >
 
-export const inventoryWithAllInfo = Prisma.validator<Prisma.InventoryArgs>()({
-  include: {
-    food: {
-      orderBy: [{ food: { order: "asc" } }, { durability: "desc" }],
-      include: { food: true },
-    },
-    tools: {
-      orderBy: [{ tool: { order: "asc" } }, { durability: "desc" }],
-      include: { tool: true },
-    },
-    materials: {
-      orderBy: { material: { order: "asc" } },
-      include: {
-        material: {
-          include: {
-            inActionCost: {
-              orderBy: { action: { id: "asc" } },
-              include: {
-                action: {
-                  include: {
-                    requiredMaterials: { include: { material: true } },
-                    requiredTools: true,
+export const inventoryWithAllInfo =
+  Prisma.validator<Prisma.InventoryDefaultArgs>()({
+    include: {
+      food: {
+        orderBy: [{ food: { order: "asc" } }, { durability: "desc" }],
+        include: { food: true },
+      },
+      tools: {
+        orderBy: [{ tool: { order: "asc" } }, { durability: "desc" }],
+        include: { tool: true },
+      },
+      materials: {
+        orderBy: { material: { order: "asc" } },
+        include: {
+          material: {
+            include: {
+              inActionCost: {
+                orderBy: { action: { id: "asc" } },
+                include: {
+                  action: {
+                    include: {
+                      requiredMaterials: { include: { material: true } },
+                      requiredTools: true,
+                    },
                   },
                 },
               },
@@ -49,15 +51,14 @@ export const inventoryWithAllInfo = Prisma.validator<Prisma.InventoryArgs>()({
         },
       },
     },
-  },
-})
+  })
 
 export type InventoryWithAllInfo = Prisma.InventoryGetPayload<
   typeof inventoryWithAllInfo
 >
 
 export const builtStructureWithAllInfo =
-  Prisma.validator<Prisma.BuiltStructureArgs>()({
+  Prisma.validator<Prisma.BuiltStructureDefaultArgs>()({
     include: {
       structure: {
         include: {
@@ -80,7 +81,7 @@ export type BuiltStructureWithAllInfo = Prisma.BuiltStructureGetPayload<
   typeof builtStructureWithAllInfo
 >
 
-const structureWithAllInfo = Prisma.validator<Prisma.StructureArgs>()({
+const structureWithAllInfo = Prisma.validator<Prisma.StructureDefaultArgs>()({
   include: {
     requiredMaterials: {
       include: { material: true },
@@ -94,7 +95,7 @@ export type StructureWithAllInfo = Prisma.StructureGetPayload<
   typeof structureWithAllInfo
 >
 
-export const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
+export const cellWithAllInfo = Prisma.validator<Prisma.CellDefaultArgs>()({
   include: {
     characters: true,
     terrain: {
@@ -114,7 +115,7 @@ export const cellWithAllInfo = Prisma.validator<Prisma.CellArgs>()({
 
 export type CellWithAllInfo = Prisma.CellGetPayload<typeof cellWithAllInfo>
 
-const cellWithBuiltStructures = Prisma.validator<Prisma.CellArgs>()({
+const cellWithBuiltStructures = Prisma.validator<Prisma.CellDefaultArgs>()({
   select: {
     id: true,
     x: true,
@@ -128,33 +129,44 @@ export type CellWithBuiltStructures = Prisma.CellGetPayload<
   typeof cellWithBuiltStructures
 >
 
-const toolInstanceWithAllInfo = Prisma.validator<Prisma.ToolInstanceArgs>()({
-  include: { tool: true },
-})
+const foodInstanceWithAllInfo =
+  Prisma.validator<Prisma.FoodInstanceDefaultArgs>()({
+    include: { food: true },
+  })
+
+export type FoodInstanceWithAllInfo = Prisma.FoodInstanceGetPayload<
+  typeof foodInstanceWithAllInfo
+>
+
+const toolInstanceWithAllInfo =
+  Prisma.validator<Prisma.ToolInstanceDefaultArgs>()({
+    include: { tool: true },
+  })
 
 export type ToolInstanceWithAllInfo = Prisma.ToolInstanceGetPayload<
   typeof toolInstanceWithAllInfo
 >
 
-export const characterWithAllInfo = Prisma.validator<Prisma.CharacterArgs>()({
-  include: {
-    inventory: inventoryWithAllInfo,
-    map: {
-      include: {
-        cells: {
-          select: {
-            id: true,
-            x: true,
-            y: true,
-            terrainId: true,
-            builtStructures: true,
+export const characterWithAllInfo =
+  Prisma.validator<Prisma.CharacterDefaultArgs>()({
+    include: {
+      inventory: inventoryWithAllInfo,
+      map: {
+        include: {
+          cells: {
+            select: {
+              id: true,
+              x: true,
+              y: true,
+              terrainId: true,
+              builtStructures: true,
+            },
           },
         },
       },
+      cell: cellWithAllInfo,
     },
-    cell: cellWithAllInfo,
-  },
-})
+  })
 
 export type CharacterWithAllInfo = Prisma.CharacterGetPayload<
   typeof characterWithAllInfo

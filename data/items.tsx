@@ -11,6 +11,17 @@ export const materials = Prisma.validator<Prisma.MaterialCreateManyInput[]>()([
   { order: 8, id: "shell", title: "Coquillage" },
 ])
 
+export const food = Prisma.validator<Prisma.FoodCreateManyInput[]>()([
+  { order: 1, id: "freshwaterSnail", title: "Escargot d'eau douce" },
+  {
+    order: 2,
+    id: "grilledFreshwaterSnail",
+    title: "Escargot d'eau douce grillé",
+  },
+  { order: 3, id: "fish", title: "Poisson" },
+  { order: 4, id: "grilledFish", title: "Poisson grillé" },
+])
+
 export const tools = Prisma.validator<Prisma.ToolCreateManyInput[]>()([
   {
     order: 1,

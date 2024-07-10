@@ -3,6 +3,7 @@ import Card from "./Card"
 import RenderMaterial from "./RenderMaterial"
 import { RenderToolInstance } from "./RenderTool"
 import { InventoryWithAllInfo } from "lib/api/types"
+import RenderFoodInstance from "./RenderFood"
 
 export default function PlayerInventoryCard() {
   const { character } = useCharacterAndCell()
@@ -38,6 +39,18 @@ export function Materials({ inventory }: { inventory: InventoryWithAllInfo }) {
             />{" "}
           </li>
         ))}
+    </ul>
+  )
+}
+
+export function Food({ inventory }: { inventory: InventoryWithAllInfo }) {
+  return (
+    <ul className="flex flex-wrap gap-[3px]">
+      {inventory.food.map((entry) => (
+        <li key={entry.id} className="rounded bg-[#1c1817] p-[0.6em]">
+          <RenderFoodInstance instance={entry} />
+        </li>
+      ))}
     </ul>
   )
 }

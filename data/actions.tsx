@@ -135,4 +135,29 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     requiredTools: { connect: { id: "needle" } },
     tools: { create: { toolId: "fishingNet" } },
   },
+  {
+    id: 12,
+    title: "Chercher des mollusques",
+    stamina: -1,
+    probability: 50,
+    successMessage: "Vous avez trouvé $1 mollusques.",
+    failureMessage: "Vous n'avez rien trouvé.",
+    terrains: { connect: { id: "beach" } },
+    food: {
+      create: { foodId: "freshwaterSnail", minQuantity: 1, maxQuantity: 2 },
+    },
+  },
+  {
+    id: 13,
+    title: "Pêcher du poisson",
+    stamina: -1,
+    probability: 80,
+    successMessage: "Vous avez pêché $1 poissons.",
+    failureMessage: "Vous n'avez pas attrapé de poisson.",
+    terrains: { connect: { id: "beach" } },
+    requiredTools: { connect: { id: "fishingNet" } },
+    food: {
+      create: { foodId: "fish", minQuantity: 1, maxQuantity: 4 },
+    },
+  },
 ])
