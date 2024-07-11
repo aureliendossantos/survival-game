@@ -13,6 +13,7 @@ export default async function handler(
     return res.json({
       success: true,
       message: `Compte ${user.name} créé.`,
+      data: user,
     })
   } else if (req.method == "GET") {
     const users = await prisma.user.findMany()

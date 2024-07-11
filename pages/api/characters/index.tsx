@@ -23,6 +23,7 @@ export default async function getCharacters(
     return res.json({
       success: true,
       message: `Personnage ${character.name} créé.`,
+      data: character,
     })
   }
   return res.status(405).json({ message: "Method not allowed" })
