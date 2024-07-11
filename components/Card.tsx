@@ -1,6 +1,4 @@
 import { ReactNode } from "react"
-import { FaCampground, FaHammer } from "react-icons/fa"
-import { GiSchoolBag, GiWhiteBook } from "react-icons/gi"
 
 type CardProps = {
   dottedBorder?: boolean
@@ -29,11 +27,11 @@ export default function Card({
 }: CardProps) {
   return (
     <div
-      className={`card ${
+      className={`card relative box-border flex flex-col overflow-hidden rounded text-[1rem] ${
         dottedBorder && "mt-[9px] border-2 border-dashed border-[#b47141]"
       }`}
     >
-      <div className="header">
+      <div className="flex items-center bg-[#593233]">
         <div className="m-[9.5px]">
           <div
             className={`relative flex h-[48px] w-[48px] items-center justify-center overflow-hidden rounded-sm text-[x-large]`}
@@ -51,13 +49,16 @@ export default function Card({
           </div>
         </div>
         <div className="text leading-tight">
-          <div className="title">
-            {title} {position && <span className="position">{position}</span>}
+          <div className="font-bold">
+            {title}{" "}
+            {position && <span className="text-[smaller]">{position}</span>}
           </div>
-          {description && <div className="description">{description}</div>}
+          {description && (
+            <div className="text-[smaller] italic">{description}</div>
+          )}
         </div>
         {(author || contents) && (
-          <div className="author">
+          <div className="ml-auto flex flex-col justify-center self-stretch bg-[#b47141] px-[0.6em] text-[smaller]">
             {author &&
               author.map((author, index) => <div key={index}>{author}</div>)}
             {contents &&
@@ -67,7 +68,7 @@ export default function Card({
       </div>
       <div className="bg-[#2b1f1c] p-[9.5px] text-[smaller]">{children}</div>
       {moreInfo && (
-        <div className="more-info">
+        <div className="bg-[#794b2b] px-[0.6em] py-[0.3em] text-[smaller]">
           <ul>
             {moreInfo.map((line, index) => (
               <li key={index}>{line}</li>

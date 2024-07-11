@@ -5,6 +5,7 @@ import useSWR, { useSWRConfig } from "swr"
 import query from "lib/query"
 import { fetcher } from "lib/fetcher"
 import ProgressButton from "components/ProgressButton/ProgressButton"
+import Layout from "components/Layout"
 
 async function createUser(name) {
   const body = {
@@ -18,14 +19,14 @@ const usersPath = "/api/users"
 export default function LoginPage() {
   const { mutate } = useSWRConfig()
   return (
-    <>
+    <Layout>
       <div>
         <Toaster />
       </div>
       <h1 className="mb-4 mt-8 text-xl">Choisissez un compte</h1>
       <UserList />
       <div className="mt-8 rounded bg-[#2b1f1c] p-4">
-        <h3 className="mb-4 text-xl">Créer un compte</h3>
+        <h3 className="mb-4 mt-2 text-xl">Créer un compte</h3>
         <form
           className="flex flex-col gap-4"
           onSubmit={async (event: React.SyntheticEvent) => {
@@ -89,7 +90,7 @@ export default function LoginPage() {
           }}
         />
       </div>
-    </>
+    </Layout>
   )
 }
 

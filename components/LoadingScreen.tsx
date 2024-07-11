@@ -12,7 +12,7 @@ export default function LoadingScreen({
   error,
 }: LoadingScreenProps) {
   return (
-    <div className="loading">
+    <div className="flex min-h-[100vh] flex-col items-center justify-center text-center">
       <ProgressBar
         animateOnRender
         isLabelVisible={false}

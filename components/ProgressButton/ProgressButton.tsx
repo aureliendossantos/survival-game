@@ -42,7 +42,7 @@ export default function ProgressButton({
           <>
             <div className="z-10">{label}</div>
             {stamina != 0 && (
-              <div className="stamina-dots">
+              <div className="absolute left-0 top-[13px] h-full w-full text-center text-[12px] text-white/50">
                 {dot.repeat(Math.abs(stamina))}
               </div>
             )}

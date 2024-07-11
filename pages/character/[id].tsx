@@ -1,3 +1,4 @@
+import Layout from "components/Layout"
 import LoadingScreen from "components/LoadingScreen"
 import GameScreen from "components/GameScreen"
 import { Toaster } from "react-hot-toast"
@@ -21,7 +22,7 @@ export default function Home() {
   if (!character)
     return <LoadingScreen text="Chargement du personnage..." percentage={100} />
   return (
-    <>
+    <Layout>
       <div>
         <Toaster
           toastOptions={{
@@ -31,6 +32,6 @@ export default function Home() {
         />
       </div>
       <GameScreen />
-    </>
+    </Layout>
   )
 }

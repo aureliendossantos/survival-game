@@ -7,6 +7,7 @@ import useSWR, { useSWRConfig } from "swr"
 import query from "lib/query"
 import { fetcher } from "lib/fetcher"
 import ProgressButton from "components/ProgressButton/ProgressButton"
+import Layout from "components/Layout"
 
 async function createCharacter(name, userId, mapId) {
   const body = {
@@ -21,14 +22,14 @@ export default function UserHome() {
   const router = useRouter()
   const { mutate } = useSWRConfig()
   return (
-    <>
+    <Layout>
       <div>
         <Toaster />
       </div>
       <h1 className="mb-4 mt-8 text-xl">Personnages</h1>
       <CharacterList />
       <div className="mt-8 rounded bg-[#2b1f1c] p-4">
-        <h3 className="mb-4 text-xl">Créer un personnage</h3>
+        <h3 className="mb-4 mt-2 text-xl">Créer un personnage</h3>
         <form
           className="flex flex-col gap-4"
           onSubmit={async (event: React.SyntheticEvent) => {
@@ -109,7 +110,7 @@ export default function UserHome() {
           }}
         />
       </div>
-    </>
+    </Layout>
   )
 }
 

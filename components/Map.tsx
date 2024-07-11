@@ -11,8 +11,8 @@ export default function Map() {
   const height = Math.max(...cells.map((cell) => cell.x)) + 1
   return (
     <>
-      <h3>Carte</h3>
-      <table>
+      <h3 className="mt-2">Carte</h3>
+      <table className="m-auto mb-[9px] rounded-[5px] border-4 border-[#593233] bg-[#2b1f1c]">
         <tbody>
           {[...Array(width).keys()].map((y) => (
             <tr key={y}>
