@@ -7,7 +7,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method != "PATCH")
+  if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
+    if (req.method != "PATCH")
     return res.status(405).json({ message: "Bad method" })
   const characterId = String(req.query.id)
   const builtStructureId: string = req.body.id

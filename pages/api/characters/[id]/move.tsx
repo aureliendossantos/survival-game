@@ -33,6 +33,7 @@ import prisma from "lib/prisma"
  *                  type: string
  */
 const move = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
   if (req.method == "PATCH") {
     const mapId = parseInt(req.body.mapId)
     const characterId = req.body.characterId

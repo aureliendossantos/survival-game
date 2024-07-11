@@ -3,8 +3,9 @@ import { NextApiRequest, NextApiResponse } from "next"
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
+  if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
   if (req.method != "GET")
     return res.status(405).json({ message: "Bad method" })
   const structureId = String(req.query.id)

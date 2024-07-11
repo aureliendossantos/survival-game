@@ -25,6 +25,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
   if (req.method == "GET") {
     const query = await prisma.map.findUnique({
       where: {

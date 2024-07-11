@@ -3,8 +3,9 @@ import { NextApiRequest, NextApiResponse } from "next"
 
 export default async function getCharacters(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
+  if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
   if (req.method == "GET") {
     const query = await prisma.character.findMany()
     return res.json(query)

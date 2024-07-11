@@ -9,8 +9,9 @@ function randomInt(min: number, max: number) {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
+  if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
   if (req.method == "PATCH") {
     const characterId = String(req.query.id)
     const structureId = req.body.id
@@ -59,7 +60,7 @@ export default async function handler(
           structure: { connect: { id: structure.id } },
           durability: randomInt(
             structure.minDurability,
-            structure.maxDurability
+            structure.maxDurability,
           ),
           cell: { connect: { id: cell.id } },
           moduleOf: parentBuiltStructureId
