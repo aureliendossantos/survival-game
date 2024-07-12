@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import prisma from "lib/prisma"
+import getNeighbouringCells from "lib/api/getNeighbouringCells"
 
 /**
  * @swagger
@@ -51,34 +52,38 @@ const move = async (req: NextApiRequest, res: NextApiResponse) => {
         terrain: { select: { stamina: true } },
       },
     })
-    if (cell.terrain.stamina < 0) {
-      if (character.stamina < -cell.terrain.stamina) {
-        return res.json({
-          success: false,
-          message:
-            "Vous êtes trop fatigué pour vous déplacer sur ce type de terrain.",
-        })
-      }
-      const newStamina = Math.min(
-        Math.max(character.stamina + cell.terrain.stamina, 0),
-        10,
-      )
-      await prisma.character.update({
-        where: { id: characterId },
-        data: { x: destX, y: destY, stamina: newStamina },
-      })
+    if (character.stamina < -cell.terrain.stamina) {
       return res.json({
-        success: true,
-        message: `Vous vous êtes déplacé en utilisant ${cell.terrain.stamina} énergie.`,
+        success: false,
+        message:
+          "Vous êtes trop fatigué pour vous déplacer sur ce type de terrain.",
       })
     }
+    const newStamina = Math.min(
+      Math.max(character.stamina + cell.terrain.stamina, 0),
+      10,
+    )
+    // Update stamina and cell visibility in a square around the character
     await prisma.character.update({
       where: { id: characterId },
-      data: { x: destX, y: destY },
+      data: {
+        x: destX,
+        y: destY,
+        stamina: newStamina,
+        canSeeCells: {
+          connect: (await getNeighbouringCells(mapId, destX, destY)).map(
+            (cell) => ({ id: cell.id }),
+          ),
+        },
+      },
     })
     return res.json({
       success: true,
-      message: `Vous vous êtes déplacé sans utiliser d'énergie.`,
+      message: `Vous vous êtes déplacé ${
+        cell.terrain.stamina < 0
+          ? `en utilisant ${cell.terrain.stamina} énergie${cell.terrain.stamina < -1 ? "s" : ""}`
+          : `sans utiliser d'énergie`
+      }.`,
     })
   }
 }

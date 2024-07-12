@@ -6,6 +6,7 @@ export const dictionary = {
   m: "mountains",
 }
 
+// little tool to make the maps https://blurymind.github.io/tilemap-editor/
 export const maps = [
   [
     ["s", "b", "p"],
@@ -13,11 +14,15 @@ export const maps = [
     ["p", "f", "m"],
   ],
   [
-    ["s", "b", "p", "p", "b", "s"],
-    ["b", "p", "f", "f", "m", "b"],
-    ["b", "f", "m", "m", "f", "p"],
-    ["b", "f", "f", "m", "f", "b"],
-    ["s", "b", "p", "f", "p", "s"],
-    ["s", "s", "p", "p", "s", "s"],
+    ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s"],
+    ["s", "s", "s", "b", "b", "b", "b", "s", "s", "s"],
+    ["s", "s", "b", "p", "p", "p", "p", "b", "s", "s"],
+    ["s", "b", "p", "p", "p", "f", "f", "p", "b", "s"],
+    ["s", "b", "p", "p", "f", "f", "f", "p", "p", "s"],
+    ["s", "p", "p", "f", "f", "f", "f", "f", "p", "s"],
+    ["s", "f", "f", "f", "m", "m", "f", "f", "p", "s"],
+    ["s", "f", "f", "m", "m", "m", "f", "p", "s", "s"],
+    ["s", "s", "p", "f", "f", "f", "p", "s", "s", "s"],
+    ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s"],
   ],
 ]

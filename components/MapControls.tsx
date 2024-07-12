@@ -24,7 +24,7 @@ export default function MapControls() {
   const { mutate } = useSWRConfig()
   const { character } = useCharacterAndCell()
   if (!character) return null
-  const map = character.map.cells
+  const cells = character.canSeeCells
   const directions = [
     { x: -1, y: 0, label: <ImArrowLeft2 key={0} /> },
     { x: 0, y: -1, label: <ImArrowUp2 key={1} /> },
@@ -34,7 +34,7 @@ export default function MapControls() {
   return (
     <div style={{ textAlign: "center" }}>
       {directions.map((dir, index) => {
-        const targetCell = map.find(
+        const targetCell = cells.find(
           (cell) =>
             cell.x == character.x + dir.x && cell.y == character.y + dir.y,
         )
@@ -42,10 +42,10 @@ export default function MapControls() {
         const stamina = disabled
           ? 0
           : targetCell.terrainId == "forest"
-          ? -1
-          : targetCell.terrainId == "mountains"
-          ? -2
-          : 0
+            ? -1
+            : targetCell.terrainId == "mountains"
+              ? -2
+              : 0
         return (
           <ProgressButton
             key={index}

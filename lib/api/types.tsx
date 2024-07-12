@@ -151,17 +151,13 @@ export const characterWithAllInfo =
   Prisma.validator<Prisma.CharacterDefaultArgs>()({
     include: {
       inventory: inventoryWithAllInfo,
-      map: {
-        include: {
-          cells: {
-            select: {
-              id: true,
-              x: true,
-              y: true,
-              terrainId: true,
-              builtStructures: true,
-            },
-          },
+      canSeeCells: {
+        select: {
+          id: true,
+          x: true,
+          y: true,
+          terrainId: true,
+          builtStructures: true,
         },
       },
       cell: cellWithAllInfo,

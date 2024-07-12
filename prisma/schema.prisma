@@ -28,6 +28,7 @@ model Character {
   y               Int              @default(1)
   map             Map              @relation(fields: [mapId], references: [id])
   cell            Cell             @relation(fields: [mapId, x, y], references: [mapId, x, y])
+  canSeeCells     Cell[]           @relation("FogOfWar")
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   inventoryId     String           @unique
   inventory       Inventory        @relation(fields: [inventoryId], references: [id])
@@ -50,10 +51,11 @@ model Material {
 model Food {
   id           String           @id
   order        Int
-  description  String?
   title        String
   pluralTitle  String?
+  description  String?
   durability   Int              @default(40)
+  satiety      Int              @default(1)
   instances    FoodInstance[]
   inActionLoot ActionFoodLoot[]
 }
@@ -127,6 +129,7 @@ model Cell {
   map             Map              @relation(fields: [mapId], references: [id], onDelete: Cascade)
   terrain         Terrain          @relation(fields: [terrainId], references: [id])
   characters      Character[]
+  visibleTo       Character[]      @relation("FogOfWar")
 
   @@unique([mapId, x, y])
 }
