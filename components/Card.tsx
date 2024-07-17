@@ -1,4 +1,5 @@
-import { ReactNode } from "react"
+import { ReactNode, useState } from "react"
+import Modal from "./Modal"
 
 type CardProps = {
   dottedBorder?: boolean
@@ -7,7 +8,7 @@ type CardProps = {
   title: string
   position?: string
   description?: string
-  author?: string[]
+  authors?: string[]
   contents?: string[]
   moreInfo?: string[]
   children?: ReactNode
@@ -20,15 +21,17 @@ export default function Card({
   title,
   position,
   description,
-  author,
+  authors,
   contents,
   moreInfo,
   children,
 }: CardProps) {
+  const [open, setOpen] = useState(null)
+  const [close, setClose] = useState(null)
   return (
     <div
       className={`card relative box-border flex flex-col overflow-hidden rounded text-[1rem] ${
-        dottedBorder && "mt-[9px] border-2 border-dashed border-[#b47141]"
+        dottedBorder && "mt-[9px] border-2 border-[#b47141]"
       }`}
     >
       <div className="flex items-center bg-[#593233]">
@@ -48,7 +51,7 @@ export default function Card({
             )}
           </div>
         </div>
-        <div className="text leading-tight">
+        <div className="grow leading-tight">
           <div className="font-bold">
             {title}{" "}
             {position && <span className="text-[smaller]">{position}</span>}
@@ -57,13 +60,19 @@ export default function Card({
             <div className="text-[smaller] italic">{description}</div>
           )}
         </div>
-        {(author || contents) && (
-          <div className="ml-auto flex flex-col justify-center self-stretch bg-[#b47141] px-[0.6em] text-[smaller]">
-            {author &&
-              author.map((author, index) => <div key={index}>{author}</div>)}
-            {contents &&
-              contents.map((line, index) => <div key={index}>{line}</div>)}
-          </div>
+        {(authors || contents) && (
+          <>
+            <button onClick={open} className="px-3 text-xs">
+              ⊕
+            </button>
+            <Modal setOpen={setOpen} setClose={setClose}>
+              <div className="text-[smaller]">
+                {authors && <p>Construit par {authors.join(", ")}.</p>}
+                {contents &&
+                  contents.map((line, index) => <div key={index}>{line}</div>)}
+              </div>
+            </Modal>
+          </>
         )}
       </div>
       <div className="bg-[#2b1f1c] p-[9.5px] text-[smaller]">{children}</div>

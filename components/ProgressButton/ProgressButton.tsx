@@ -32,6 +32,7 @@ export default function ProgressButton({
       loadingLabel=""
       resultLabel=""
       disabled={disabled}
+      active={!disabled}
       onPress={async (event, release) => {
         await task()
         release()

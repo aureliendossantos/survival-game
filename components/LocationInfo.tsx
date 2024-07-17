@@ -40,16 +40,7 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
         iconColor={"tile structure-icon"}
         title={structure.structure.title}
         description={structure.structure.description}
-        author={structure.contributors.map(
-          (character) => "🧑‍🦰 " + character.name,
-        )}
-        contents={[
-          "Solidité : " +
-            Math.round(
-              (structure.durability / structure.structure.maxDurability) * 100,
-            ) +
-            "%",
-        ]}
+        authors={structure.contributors.map((character) => character.name)}
       >
         {structure.structure.hasInventory && (
           <>

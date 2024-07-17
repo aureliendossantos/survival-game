@@ -15,6 +15,8 @@ import useStructures from "lib/queries/useStructures"
 import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import useCharacterId from "lib/queries/useCharacterId"
 import useStructure from "lib/queries/useStructure"
+import ProgressBar from "@ramonak/react-progress-bar"
+import { ReactNode } from "react"
 
 async function doAction(characterId: string, actionId: number) {
   const body = {
@@ -239,14 +241,25 @@ function getActionIcon(action: Action) {
   }
 }
 
+type ActionRowProps = {
+  title: string
+  iconClass: string
+  iconType?: "primary" | "secondary"
+  stamina: number
+  progress?: { title: string; value: number; max: number }
+  task: () => Promise<void>
+  children?: ReactNode
+}
+
 function ActionRow({
   title,
   iconClass,
   iconType,
   stamina,
+  progress,
   task,
   children,
-}: any) {
+}: ActionRowProps) {
   return (
     <li>
       <div className="flex rounded bg-[#1c1817]">
@@ -255,10 +268,25 @@ function ActionRow({
           type={iconType}
           stamina={stamina}
           task={task}
+          disabled={progress && progress.value == progress.max}
         />
-        <div className="flex flex-col justify-between py-2 pl-3">
+        <div className="flex grow flex-col justify-between px-3 py-2">
           <div className="font-semibold">{title}</div>
           <div className="flex gap-[3px]">{children}</div>
+          {progress && (
+            <ProgressBar
+              completed={String(progress.value)}
+              maxCompleted={progress.max}
+              customLabel={progress.title}
+              bgColor="#b47141"
+              height="4px"
+              borderRadius="2px"
+              baseBgColor="#332A28"
+              isLabelVisible={false}
+              transitionDuration="0.5s"
+              transitionTimingFunction="ease-out"
+            />
+          )}
         </div>
       </div>
     </li>
@@ -321,7 +349,6 @@ type RepairButtonProps = {
 export function RepairButton({ structure }: RepairButtonProps) {
   const { mutate } = useSWRConfig()
   const characterId = useCharacterId()
-  if (structure.durability == structure.structure.maxDurability) return null
   return (
     <ActionRow
       title={
@@ -331,6 +358,11 @@ export function RepairButton({ structure }: RepairButtonProps) {
       }
       iconClass="bg-[-700%_-500%]"
       stamina={structure.structure.repairStamina}
+      progress={{
+        title: "Solidité",
+        value: structure.durability,
+        max: structure.structure.maxDurability,
+      }}
       task={async () => {
         const response = await repair(characterId, structure.id)
         response.success
@@ -360,6 +392,17 @@ export function RepairButton({ structure }: RepairButtonProps) {
         )}
         % solidité
       </div>
+      <ProgressBar
+        completed={String(structure.durability)}
+        maxCompleted={structure.structure.maxDurability}
+        bgColor="#b47141"
+        height="4px"
+        borderRadius="0"
+        baseBgColor="#332A28"
+        isLabelVisible={false}
+        transitionDuration="0.5s"
+        transitionTimingFunction="ease-out"
+      />
     </ActionRow>
   )
 }
