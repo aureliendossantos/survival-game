@@ -47,7 +47,7 @@ export function Food({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
     <ul className="flex flex-wrap gap-[3px]">
       {inventory.food.map((entry) => (
-        <li key={entry.id} className="rounded bg-[#1c1817] p-[0.6em]">
+        <li key={entry.id}>
           <RenderFoodInstance instance={entry} />
         </li>
       ))}

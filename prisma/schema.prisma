@@ -23,6 +23,8 @@ model Character {
   userId          String
   stamina         Int              @default(10)
   lastStaminaSet  DateTime         @default(now())
+  hunger          Int              @default(10)
+  lastHungerSet   DateTime         @default(now())
   mapId           Int              @default(1)
   x               Int              @default(1)
   y               Int              @default(1)

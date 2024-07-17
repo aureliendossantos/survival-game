@@ -1,4 +1,4 @@
-import { BuiltStructure, FoodInstance } from "@prisma/client"
+import { BuiltStructure, FoodInstance, Prisma } from "@prisma/client"
 import { characterWithAllInfo } from "lib/api/types"
 import getHoursSince from "lib/getHoursSince"
 import prisma from "lib/prisma"
@@ -43,9 +43,7 @@ export default async function handler(
   const characterId = String(req.query.id)
   const character = await prisma.character.findUnique({
     where: { id: characterId },
-    select: {
-      stamina: true,
-      lastStaminaSet: true,
+    include: {
       inventory: { select: { food: true } },
       cell: { select: { builtStructures: true } },
     },
@@ -54,24 +52,42 @@ export default async function handler(
     return res.status(404).json({ message: "Ce personnage est introuvable." })
   await updateFood(character.inventory.food)
   await updateStructures(character.cell.builtStructures)
-  const newStamina = getNewStamina(character.stamina, character.lastStaminaSet)
-  let updatedCharacter = await prisma.character.update({
+  const newStamina = getNewAttribute(
+    character.stamina,
+    character.lastStaminaSet,
+    1,
+  )
+  const newHunger = getNewAttribute(
+    character.hunger,
+    character.lastHungerSet,
+    -1,
+  )
+  const updatedCharacter = await prisma.character.update({
     where: { id: characterId },
-    data: { stamina: newStamina, lastStaminaSet: new Date() },
+    data: {
+      stamina: newStamina,
+      lastStaminaSet: newStamina && new Date(),
+      hunger: newHunger,
+      lastHungerSet: newHunger && new Date(),
+    },
     include: characterWithAllInfo.include,
   })
+  // TODO: remove cell from the response
   res.json({ character: updatedCharacter, cell: updatedCharacter.cell })
 }
 
 /**
- * Calculates the new stamina of the character based on the last time it was updated.
- * @param stamina The current stamina of the character.
- * @param lastSet The last time the stamina was updated.
- * @returns The new stamina of the character.
+ * Calculates the new attribute (like stamina) of the character based on the last time it was updated.
+ * @param attribute The current attribute of the character.
+ * @param lastSet The last time the attribute was updated.
+ * @param multiplier Applied to the number of hours since the last update.
+ * @returns The new attribute of the character.
  */
-function getNewStamina(stamina: number, lastSet: Date) {
+function getNewAttribute(attribute: number, lastSet: Date, multiplier: number) {
   const hoursSinceUpdate = getHoursSince(lastSet)
-  return Math.min(stamina + hoursSinceUpdate, 10)
+  return hoursSinceUpdate > 0
+    ? Math.min(attribute + hoursSinceUpdate * multiplier, 10)
+    : undefined
 }
 
 /**
@@ -86,7 +102,7 @@ function updateDurability(durability: number, lastDurabilitySet: Date) {
   if (hoursSinceUpdate > 0) {
     return { newDurability: Math.max(0, durability - hoursSinceUpdate), now }
   }
-  return { newDurability: false, now }
+  return { newDurability: undefined, now }
 }
 
 async function updateFood(foodInstances: FoodInstance[]) {
@@ -95,7 +111,7 @@ async function updateFood(foodInstances: FoodInstance[]) {
       foodInstance.durability,
       foodInstance.lastDurabilitySet,
     )
-    if (newDurability !== false) {
+    if (newDurability) {
       if (newDurability == 0) {
         await prisma.foodInstance.delete({
           where: { id: foodInstance.id },
@@ -104,7 +120,7 @@ async function updateFood(foodInstances: FoodInstance[]) {
         await prisma.foodInstance.update({
           where: { id: foodInstance.id },
           data: {
-            durability: newDurability as number,
+            durability: newDurability,
             lastDurabilitySet: now,
           },
         })
@@ -119,11 +135,11 @@ async function updateStructures(builtStructures: BuiltStructure[]) {
       builtStructure.durability,
       builtStructure.lastDurabilitySet,
     )
-    if (newDurability !== false) {
+    if (newDurability) {
       await prisma.builtStructure.update({
         where: { id: builtStructure.id },
         data: {
-          durability: newDurability as number,
+          durability: newDurability,
           lastDurabilitySet: now,
         },
       })

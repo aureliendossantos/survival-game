@@ -8,7 +8,7 @@ export default function CharacterAttributes() {
     <div className="grid grid-cols-2 gap-3 text-sm font-medium">
       <div className="flex flex-col gap-1">
         <div className="flex flex-col">
-          <div className="-mb-[2px] flex justify-between">
+          <div className="flex justify-between">
             <span>Énergie</span>
             <span className="font-semibold">{character.stamina}</span>
           </div>
@@ -30,6 +30,29 @@ export default function CharacterAttributes() {
           <span>Repos</span>
           <span className="font-medium text-blue-200">En forme</span>
         </div>
+      </div>
+      <div className="flex flex-col">
+        <div className="flex justify-between">
+          <span>Faim</span>
+          <span
+            className={`font-semibold ${character.stamina <= 3 ? "text-orange-200" : ""}`}
+          >
+            {character.hunger}
+          </span>
+        </div>
+        <ProgressBar
+          completed={String(character.hunger)}
+          maxCompleted={10}
+          bgColor="#f5c57d"
+          height="5px"
+          margin="0"
+          padding="0"
+          borderRadius="2px"
+          baseBgColor="#9599a3"
+          isLabelVisible={false}
+          transitionDuration="0.5s"
+          transitionTimingFunction="ease-out"
+        />
       </div>
     </div>
   )
