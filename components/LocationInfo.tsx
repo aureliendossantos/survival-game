@@ -7,7 +7,7 @@ import {
   StructureActions,
 } from "./Actions"
 import Card from "./Card"
-import { Food, Materials, Tools } from "./Inventory"
+import { Food, Materials, StructureInventory, Tools } from "./Inventory"
 
 export function TerrainCard() {
   const { cell } = useCharacterAndCell()
@@ -42,17 +42,7 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
         description={structure.structure.description}
         authors={structure.contributors.map((character) => character.name)}
       >
-        {structure.structure.hasInventory && (
-          <>
-            {structure.inventory.materials.length == 0 &&
-              structure.inventory.food.length == 0 &&
-              structure.inventory.tools.length == 0 &&
-              "Le coffre est vide."}
-            <Food inventory={structure.inventory} />
-            <Tools inventory={structure.inventory} />
-            <Materials inventory={structure.inventory} />
-          </>
-        )}
+        <StructureInventory structure={structure} />
         <ul className="buttons-list">
           <StructureActions builtStructure={structure} />
           <BuildModules builtStructure={structure} />

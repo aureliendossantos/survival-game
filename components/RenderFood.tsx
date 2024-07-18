@@ -48,7 +48,10 @@ export default function RenderFoodInstance({ instance }: Props) {
           <div className="flex justify-between">
             <span>Conservation</span>
             <span className="font-semibold">
-              {(instance.durability / instance.food.durability) * 100}%
+              {Math.round(
+                (instance.durability / instance.food.durability) * 100,
+              )}
+              %
             </span>
           </div>
           <ProgressBar

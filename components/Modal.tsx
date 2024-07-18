@@ -24,7 +24,7 @@ export default function Modal({ children, setOpen, setClose }: Props) {
           onClick={handleClose}
           className="fixed inset-0 -z-10 bg-black/50"
         />
-        <div className="flex max-w-sm flex-col rounded-md border-b-4 border-[#2f2927] bg-[#4d423f] p-3">
+        <div className="flex max-h-svh max-w-sm flex-col overflow-auto rounded-md border-b-4 border-[#2f2927] bg-[#4d423f] p-3">
           {children}
         </div>
       </>

@@ -52,23 +52,25 @@ export default async function handler(
     return res.status(404).json({ message: "Ce personnage est introuvable." })
   await updateFood(character.inventory.food)
   await updateStructures(character.cell.builtStructures)
-  const newStamina = getNewAttribute(
+  const { newAttr: newStamina, now: staminaSet } = updateAttribute(
     character.stamina,
     character.lastStaminaSet,
     1,
+    10,
   )
-  const newHunger = getNewAttribute(
+  const { newAttr: newHunger, now: hungerSet } = updateAttribute(
     character.hunger,
     character.lastHungerSet,
     -1,
+    10,
   )
   const updatedCharacter = await prisma.character.update({
     where: { id: characterId },
     data: {
       stamina: newStamina,
-      lastStaminaSet: newStamina && new Date(),
+      lastStaminaSet: staminaSet,
       hunger: newHunger,
-      lastHungerSet: newHunger && new Date(),
+      lastHungerSet: hungerSet,
     },
     include: characterWithAllInfo.include,
   })
@@ -77,37 +79,33 @@ export default async function handler(
 }
 
 /**
- * Calculates the new attribute (like stamina) of the character based on the last time it was updated.
- * @param attribute The current attribute of the character.
- * @param lastSet The last time the attribute was updated.
- * @param multiplier Applied to the number of hours since the last update.
- * @returns The new attribute of the character.
- */
-function getNewAttribute(attribute: number, lastSet: Date, multiplier: number) {
-  const hoursSinceUpdate = getHoursSince(lastSet)
-  return hoursSinceUpdate > 0
-    ? Math.min(attribute + hoursSinceUpdate * multiplier, 10)
-    : undefined
-}
-
-/**
  * Takes the durability for any kind of item and decreases it by 1 for each hour that has passed since the last durability update.
- * @param durability The `durability` parameter of an item.
- * @param lastDurabilitySet The `lastDurabilitySet` parameter of an item.
- * @returns `newDurability`: The new durability, or `false` if the durability should not be updated. `now`: The date at which the new durability was calculated.
+ * @param attr The current attribute.
+ * @param lastSet The last time the attribute was updated.
+ * @param hourMultiplier Applied to the number of hours since the last update.
+ * @param max Should be set if the multiplier is positive.
+ * @returns `newAttr`: The new attribute value, or `undefined` if the attribute should not be updated. `now`: The date at which the new attribute was calculated.
  */
-function updateDurability(durability: number, lastDurabilitySet: Date) {
+function updateAttribute(
+  attr: number,
+  lastSet: Date,
+  hourMultiplier = -1,
+  max?: number,
+) {
   const now = new Date()
-  const hoursSinceUpdate = getHoursSince(lastDurabilitySet)
+  const hoursSinceUpdate = getHoursSince(lastSet)
   if (hoursSinceUpdate > 0) {
-    return { newDurability: Math.max(0, durability - hoursSinceUpdate), now }
+    let newAttr = Math.max(0, attr + hoursSinceUpdate * hourMultiplier)
+    if (max) newAttr = Math.min(max, newAttr)
+    return { newAttr, now }
   }
-  return { newDurability: undefined, now }
+  console.log("No update needed for", attr)
+  return { newAttr: undefined, now: undefined }
 }
 
 async function updateFood(foodInstances: FoodInstance[]) {
   for (const foodInstance of foodInstances) {
-    const { newDurability, now } = updateDurability(
+    const { newAttr: newDurability, now } = updateAttribute(
       foodInstance.durability,
       foodInstance.lastDurabilitySet,
     )
@@ -131,7 +129,7 @@ async function updateFood(foodInstances: FoodInstance[]) {
 
 async function updateStructures(builtStructures: BuiltStructure[]) {
   for (const builtStructure of builtStructures) {
-    const { newDurability, now } = updateDurability(
+    const { newAttr: newDurability, now } = updateAttribute(
       builtStructure.durability,
       builtStructure.lastDurabilitySet,
     )

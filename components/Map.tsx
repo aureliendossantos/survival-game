@@ -19,7 +19,6 @@ function FullMap() {
   // array with every existing x coordinate, starting from minWidth
   const widths = [...Array(width).keys()].map((w) => w + minWidth)
   const heights = [...Array(height).keys()].map((h) => h + minHeight)
-  console.log("widths", widths, "heights", heights)
   return (
     <div
       className="m-auto mb-[9px] grid w-fit gap-0 border-4 border-[#593233] bg-[#1c1817]"
