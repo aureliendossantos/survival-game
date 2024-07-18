@@ -6,11 +6,15 @@ interface Props extends Omit<ModalProps, "open"> {
   setClose: any
 }
 
-export default function Modal({ children, setOpen, setClose }: Props) {
-  const [open, useOpen] = React.useState(false)
-  const handleOpen = () => useOpen(true)
-  const handleClose = () => useOpen(false)
-  useEffect(() => setOpen(() => handleOpen), [setOpen])
+export default function Modal({
+  children,
+  setOpen: propOpen,
+  setClose,
+}: Props) {
+  const [open, setOpen] = React.useState(false)
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
+  useEffect(() => propOpen(() => handleOpen), [propOpen])
   useEffect(() => setClose(() => handleClose), [setClose])
 
   return (
