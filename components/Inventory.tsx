@@ -108,6 +108,7 @@ export function StructureInventory({
       </button>
       <Modal setOpen={setOpen} setClose={setClose}>
         <form
+          autoComplete="off"
           onSubmit={async (event) => {
             await trade(event, structure.inventoryId)
             mutate("/api/characters/" + character.id)
