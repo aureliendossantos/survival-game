@@ -21,7 +21,7 @@ function FullMap() {
   const heights = [...Array(height).keys()].map((h) => h + minHeight)
   return (
     <div
-      className="m-auto mb-[9px] grid w-fit gap-0 border-4 border-[#593233] bg-[#1c1817]"
+      className="bg-bg-950 m-auto mb-[9px] grid w-fit gap-0 border-4 border-bg-700"
       style={{
         gridTemplateColumns: `repeat(${width}, 50px)`,
         gridAutoRows: "50px",
@@ -59,7 +59,7 @@ export default function Map() {
   ]
   return (
     <div
-      className="m-auto mb-[9px] grid w-fit gap-0 border-4 border-[#593233] bg-[#1c1817]"
+      className="bg-bg-950 m-auto mb-[9px] grid w-fit gap-0 border-4 border-bg-700"
       style={{
         gridTemplateColumns: `repeat(5, 50px)`,
         gridAutoRows: "50px",

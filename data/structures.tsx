@@ -9,6 +9,7 @@ export const structures = Prisma.validator<
     description: "Un campement rudimentaire pour reprendre des forces.",
     minDurability: 30,
     maxDurability: 60,
+    inBooks: { connect: { id: "survivalManual" } },
     requiredMaterials: {
       create: [
         { materialId: "branch", quantity: 20 },

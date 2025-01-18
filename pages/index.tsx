@@ -25,7 +25,7 @@ export default function LoginPage() {
       </div>
       <h1 className="mb-4 mt-8 text-xl">Choisissez un compte</h1>
       <UserList />
-      <div className="mt-8 rounded bg-[#2b1f1c] p-4">
+      <div className="mt-8 rounded bg-bg-900 p-4">
         <h3 className="mb-4 mt-2 text-xl">Créer un compte</h3>
         <form
           className="flex flex-col gap-4"

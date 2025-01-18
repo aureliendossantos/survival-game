@@ -5,7 +5,7 @@
 @import "fonts.scss";
 
 body {
-  @apply bg-[#1c1817] text-white;
+  @apply bg-bg-950 text-white;
   .swagger-ui {
     @apply bg-white text-black;
   }
@@ -21,7 +21,7 @@ body {
   padding: 9px 14px;
   border-radius: 4px;
   width: 100%;
-  background-color: #2b1f1c;
+  @apply bg-bg-900;
   ul {
     display: contents;
     list-style-type: none;
@@ -37,7 +37,7 @@ body {
 .material {
   padding: 0.4em 0.6em;
   border-radius: 4px;
-  background-color: rgb(53, 42, 40);
+  @apply bg-bg-800;
   margin-right: 3px;
   margin-bottom: 3px;
   font-size: small;

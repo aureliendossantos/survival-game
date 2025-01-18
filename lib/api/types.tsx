@@ -22,6 +22,10 @@ export type ActionWithRequirements = Prisma.ActionGetPayload<
 export const inventoryWithAllInfo =
   Prisma.validator<Prisma.InventoryDefaultArgs>()({
     include: {
+      books: {
+        orderBy: { order: "asc" },
+        include: { actions: true, structures: true },
+      },
       food: {
         orderBy: [{ food: { order: "asc" } }, { durability: "desc" }],
         include: { food: true },
@@ -129,6 +133,12 @@ export type CellWithBuiltStructures = Prisma.CellGetPayload<
   typeof cellWithBuiltStructures
 >
 
+const bookWithAllInfo = Prisma.validator<Prisma.BookDefaultArgs>()({
+  include: { actions: true, structures: true },
+})
+
+export type BookWithAllInfo = Prisma.BookGetPayload<typeof bookWithAllInfo>
+
 const foodInstanceWithAllInfo =
   Prisma.validator<Prisma.FoodInstanceDefaultArgs>()({
     include: { food: true },
@@ -161,6 +171,8 @@ export const characterWithAllInfo =
         },
       },
       cell: cellWithAllInfo,
+      knownActions: actionWithRequirements,
+      knownStructures: true,
     },
   })
 

@@ -1,12 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider          = "postgresql"
   url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  directUrl         = env("DATABASE_URLFORMIGRATIONS")
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  // directUrl not required with Prisma ORM + Neon
+  // directUrl         = env("DATABASE_URLFORMIGRATIONS")
 }
 
 model User {
@@ -35,6 +37,18 @@ model Character {
   inventoryId     String           @unique
   inventory       Inventory        @relation(fields: [inventoryId], references: [id])
   builtStructures BuiltStructure[]
+  knownActions    Action[]
+  knownStructures Structure[]
+}
+
+model Book {
+  id          String      @id
+  order       Int
+  title       String
+  description String?
+  actions     Action[]
+  structures  Structure[]
+  inInventory Inventory[]
 }
 
 model Material {
@@ -101,6 +115,7 @@ model Inventory {
   materials      PosessedMaterial[]
   food           FoodInstance[]
   tools          ToolInstance[]
+  books          Book[]
   character      Character?
   builtStructure BuiltStructure?
 }
@@ -183,6 +198,8 @@ model Structure {
   upgradeOf         Structure?            @relation("StructureUpgrades", fields: [upgradeOfId], references: [id])
   availableUpgrades Structure[]           @relation("StructureUpgrades")
   builtStructures   BuiltStructure[]
+  inBooks           Book[]
+  knownBy           Character[]
 }
 
 model StructureCost {
@@ -221,6 +238,8 @@ model Action {
   terrains          Terrain[]
   structure         Structure?       @relation(fields: [structureId], references: [id])
   structureId       String?
+  inBooks           Book[]
+  knownBy           Character[]
 }
 
 model ActionCost {

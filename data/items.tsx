@@ -34,3 +34,8 @@ export const tools = Prisma.validator<Prisma.ToolCreateManyInput[]>()([
   { order: 3, id: "needle", title: "Aiguille", durability: 17 },
   { order: 4, id: "fishingNet", title: "Épuisette", durability: 14 },
 ])
+
+export const books = Prisma.validator<Prisma.BookCreateManyInput[]>()([
+  { order: 1, id: "survivalManual", title: "Manuel de survie" },
+  { order: 2, id: "fishingGuide", title: "Guide de pêche" },
+])

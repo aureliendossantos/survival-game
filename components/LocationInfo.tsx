@@ -1,3 +1,5 @@
+import { Tabs } from "@mui/base/Tabs"
+import { Tab, TabPanel, TabsList } from "./Windows/Tabs"
 import { BuiltStructureWithAllInfo } from "lib/api/types"
 import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import {
@@ -7,7 +9,7 @@ import {
   StructureActions,
 } from "./Actions"
 import Card from "./Card"
-import { Food, Materials, StructureInventory, Tools } from "./Inventory"
+import { StructureInventory } from "./Inventory"
 
 export function TerrainCard() {
   const { cell } = useCharacterAndCell()
@@ -43,11 +45,28 @@ export function StructureCard({ structure, builtStructures }: StructureProps) {
         authors={structure.contributors.map((character) => character.name)}
       >
         <StructureInventory structure={structure} />
-        <ul className="buttons-list">
-          <StructureActions builtStructure={structure} />
-          <BuildModules builtStructure={structure} />
-          <RepairButton structure={structure} />
-        </ul>
+        <Tabs defaultValue={1}>
+          <TabsList>
+            <Tab value={1} title="Utiliser" />
+            <Tab value={2} title="Améliorer" />
+            <Tab value={3} title="Renforcer" />
+          </TabsList>
+          <TabPanel value={1}>
+            <ul className="buttons-list">
+              <StructureActions builtStructure={structure} />
+            </ul>
+          </TabPanel>
+          <TabPanel value={2}>
+            <ul className="buttons-list">
+              <BuildModules builtStructure={structure} />
+            </ul>
+          </TabPanel>
+          <TabPanel value={3}>
+            <ul className="buttons-list">
+              <RepairButton structure={structure} />
+            </ul>
+          </TabPanel>
+        </Tabs>
         {structure.modules.map((structureModule) => (
           <StructureCard
             key={structureModule.id}

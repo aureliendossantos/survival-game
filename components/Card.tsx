@@ -31,10 +31,10 @@ export default function Card({
   return (
     <div
       className={`card relative box-border flex flex-col overflow-hidden rounded text-[1rem] ${
-        dottedBorder && "mt-[9px] border-2 border-[#b47141]"
+        dottedBorder && "mt-[9px] border-2 border-bg-500"
       }`}
     >
-      <div className="flex items-center bg-[#593233]">
+      <div className="flex items-center bg-bg-700">
         <div className="m-[9.5px]">
           <div
             className={`relative flex h-[48px] w-[48px] items-center justify-center overflow-hidden rounded-sm text-[x-large]`}
@@ -75,9 +75,9 @@ export default function Card({
           </>
         )}
       </div>
-      <div className="bg-[#2b1f1c] p-[9.5px] text-[smaller]">{children}</div>
+      <div className="bg-bg-900 p-[9.5px] text-[smaller]">{children}</div>
       {moreInfo && (
-        <div className="bg-[#794b2b] px-[0.6em] py-[0.3em] text-[smaller]">
+        <div className="bg-bg-600 px-[0.6em] py-[0.3em] text-[smaller]">
           <ul>
             {moreInfo.map((line, index) => (
               <li key={index}>{line}</li>

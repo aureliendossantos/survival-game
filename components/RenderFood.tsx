@@ -29,7 +29,7 @@ export default function RenderFoodInstance({ instance }: Props) {
     <>
       <button
         onClick={open}
-        className="rounded bg-[#1c1817] p-[0.6em] transition-colors hover:bg-[#4d423f]"
+        className="bg-bg-950 rounded p-[0.6em] transition-colors hover:bg-[#4d423f]"
       >
         <div className="relative -mb-[0.3em] -mt-[0.1em] inline-block h-[1.4em] w-[1.4em]">
           <div

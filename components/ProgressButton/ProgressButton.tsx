@@ -2,10 +2,11 @@ import { AwesomeButtonProgress } from "react-awesome-button"
 import AwesomeButtonStyles from "./awesomebutton.module.scss"
 import IconButtonStyles from "./iconbutton.module.scss"
 import { ReactNode } from "react"
+import Icon from "components/Windows/Icon"
 
 type ButtonProps = {
   label?: ReactNode
-  iconClass?: string
+  iconId?: string | number
   type?: "primary" | "secondary"
   stamina?: number
   task: Function
@@ -15,7 +16,7 @@ type ButtonProps = {
 
 export default function ProgressButton({
   label,
-  iconClass,
+  iconId,
   type,
   stamina,
   task,
@@ -28,13 +29,14 @@ export default function ProgressButton({
       style={{ marginRight: "2px", marginBottom: "3px" }}
       size={iconSize ? "icon" : "auto"}
       type={disabled ? "disabled" : type || "primary"}
-      cssModule={iconClass ? IconButtonStyles : AwesomeButtonStyles}
+      cssModule={iconId ? IconButtonStyles : AwesomeButtonStyles}
       loadingLabel=""
       resultLabel=""
       disabled={disabled}
       active={!disabled}
       onPress={async (event, release) => {
         await task()
+        console.log("Task done")
         release()
       }}
     >
@@ -49,15 +51,10 @@ export default function ProgressButton({
             )}
           </>
         )}
-        {iconClass && (
+        {iconId && (
           <div className="flex flex-col overflow-hidden rounded-sm">
-            <div className="relative mx-1 -mb-1 mt-1 h-[58px] w-[58px]">
-              <div
-                className={`spritesheet ${iconClass}`}
-                style={{
-                  filter: type != "secondary" ? "invert(100%)" : "contrast(.9)",
-                }}
-              />
+            <div className="mx-1 -mb-1 mt-1">
+              <Icon id={iconId} size="58px" type={type} />
             </div>
             <div className="mb-1 min-h-[16px] text-center text-[12px] text-white/50">
               {dot.repeat(Math.abs(stamina))}

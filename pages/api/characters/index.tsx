@@ -34,7 +34,14 @@ export default async function getCharacters(
             await getNeighbouringCells(mapId, startingCell.x, startingCell.y)
           ).map((cell) => ({ id: cell.id })),
         },
-        inventory: { create: {} },
+        // add the books by default
+        inventory: {
+          create: {
+            books: {
+              connect: [{ id: "survivalManual" }, { id: "fishingGuide" }],
+            },
+          },
+        },
       },
     })
     return res.json({

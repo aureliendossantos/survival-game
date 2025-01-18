@@ -99,7 +99,7 @@ function updateAttribute(
     if (max) newAttr = Math.min(max, newAttr)
     return { newAttr, now }
   }
-  console.log("No update needed for", attr)
+  // No update needed
   return { newAttr: undefined, now: undefined }
 }
 

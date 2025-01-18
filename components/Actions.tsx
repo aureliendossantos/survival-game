@@ -1,3 +1,5 @@
+import { Tabs } from "@mui/base/Tabs"
+import { Tab, TabPanel, TabsList } from "./Windows/Tabs"
 import { Action, BuiltStructure, Structure } from "@prisma/client"
 import query from "lib/query"
 import toast from "react-hot-toast"
@@ -5,18 +7,18 @@ import { useSWRConfig } from "swr"
 import {
   ActionWithRequirements,
   BuiltStructureWithAllInfo,
-  StructureWithAllInfo,
 } from "lib/api/types"
 import { MaterialRequirement } from "./RenderMaterial"
 import { RenderToolRequirement } from "./RenderTool"
 import { StructureCard } from "./LocationInfo"
 import ProgressButton from "./ProgressButton/ProgressButton"
-import useStructures from "lib/queries/useStructures"
 import useCharacterAndCell from "lib/queries/useCharacterAndCell"
 import useCharacterId from "lib/queries/useCharacterId"
 import useStructure from "lib/queries/useStructure"
 import ProgressBar from "@ramonak/react-progress-bar"
-import { ReactNode } from "react"
+import { MutableRefObject, ReactNode, useState } from "react"
+import { Portal } from "@mui/base"
+import Icon from "./Windows/Icon"
 
 async function doAction(characterId: string, actionId: number) {
   const body = {
@@ -70,23 +72,6 @@ export default function StructureCards() {
   )
 }
 
-export function BuildStarters() {
-  const { structures } = useStructures()
-  // TEMP: Might later be the list of structureIds the character
-  // learned about. It will allow us to remove useStructures(),
-  // which returns every structure in the game, which is not ideal.
-  if (!structures) return null
-  return (
-    <>
-      {structures
-        .filter((structure) => structure.moduleOfId == null)
-        .map((structure) => (
-          <BuildButton key={structure.id} structureId={structure.id} />
-        ))}
-    </>
-  )
-}
-
 type BuildModulesProps = {
   builtStructure: BuiltStructureWithAllInfo
 }
@@ -109,25 +94,12 @@ export function BuildModules({ builtStructure }: BuildModulesProps) {
   )
 }
 
-function getStructureIcon(structure: Structure) {
-  switch (structure.id) {
-    case "camp":
-      return "bg-[-600%_-300%]"
-    case "workbench":
-      return "bg-[-400%_-500%]"
-    case "chest":
-      return "bg-[-500%_-500%]"
-    default:
-      return "bg-[-0%_-0%]"
-  }
-}
-
 type BuildButtonProps = {
   structureId: string
   parent?: BuiltStructure
 }
 
-function BuildButton({ structureId, parent }: BuildButtonProps) {
+export function BuildButton({ structureId, parent }: BuildButtonProps) {
   const { mutate } = useSWRConfig()
   const characterId = useCharacterId()
   const { structure } = useStructure(structureId)
@@ -135,7 +107,7 @@ function BuildButton({ structureId, parent }: BuildButtonProps) {
   return (
     <ActionRow
       title={`Construire un ${structure.title}`}
-      iconClass={getStructureIcon(structure)}
+      iconId={structure.id}
       iconType="secondary"
       stamina={structure.requiredStamina}
       task={async () => {
@@ -176,28 +148,52 @@ export function CellActions() {
   )
 }
 
-export function InventoryActions() {
+export function CharacterActions({
+  container,
+}: {
+  container: MutableRefObject<any>
+}) {
+  const [selectionId, setSelectionId] = useState<number | null>(null)
   const { character } = useCharacterAndCell()
   if (!character) return null
+  const selectedAction =
+    selectionId && character.knownActions.find((a) => a.id == selectionId)
   return (
-    <>
-      <BuildStarters />
-      {character.inventory.materials.map((entry) =>
-        entry.material.inActionCost
-          .filter((entry) => entry.action.structureId == null)
-          .map((entry) => (
-            <ActionButton key={entry.action.id} action={entry.action} />
-          )),
+    <Tabs defaultValue={1} onChange={() => setSelectionId(null)}>
+      <div className="mb-3 mt-1 flex flex-col rounded bg-bg-900">
+        {character.knownActions.map((action) => (
+          <label
+            key={action.id}
+            className="cursor-pointer rounded p-3 transition hover:bg-bg-700 has-[:checked]:bg-bg-600"
+          >
+            <input
+              type="radio"
+              name="character-action"
+              value={action.id}
+              onChange={(e) => setSelectionId(Number(e.target.value))}
+              className="hidden"
+            />
+            <div className="flex">
+              <Icon id={action.id} size="1lh" />
+              {action.title}
+            </div>
+          </label>
+        ))}
+      </div>
+      {selectedAction && (
+        <Portal container={() => container.current}>
+          <ActionDetails action={selectedAction} />
+        </Portal>
       )}
-    </>
+    </Tabs>
   )
 }
 
-type StructureActionsProps = {
+export function StructureActions({
+  builtStructure,
+}: {
   builtStructure: BuiltStructureWithAllInfo
-}
-
-export function StructureActions({ builtStructure }: StructureActionsProps) {
+}) {
   if (builtStructure.durability == 0)
     return (
       <p>
@@ -214,36 +210,9 @@ export function StructureActions({ builtStructure }: StructureActionsProps) {
   )
 }
 
-function getActionIcon(action: Action) {
-  switch (action.id) {
-    case 1:
-      return "bg-[-200%_-400%]"
-    case 2:
-      return "bg-[-100%_-0%]"
-    case 4:
-      return "bg-[-200%_-0%]"
-    case 6:
-      return "bg-[-100%_-500%]"
-    case 7:
-      return "bg-[-200%_-500%]"
-    case 8:
-      return "bg-[-100%_-400%]"
-    case 9:
-      return "bg-[-0%_-400%]"
-    case 10:
-      return "bg-[-600%_-400%]"
-    case 11:
-      return "bg-[-600%_-500%]"
-    case 13:
-      return "bg-[-700%_-400%]"
-    default:
-      return "bg-[-0%_-0%]"
-  }
-}
-
 type ActionRowProps = {
   title: string
-  iconClass: string
+  iconId: string | number
   iconType?: "primary" | "secondary"
   stamina: number
   progress?: { title: string; value: number; max: number }
@@ -253,7 +222,7 @@ type ActionRowProps = {
 
 function ActionRow({
   title,
-  iconClass,
+  iconId,
   iconType,
   stamina,
   progress,
@@ -262,9 +231,9 @@ function ActionRow({
 }: ActionRowProps) {
   return (
     <li>
-      <div className="flex rounded bg-[#1c1817]">
+      <div className="flex rounded bg-bg-950">
         <ProgressButton
-          iconClass={iconClass}
+          iconId={iconId}
           type={iconType}
           stamina={stamina}
           task={task}
@@ -293,17 +262,67 @@ function ActionRow({
   )
 }
 
-type ActionButtonProps = {
-  action: ActionWithRequirements
+export function ActionDetails({ action }: { action: ActionWithRequirements }) {
+  const { mutate } = useSWRConfig()
+  const characterId = useCharacterId()
+  return (
+    <>
+      <h3>{action.title}</h3>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          {action.requiredTools.length > 0 && (
+            <div className="material">
+              {/**"Outil requis : "*/}
+              {action.requiredTools.map((tool) => (
+                <span key={tool.id}>
+                  <RenderToolRequirement tool={tool} />{" "}
+                </span>
+              ))}
+            </div>
+          )}
+          {action.probability < 100 && (
+            <div className="material">{action.probability}% réussite</div>
+          )}
+        </div>
+        <div>
+          {action.requiredMaterials.length > 0 && (
+            <div className="material">
+              {action.requiredMaterials.map((requirement) => (
+                <span key={requirement.materialId}>
+                  <MaterialRequirement
+                    material={requirement.material}
+                    quantity={requirement.quantity}
+                  />{" "}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <ProgressButton
+          label="Confectionner"
+          stamina={action.stamina}
+          task={async () => {
+            const response = await doAction(characterId, action.id)
+            response.success
+              ? toast.success(response.message)
+              : toast.error(response.message)
+            mutate("/api/characters/" + characterId)
+          }}
+        />
+      </div>
+    </>
+  )
 }
 
-export function ActionButton({ action }: ActionButtonProps) {
+export function ActionButton({ action }: { action: ActionWithRequirements }) {
   const { mutate } = useSWRConfig()
   const characterId = useCharacterId()
   return (
     <ActionRow
       title={action.title}
-      iconClass={getActionIcon(action)}
+      iconId={action.id}
       stamina={action.stamina}
       task={async () => {
         const response = await doAction(characterId, action.id)
@@ -342,11 +361,11 @@ export function ActionButton({ action }: ActionButtonProps) {
   )
 }
 
-type RepairButtonProps = {
+export function RepairButton({
+  structure,
+}: {
   structure: BuiltStructureWithAllInfo
-}
-
-export function RepairButton({ structure }: RepairButtonProps) {
+}) {
   const { mutate } = useSWRConfig()
   const characterId = useCharacterId()
   return (
@@ -356,7 +375,7 @@ export function RepairButton({ structure }: RepairButtonProps) {
           ? "Renforcer la structure"
           : "Réparer la structure"
       }
-      iconClass="bg-[-700%_-500%]"
+      iconId="repair"
       stamina={structure.structure.repairStamina}
       progress={{
         title: "Solidité",

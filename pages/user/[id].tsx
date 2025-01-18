@@ -28,7 +28,7 @@ export default function UserHome() {
       </div>
       <h1 className="mb-4 mt-8 text-xl">Personnages</h1>
       <CharacterList />
-      <div className="mt-8 rounded bg-[#2b1f1c] p-4">
+      <div className="mt-8 rounded bg-bg-900 p-4">
         <h3 className="mb-4 mt-2 text-xl">Créer un personnage</h3>
         <form
           className="flex flex-col gap-4"

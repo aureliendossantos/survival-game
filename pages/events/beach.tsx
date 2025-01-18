@@ -6,14 +6,14 @@ import beach from "public/events/beach.webp"
 export default function Event() {
   return (
     <Layout>
-      <div className="relative m-auto max-w-[480px] bg-[#794b2b]">
+      <div className="relative m-auto max-w-[480px] bg-bg-600">
         <div className="relative">
           <Image
             src={beach}
             alt={"Plage"}
             style={{ width: "100%", height: "auto" }}
           />
-          <div className="absolute bottom-0 h-[20%] w-[100%] bg-gradient-to-b from-transparent to-[#794b2b]"></div>
+          <div className="absolute bottom-0 h-[20%] w-[100%] bg-gradient-to-b from-transparent to-bg-600"></div>
         </div>
 
         <div className="p-[1em] pt-[1px]">

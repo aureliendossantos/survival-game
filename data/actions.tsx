@@ -101,6 +101,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     requiredMaterials: { create: { materialId: "shell", quantity: 1 } },
     requiredTools: { connect: { id: "hammer" } },
     tools: { create: { toolId: "needle" } },
+    inBooks: { connect: { id: "survivalManual" } },
   },
   {
     id: 9,
@@ -112,6 +113,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     requiredMaterials: { create: { materialId: "greenery", quantity: 1 } },
     requiredTools: { connect: { id: "needle" } },
     materials: { create: { materialId: "string" } },
+    inBooks: { connect: { id: "survivalManual" } },
   },
   {
     id: 10,
@@ -122,6 +124,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     requiredMaterials: { create: { materialId: "string", quantity: 16 } },
     requiredTools: { connect: { id: "needle" } },
     materials: { create: { materialId: "string" } },
+    inBooks: { connect: { id: "fishingGuide" } },
   },
   {
     id: 11,
@@ -134,6 +137,7 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     },
     requiredTools: { connect: { id: "needle" } },
     tools: { create: { toolId: "fishingNet" } },
+    inBooks: { connect: { id: "fishingGuide" } },
   },
   {
     id: 12,
@@ -159,5 +163,6 @@ export const actions = Prisma.validator<Prisma.ActionCreateInput[]>()([
     food: {
       create: { foodId: "fish", minQuantity: 1, maxQuantity: 4 },
     },
+    inBooks: { connect: { id: "fishingGuide" } },
   },
 ])

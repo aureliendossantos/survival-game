@@ -9,6 +9,7 @@ import Modal from "./Modal"
 import { useSWRConfig } from "swr"
 import query from "lib/query"
 import toast from "react-hot-toast"
+import RenderBook from "./RenderBook"
 
 export default function PlayerInventoryCard() {
   const { character } = useCharacterAndCell()
@@ -18,8 +19,10 @@ export default function PlayerInventoryCard() {
       {character.inventory.materials.length == 0 &&
         character.inventory.food.length == 0 &&
         character.inventory.tools.length == 0 &&
+        character.inventory.books.length == 0 &&
         "Vous ne portez rien dans votre sac."}
       <div className="flex flex-col gap-[3px] text-base">
+        <Books inventory={character.inventory} />
         <Food inventory={character.inventory} />
         <Tools inventory={character.inventory} />
         <Materials inventory={character.inventory} />
@@ -102,7 +105,7 @@ export function StructureInventory({
       <Materials inventory={inventory} />
       <button
         onClick={open}
-        className="rounded bg-[#1c1817] p-[0.6em] transition-colors hover:bg-[#4d423f]"
+        className="bg-bg-950 rounded p-[0.6em] transition-colors hover:bg-[#4d423f]"
       >
         Échanger
       </button>
@@ -122,7 +125,7 @@ export function StructureInventory({
           <TradeFieldset inventory={character.inventory} title="Sac à dos" />
           <button
             type="submit"
-            className="col-span-2 rounded bg-[#1c1817] p-[0.6em]"
+            className="bg-bg-950 col-span-2 rounded p-[0.6em]"
           >
             Échanger
           </button>
@@ -150,7 +153,7 @@ export function TradeFieldset({
               key={entry.material.id}
               className="flex justify-end gap-[3px]"
             >
-              <div className="rounded bg-[#1c1817] p-[0.6em]">
+              <div className="bg-bg-950 rounded p-[0.6em]">
                 <RenderMaterial
                   material={entry.material}
                   quantity={entry.quantity}
@@ -192,7 +195,7 @@ export function TradeNumberInput({ name, max }: { name: string; max: number }) {
       min="0"
       max={max}
       defaultValue="0"
-      className="min-w-[3.1em] rounded bg-[#1c1817] pl-[0.6em] leading-loose"
+      className="bg-bg-950 min-w-[3.1em] rounded pl-[0.6em] leading-loose"
       name={name}
     />
   )
@@ -205,16 +208,26 @@ export function Materials({ inventory }: { inventory: InventoryWithAllInfo }) {
       {inventory.materials
         .filter((entry) => entry.quantity > 0)
         .map((entry) => (
-          <li
-            key={entry.material.id}
-            className="rounded bg-[#1c1817] p-[0.6em]"
-          >
+          <li key={entry.material.id} className="bg-bg-950 rounded p-[0.6em]">
             <RenderMaterial
               material={entry.material}
               quantity={entry.quantity}
             />
           </li>
         ))}
+    </ul>
+  )
+}
+
+export function Books({ inventory }: { inventory: InventoryWithAllInfo }) {
+  if (inventory.books.length == 0) return null
+  return (
+    <ul className="flex flex-wrap gap-[3px]">
+      {inventory.books.map((entry) => (
+        <li key={entry.id}>
+          <RenderBook book={entry} />
+        </li>
+      ))}
     </ul>
   )
 }
@@ -237,7 +250,7 @@ export function Tools({ inventory }: { inventory: InventoryWithAllInfo }) {
   return (
     <ul className="flex flex-wrap gap-[3px]">
       {inventory.tools.map((entry) => (
-        <li key={entry.id} className="rounded bg-[#1c1817] p-[0.6em]">
+        <li key={entry.id} className="bg-bg-950 rounded p-[0.6em]">
           <RenderToolInstance tool={entry} />{" "}
         </li>
       ))}

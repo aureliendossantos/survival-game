@@ -39,16 +39,10 @@ export default async function handler(
   if (req.method == "OPTIONS") return res.status(200).json({ message: "ok" })
   if (req.method == "DELETE") {
     await deleteAllData()
-    res.json({
-      success: true,
-      message: "Tables vidées.",
-    })
+    res.json({ success: true, message: "Tables vidées." })
   } else if (req.method == "POST") {
     await createDefaultData()
-    res.json({
-      success: true,
-      message: "Tables remplies.",
-    })
+    res.json({ success: true, message: "Tables remplies." })
   } else {
     return res.status(405).json({ message: "Bad method" })
   }
