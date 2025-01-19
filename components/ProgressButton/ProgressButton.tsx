@@ -1,7 +1,5 @@
-import { AwesomeButtonProgress } from "react-awesome-button"
-import AwesomeButtonStyles from "./awesomebutton.module.scss"
-import IconButtonStyles from "./iconbutton.module.scss"
 import { ReactNode } from "react"
+import Color from "color"
 import Icon from "components/Windows/Icon"
 
 type ButtonProps = {
@@ -24,44 +22,46 @@ export default function ProgressButton({
   iconSize,
 }: ButtonProps) {
   const dot = stamina > 0 ? "◦" : "•"
+  const bg = Color(type == "secondary" ? "#908574" : "#747b90")
+  const shadow = bg.lighten(0.2).string()
+  const disabledBg = bg.lighten(0.4).string()
   return (
-    <AwesomeButtonProgress
-      style={{ marginRight: "2px", marginBottom: "3px" }}
-      size={iconSize ? "icon" : "auto"}
-      type={disabled ? "disabled" : type || "primary"}
-      cssModule={iconId ? IconButtonStyles : AwesomeButtonStyles}
-      loadingLabel=""
-      resultLabel=""
+    <button
+      className="shadow-4 hover:shadow-2 disabled:shadow-0 m-1 rounded-lg bg-[--bg] p-1 transition disabled:bg-[--disabled-bg]"
+      style={{
+        "--bg": bg.string(),
+        "--shadow": shadow,
+        "--disabled-bg": disabledBg,
+        marginRight: "2px",
+        marginBottom: "3px",
+        width: iconSize && "40px",
+        aspectRatio: iconSize && "1/1",
+      }}
       disabled={disabled}
-      active={!disabled}
-      onPress={async (event, release) => {
+      onClick={async (event) => {
+        const target = event.currentTarget
+        target.disabled = true
         await task()
-        console.log("Task done")
-        release()
+        if (target) target.disabled = false
       }}
     >
       <div className="relative h-full w-full">
         {label && (
-          <>
-            <div className="z-10">{label}</div>
-            {stamina != 0 && (
-              <div className="absolute left-0 top-[13px] h-full w-full text-center text-[12px] text-white/50">
-                {dot.repeat(Math.abs(stamina))}
-              </div>
-            )}
-          </>
+          <div className="flex h-full items-center justify-center px-2 text-sm font-medium leading-relaxed">
+            {label}
+          </div>
         )}
         {iconId && (
-          <div className="flex flex-col overflow-hidden rounded-sm">
-            <div className="mx-1 -mb-1 mt-1">
-              <Icon id={iconId} size="58px" type={type} />
-            </div>
-            <div className="mb-1 min-h-[16px] text-center text-[12px] text-white/50">
-              {dot.repeat(Math.abs(stamina))}
-            </div>
+          <div className="mx-[2px] mb-3">
+            <Icon id={iconId} size="58px" type={type} />
+          </div>
+        )}
+        {stamina != 0 && (
+          <div className="absolute -bottom-[2px] w-full text-center text-[12px] leading-none text-white/50">
+            {dot.repeat(Math.abs(stamina))}
           </div>
         )}
       </div>
-    </AwesomeButtonProgress>
+    </button>
   )
 }

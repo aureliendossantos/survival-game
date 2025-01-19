@@ -42,12 +42,17 @@ export function TabPanel({ value, children }) {
   )
 }
 
+/**
+ * Holds the UI corresponding to each tab (in children) and the bottom modal (in container).
+ */
 export function MainTabs({ children, container }) {
   return (
     <Tabs defaultValue={1} className="flex grow flex-col gap-[9px]">
       {children}
       <div className="grow" />
-      <div className="sticky bottom-0 z-10">
+      {/* Bottom margin behind the tabs */}
+      <div className="h-10" />
+      <div className="fixed bottom-0 z-10 w-full max-w-[480px]">
         <div className="bg-bg-700 px-3" ref={container} />
         <MainTabsList>
           <MainTab value={1}>

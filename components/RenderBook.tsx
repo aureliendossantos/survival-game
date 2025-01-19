@@ -28,13 +28,10 @@ export default function RenderBook({ book }: Props) {
     <>
       <button
         onClick={open}
-        className="rounded bg-bg-950 p-[0.6em] transition-colors hover:bg-[#4d423f]"
+        className="rounded bg-bg-950 p-[0.6em] ring-2 ring-amber-400/70 transition-colors hover:bg-[#4d423f]"
       >
         <div className="relative -mb-[0.3em] -mt-[0.1em] inline-block h-[1.4em] w-[1.4em]">
-          <div
-            className="spritesheet bg-[-0%_-500%]"
-            style={{ filter: "invert(100%)" }}
-          />
+          <div className="spritesheet bg-[-0%_-500%] invert" />
         </div>
         <span className="font-normal">{book.title}</span>
       </button>
